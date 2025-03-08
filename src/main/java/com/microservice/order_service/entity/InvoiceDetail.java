@@ -1,6 +1,5 @@
 package com.microservice.order_service.entity;
 
-import com.flexshoes.flexshoesbackend.entity.Invoice;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
