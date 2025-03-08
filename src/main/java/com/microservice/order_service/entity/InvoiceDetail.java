@@ -30,6 +30,6 @@ public class InvoiceDetail implements Serializable {
 
     @Column(name = "QUANTITY")
     private int quantity;
-
+//
 
 }
