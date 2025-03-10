@@ -44,23 +44,53 @@ public class InvoiceServiceImpl implements InvoiceService {
 		}
 	}
 
-	@Override
-	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
-		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-		Invoice savedInvoice = invoiceRepository.save(invoice);
+//	@Override
+//	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
+//		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+//		Invoice savedInvoice = invoiceRepository.save(invoice);
+//
+//		if (invoiceDto.getInvoiceDetails() != null) {
+//			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
+//				ProductDto product = getProductInfo(detailDto.getProductId());
+//				InvoiceDetail detail = new InvoiceDetail();
+//				detail.setProductId(product.getProductId());
+//				detail.setQuantity(detailDto.getQuantity());
+//				detail.setInvoice(savedInvoice);
+//				detailRepository.save(detail);
+//			}
+//		}
+//		return invoiceMapper.toDTO(savedInvoice);
+//	}
+@Override
+public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
+	Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+	invoice.setInvoiceId(null); // Đảm bảo tạo hóa đơn mới
 
-		if (invoiceDto.getInvoiceDetails() != null) {
-			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
-				ProductDto product = getProductInfo(detailDto.getProductId());
-				InvoiceDetail detail = new InvoiceDetail();
-				detail.setProductId(product.getProductId());
-				detail.setQuantity(detailDto.getQuantity());
-				detail.setInvoice(savedInvoice);
-				detailRepository.save(detail);
+	List<InvoiceDetail> details = new ArrayList<>();
+
+	if (invoiceDto.getInvoiceDetails() != null) {
+		for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
+			// Gọi ProductService để lấy thông tin sản phẩm
+			ProductDto product = getProductInfo(detailDto.getProductId());
+
+			if (product == null) {
+				throw new RuntimeException("Product ID " + detailDto.getProductId() + " không tồn tại!");
 			}
+
+			InvoiceDetail detail = new InvoiceDetail();
+			detail.setProductId(product.getProductId());
+			detail.setQuantity(detailDto.getQuantity());
+			detail.setInvoice(invoice); // Gán invoice vào detail trước khi lưu
+			details.add(detail);
 		}
-		return invoiceMapper.toDTO(savedInvoice);
 	}
+
+	invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
+	Invoice savedInvoice = invoiceRepository.save(invoice); // Lưu hóa đơn, Hibernate sẽ lưu luôn detail
+
+	return invoiceMapper.toDTO(savedInvoice);
+}
+
 
 	@Override
 	public List<InvoiceDto> getAllInvoice() {

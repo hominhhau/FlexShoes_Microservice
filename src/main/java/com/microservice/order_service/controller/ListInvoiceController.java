@@ -1,8 +1,8 @@
 package com.microservice.order_service.controller;
 
-
 import com.microservice.order_service.dto.ListInvoiceDto;
 import com.microservice.order_service.entity.Invoice;
+import com.microservice.order_service.mapper.ListInvoiceMapper;
 import com.microservice.order_service.service.ListInvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +16,15 @@ import java.util.Map;
 public class ListInvoiceController {
 
     private final ListInvoiceService listInvoiceService;
+    private final ListInvoiceMapper listInvoiceMapper;
 
     @Autowired
-    public ListInvoiceController(ListInvoiceService listInvoiceService) {
+    public ListInvoiceController(ListInvoiceService listInvoiceService, ListInvoiceMapper listInvoiceMapper) {
         this.listInvoiceService = listInvoiceService;
+        this.listInvoiceMapper = listInvoiceMapper;
     }
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/customer/{customerId}")
     public ResponseEntity<?> getInvoicesByCustomer(@PathVariable Integer customerId) {
         List<Invoice> invoices = listInvoiceService.getInvoicesByCustomerId(customerId);
 
@@ -33,8 +35,8 @@ public class ListInvoiceController {
             ));
         }
 
-        // Sử dụng ListInvoiceMapper để chuyển đổi Invoice thành ListInvoiceDto
-        List<ListInvoiceDto> invoiceDtos = ListInvoiceMapper.toListInvoiceDto(invoices);
+        // Chuyển đổi danh sách hóa đơn thành DTO
+        List<ListInvoiceDto> invoiceDtos = listInvoiceMapper.toListInvoiceDtos(invoices);
 
         return ResponseEntity.ok(invoiceDtos);
     }

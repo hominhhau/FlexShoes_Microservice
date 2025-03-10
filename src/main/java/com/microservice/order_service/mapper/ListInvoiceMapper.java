@@ -17,7 +17,7 @@ public interface ListInvoiceMapper {
     @Mapping(target = "quantity", source = "quantity")
     @Mapping(target = "orderStatus", source = "invoice.orderStatus")
     @Mapping(target = "total", source = "invoice.total")
-    @Mapping(target = "product", source = "productId", qualifiedByName = "mapProductIdToProduct") // ✅ Thêm ánh xạ cho ProductDto
+    @Mapping(target = "product", source = "productId", qualifiedByName = "mapProductIdToProduct")
     ListInvoiceDto toListInvoiceDto(InvoiceDetail invoiceDetail);
 
     default List<ListInvoiceDto> toListInvoiceDtos(List<Invoice> invoices) {
