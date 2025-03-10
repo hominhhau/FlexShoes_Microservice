@@ -11,6 +11,6 @@ public interface CustomerServiceClient {
     @GetMapping("/api/customers/{id}")
     CustomerDto getCustomerById(@PathVariable("id") Integer id);
 
-    @GetMapping("/api/customers/name/{name}")
-    CustomerDto getCustomerByName(@PathVariable("name") String name);
+//    @GetMapping("/api/customers/name/{name}")
+//    CustomerDto getCustomerByName(@PathVariable("name") String name);
 }
