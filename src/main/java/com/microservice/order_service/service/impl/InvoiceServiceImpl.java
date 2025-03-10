@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,54 +63,145 @@ public class InvoiceServiceImpl implements InvoiceService {
 	}
 
 	@Override
-	public List<InvoiceDto> getRecentInvoices() {
-		return List.of();
-	}
-
-	@Override
-	public long getTotalOrderCount() {
-		return 0;
-	}
-
-	@Override
-	public long getTotalShippingOrders() {
-		return 0;
-	}
-
-	@Override
-	public double getTotalAmount() {
-		return 0;
-	}
-
-	@Override
-	public InvoiceDto getInvoice(Integer id) {
-		return null;
-	}
-
-	@Override
-	public Boolean updateOrderStatus(Integer invoiceId, String newStatus) {
-		return null;
-	}
-
-	@Override
-	public boolean updateInvoice(InvoiceDto invoiceDto) {
-		return false;
-	}
-
-	@Override
-	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
-		return List.of();
-	}
-
-	@Override
-	public InvoiceDto createInvoiceFormOrder(InvoiceDto invoiceDto) {
-		return null;
-	}
-
-	@Override
 	public List<InvoiceDto> getAllInvoice() {
 		return invoiceRepository.findAll().stream()
 				.map(invoiceMapper::toDTO)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public InvoiceDto getInvoice(Integer id) {
+		Invoice invoice = invoiceRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Invoice với ID " + id + " không tồn tại"));
+		return invoiceMapper.toDTO(invoice);
+	}
+
+	@Override
+	public Boolean updateOrderStatus(Integer invoiceId, String newStatus) {
+		try {
+			Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
+			if (optionalInvoice.isPresent()) {
+				Invoice invoice = optionalInvoice.get();
+				invoice.setOrderStatus(newStatus);
+				invoiceRepository.save(invoice);
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public boolean updateInvoice(InvoiceDto invoiceDto) {
+		try {
+			Integer invoiceId = invoiceDto.getInvoiceId();
+			Invoice invoice = invoiceRepository.findById(invoiceId)
+					.orElseThrow(() -> new RuntimeException("Invoice không tồn tại"));
+
+			// Cập nhật thông tin hóa đơn từ DTO
+			invoice.setIssueDate(invoiceDto.getIssueDate());
+			invoice.setReceiverNumber(invoiceDto.getReceiverNumber());
+			invoice.setReceiverName(invoiceDto.getReceiverName());
+			invoice.setReceiverAddress(invoiceDto.getReceiverAddress());
+			invoice.setPaymentMethod(invoiceDto.getPaymentMethod());
+			invoice.setDeliveryMethod(invoiceDto.getDeliveryMethod());
+			invoice.setOrderStatus(invoiceDto.getOrderStatus());
+			invoice.setTotal(invoiceDto.getTotal());
+
+			// Cập nhật các InvoiceDetails
+			if (invoiceDto.getInvoiceDetails() != null) {
+				for (InvoiceDetailDto detailDTO : invoiceDto.getInvoiceDetails()) {
+					InvoiceDetail invoiceDetail = detailRepository.findById(detailDTO.getDetailId())
+							.orElseThrow(() -> new RuntimeException("InvoiceDetail không tồn tại"));
+
+					invoiceDetail.setQuantity(detailDTO.getQuantity());
+					invoiceDetail.setProductId(detailDTO.getProductId());
+					invoiceDetail.setInvoice(invoice);
+
+					detailRepository.save(invoiceDetail);
+				}
+			}
+			invoiceRepository.save(invoice);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public List<InvoiceDto> getRecentInvoices() {
+		return invoiceRepository.findAll(Sort.by(Sort.Direction.DESC, "issueDate"))
+				.stream()
+				.map(invoiceMapper::toDTO)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public long getTotalOrderCount() {
+		return invoiceRepository.count();
+	}
+
+	@Override
+	public long getTotalShippingOrders() {
+		return invoiceRepository.countByOrderStatus("Processing");
+	}
+
+	@Override
+	public double getTotalAmount() {
+		return invoiceRepository.sumTotalAmount();
+	}
+
+	// Danh sách khách hàng được cache trong OrderService
+	private static final List<CustomerDto> customers = new ArrayList<>();
+
+	// Hàm tìm customerId từ customerName trong danh sách cache
+	private Integer getCustomerIdByName(String customerName) {
+		for (CustomerDto customer : customers) {
+			if (customer.getCustomerName().equalsIgnoreCase(customerName)) {
+				return customer.getCustomerId();
+			}
+		}
+		return null; // Trả về null nếu không tìm thấy
+	}
+
+	@Override
+	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
+		Integer customerId = null;
+
+		// Nếu có tên khách hàng, tìm customerId trong danh sách cache
+		if (customerName != null && !customerName.trim().isEmpty()) {
+			customerId = getCustomerIdByName(customerName);
+			if (customerId == null) {
+				return List.of(); // Không tìm thấy khách hàng => Trả về danh sách rỗng
+			}
+		}
+
+		// Tìm hóa đơn theo customerId tìm được
+		return invoiceRepository.searchInvoices(id, customerId, orderStatus)
+				.stream()
+				.map(invoiceMapper::toDTO)
+				.toList();
+	}
+
+
+	@Override
+	public InvoiceDto createInvoiceFormOrder(InvoiceDto invoiceDto) {
+		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+		Invoice savedInvoice = invoiceRepository.save(invoice);
+
+		if (invoiceDto.getInvoiceDetails() != null) {
+			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
+				ProductDto product = getProductInfo(detailDto.getProductId());
+				InvoiceDetail detail = new InvoiceDetail();
+				detail.setProductId(product.getProductId());
+				detail.setQuantity(detailDto.getQuantity());
+				detail.setInvoice(savedInvoice);
+				detailRepository.save(detail);
+			}
+		}
+		return invoiceMapper.toDTO(savedInvoice);
 	}
 }

@@ -29,6 +29,6 @@ public interface InvoiceService {
     boolean updateInvoice(InvoiceDto invoiceDto);
 
     List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus);
-//    getProductInfo
+
     ProductDto getProductInfo(Integer productId);
 }

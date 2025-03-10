@@ -26,9 +26,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
             "WHERE " +
             "(:id IS NULL OR i.invoiceId = :id) AND " +
             "(:customerId IS NULL OR i.customerId = :customerId) AND " +
-            "(:orderStatus IS NULL OR LOWER(i.orderStatus) LIKE LOWER(CONCAT('%', :orderStatus, '%')))")
+            "(:orderStatus IS NULL OR LOWER(i.orderStatus) LIKE LOWER(CONCAT('%', :orderStatus, '%'))) ")
     List<Invoice> searchInvoices(
             @Param("id") Integer id,
             @Param("customerId") Integer customerId,
             @Param("orderStatus") String orderStatus);
+
 }
