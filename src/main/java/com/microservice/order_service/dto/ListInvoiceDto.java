@@ -1,21 +1,22 @@
 package com.microservice.order_service.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ListInvoiceDto {
-    private int invoiceId;
-    private LocalDate issueDate;
-    private Integer productId; // Thêm productId
-    private String productName;
-    private String image;
-    private int quantity;
-    private double total;
-    private String orderStatus;
+    Integer invoiceId;
+    LocalDate issueDate;
+    int quantity;
+    String orderStatus;
+    double total;
+
+    Integer productId; // Giữ lại productId nếu cần
+    ProductDto product; // ✅ Thêm thông tin sản phẩm đầy đủ
 }

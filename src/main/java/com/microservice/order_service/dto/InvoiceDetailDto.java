@@ -14,8 +14,5 @@ public class InvoiceDetailDto {
 	Integer productId;
 	int quantity;
 
-	// Thông tin sản phẩm (không lưu trong Entity)
-	String productName;
-	double originalPrice;
-	double salePrice;
+	ProductDto product; // ✅ Thêm đối tượng ProductDto vào đây
 }
