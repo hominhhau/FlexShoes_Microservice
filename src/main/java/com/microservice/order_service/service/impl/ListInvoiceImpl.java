@@ -1,6 +1,5 @@
 package com.microservice.order_service.service.impl;
 
-
 import com.microservice.order_service.entity.Invoice;
 import com.microservice.order_service.repository.ListInvoiceRepository;
 import com.microservice.order_service.service.ListInvoiceService;
@@ -22,16 +21,18 @@ public class ListInvoiceImpl implements ListInvoiceService {
 
     @Override
     public List<Invoice> getInvoicesByCustomerId(Integer customerId) {
-        return List.of();
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID không được để trống!");
+        }
+
+        List<Invoice> invoices = listInvoiceRepository.findByCustomerId(customerId);
+
+        if (invoices == null || invoices.isEmpty()) {
+            System.out.println("Không tìm thấy hóa đơn nào cho khách hàng có ID: " + customerId);
+            return Collections.emptyList();
+        }
+
+        System.out.println("Tìm thấy " + invoices.size() + " hóa đơn cho khách hàng ID: " + customerId);
+        return invoices;
     }
-//
-//    @Override
-//    public List<Invoice> getInvoicesByCustomerId(Integer customerId) {
-//        if (customerId == null) {
-//            throw new IllegalArgumentException("Customer ID cannot be null");
-//        }
-//
-//        List<Invoice> invoices = listInvoiceRepository.findByCustomerCustomerId(customerId);
-//        return invoices != null ? invoices : Collections.emptyList();
-//    }
 }

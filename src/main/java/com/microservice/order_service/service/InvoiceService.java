@@ -2,6 +2,7 @@ package com.microservice.order_service.service;
 
 
 
+import com.microservice.order_service.dto.CustomerDto;
 import com.microservice.order_service.dto.InvoiceDto;
 import com.microservice.order_service.dto.ProductDto;
 
@@ -31,4 +32,5 @@ public interface InvoiceService {
     List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus);
 
     ProductDto getProductInfo(Integer productId);
+    CustomerDto getCustomerInfo(Integer customerId);
 }
