@@ -22,7 +22,7 @@ const ProductSchema = new mongoose.Schema({
     },
     totalQuantity:{
         type: Number,
-        required: true
+        default: 0
     },
     gender:{
         type: Boolean,
@@ -52,7 +52,7 @@ const ProductSchema = new mongoose.Schema({
     inventory:[
         {
             quantity:{
-              type: mongoose.Schema.Types.ObjectId, ref: 'NumberOfProducts'
+              type: Number, ref: 'NumberOfProducts'
             },
             // numberOfProduct:{
             //     type: mongoose.Schema.Types.ObjectId, ref: 'NumberOfProducts'   
@@ -77,6 +77,10 @@ const ProductSchema = new mongoose.Schema({
         }
     ]
 
+});
+ProductSchema.pre('save', function (next) {
+    this.totalQuantity = this.inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    next();
 });
 
 module.exports = mongoose.model("Product", ProductSchema);

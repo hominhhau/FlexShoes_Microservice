@@ -128,7 +128,7 @@ const seedData = async () => {
     const image = await Image.create({imageName: "Nike Air Max", URL: "https://picsum.photos/200"});
 
     const inventoryItem = await NumberOfProducts.create({
-      quantity: 40,
+      quantity: 100,
       size: {
         _id: size._id,
         sizeName: size.nameSize
@@ -145,19 +145,26 @@ const seedData = async () => {
       description: "Comfortable sports shoes from Nike",
       status: true,
       discount: 10,
-      totalQuantity: 50,
       gender: true, // true = Nam, false = Nữ
       tax: 5,
       sellingPrice: 1100000,
       proType: proType._id,
       braType: braType._id,
       image: [{ _id: image._id }], // Chỉ lưu ObjectId của hình ảnh
-      inventory: [{
+      inventory: [
+        {
           // quantity: inventoryItem._id,
-          quantity: inventoryItem._id,
+          quantity: inventoryItem.quantity,
           size: inventoryItem.size,
           color: inventoryItem.color
-      }]
+        },
+        {
+          // quantity: inventoryItem._id,
+          quantity: inventoryItem.quantity,
+          size: inventoryItem.size,
+          color: inventoryItem.color
+        }
+  ]
   };
 
     await Product.create(productData);
