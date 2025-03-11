@@ -3,6 +3,7 @@ package com.microservice.payment_service.controller;
 
 import com.microservice.payment_service.config.VNPayConfig;
 import com.microservice.payment_service.dto.PaymentDto;
+import com.microservice.payment_service.dto.PaymentVNPayDetailDto;
 import com.microservice.payment_service.dto.request.InvoiceDto;
 import com.microservice.payment_service.service.impl.PaymentServiceImpl;
 import com.microservice.payment_service.service.impl.PaymentVNPayDetailServiceImpl;
@@ -14,6 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -39,7 +42,7 @@ public class PaymentController {
                 // thong báo lôi
                 ResponseEntity.badRequest().body(invoiceDto);
             } else {
-
+                paymentService.createPayment(paymentDto);
                 return createVNPayPayment(invoiceDto, request);
             }
         }
@@ -70,7 +73,7 @@ public class PaymentController {
         vnp_Params.put("vnp_CurrCode", "VND");
 
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang " + invoiceDto.getInvoiceId());
+        vnp_Params.put("vnp_OrderInfo", String.valueOf(invoiceDto.getInvoiceId()));
         vnp_Params.put("vnp_OrderType", orderType);
 
         String locate = "vn";
@@ -134,23 +137,59 @@ public class PaymentController {
                 "data", vnp_OrderInfo
         ));
     }
-    //http://localhost:3000/payment-return?vnp_Amount=161000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14833336&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+5&vnp_PayDate=20250306155919&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14833336&vnp_TransactionStatus=00&vnp_TxnRef=5&vnp_SecureHash=33b0cd86f56cb2bbf48e2c55afeee6c6de54290fca94880af1561ae666cd79f0b67a3f2d45a625e767f2824584616ed8d6e0cc4dcc96296a25cabfa20193b25d
-    // VIẾT LÀM  NẾU TRẢ VỀ 00 THÌ UPDATE PAYMENT TO SUCCESS
-//    @GetMapping("/payment-return")
-//    public ResponseEntity<?> handlePaymentReturn(
-//            @RequestParam String vnp_Amount,
-//            @RequestParam String vnp_BankCode,
-//            @RequestParam String vnp_TxnRef,
-//            @RequestParam String vnp_OrderInfo,
-//            @RequestParam String vnp_ResponseCode,
-//            @RequestParam String vnp_SecureHash) {
-//
-//        // createPaymentVNPayDetail
-//
-//
-//    }
-//
-//    }
+//http://localhost:8081/api/payment/payment-return?vnp_Amount=80500000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14840014&vnp_CardType=ATM&vnp_OrderInfo=11&vnp_PayDate=20250311124610&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14840014&vnp_TransactionStatus=00&vnp_TxnRef=11&vnp_SecureHash=599e78908b1f1ba80b46436394a398ee51a1b8ac5a3ba0bc5aca12a090c4f2b91eba2241fee8bf3f0a8fdead3789950bee2d52f6e21699502b634b576190f165
+    @GetMapping("/payment-return")
+    public ResponseEntity<?> handlePaymentReturn(
+            @RequestParam String vnp_Amount,
+            @RequestParam String vnp_BankCode,
+            @RequestParam String vnp_TxnRef,
+            @RequestParam String vnp_OrderInfo,
+            @RequestParam String vnp_ResponseCode,
+            @RequestParam String vnp_TransactionNo,
+            @RequestParam String vnp_PayDate,
+            @RequestParam String vnp_SecureHash) {
 
+        // sử lý vnp_oderInfo lấy ra id
+        System.out.println("vnp_OrderInfo: " + vnp_OrderInfo);
+
+        PaymentDto p =  paymentService.getPaymentByOrderId(Integer.parseInt(vnp_OrderInfo));
+
+
+        if (vnp_ResponseCode.equals("00")) {
+            PaymentVNPayDetailDto dto = new PaymentVNPayDetailDto();
+            dto.setPaymentId(p.getPaymentId());
+            dto.setTransactionId(vnp_TransactionNo);
+            dto.setBankCode(vnp_BankCode);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            LocalDateTime paymentTime = LocalDateTime.parse(vnp_PayDate, formatter);
+            dto.setPaymentTime(paymentTime);
+            dto.setVnPayResponse(vnp_ResponseCode);
+            System.out.println(dto);
+
+          paymentVNPayDetailService.createPaymentVNPayDetail(dto);
+
+
+
+            //UPDATE PAYMENT
+            p.setStatus("SUCCESS");
+            paymentService.updatePayment(p);
+            return ResponseEntity.ok(Map.of(
+                    "status", "ok",
+                    "message", "Payment Successful",
+                    "invoiceId", vnp_TxnRef,
+                    "data", vnp_OrderInfo
+            ));
+        } else {
+            return ResponseEntity.ok(Map.of(
+                    "status", "fail",
+                    "message", "Payment Failed",
+                    "invoiceId", vnp_TxnRef,
+                    "data", vnp_OrderInfo
+            ));
+
+        }
+
+
+    }
 
 }

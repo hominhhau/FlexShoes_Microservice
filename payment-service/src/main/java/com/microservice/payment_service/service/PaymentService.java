@@ -7,7 +7,9 @@ import com.microservice.payment_service.entity.Payment;
 public interface PaymentService {
     public boolean createPayment(PaymentDto paymentDto);
     public boolean deletePayment(int paymentId);
-    public boolean updatePayment(PaymentDto paymentDto);
+    public boolean updateStatusByPaymentId(int paymentId,String status);
+    public Boolean updatePayment(PaymentDto paymentDto);
     // get order by  order-service
     public InvoiceDto getInfoOrder(int orderId);
+    public PaymentDto getPaymentByOrderId(int orderId);
 }

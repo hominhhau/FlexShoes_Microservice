@@ -46,11 +46,29 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public boolean updatePayment(PaymentDto paymentDto) {
+    public boolean updateStatusByPaymentId(int paymentId, String status) {
+        return false;
+    }
+
+    @Override
+    public Boolean updatePayment(PaymentDto paymentDto) {
         Payment payment = paymentMapper.paymentDtoToPayment(paymentDto);
         paymentRepository.save(payment);
         return true;
     }
+
+//    @Override
+//    public boolean updateStatusByPaymentId(int paymentId, int status) {
+//
+//        if(!paymentRepository.existsById(paymentId)) {
+//            return false;
+//        }else{
+//            paymentRepository.updateStatusByPaymentId(paymentId, status);
+//        }
+//
+//    }
+
+
 
     @Override
     public InvoiceDto getInfoOrder(int orderId) {
@@ -75,7 +93,10 @@ public class PaymentServiceImpl implements PaymentService {
         return invoiceDto;
     }
 
-
+    @Override
+    public PaymentDto getPaymentByOrderId(int orderId) {
+      return paymentMapper.paymentToPaymentDto(paymentRepository.findByOrderId(orderId));
+    }
 
 
 }
