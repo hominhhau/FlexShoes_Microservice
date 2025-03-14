@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.List;
 
@@ -20,8 +21,6 @@ import java.util.List;
 public class EmailService {
 
     EmailClient emailClient;
-
-    String apiKey = "your-brevo-apikey";
 
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()
@@ -34,6 +33,8 @@ public class EmailService {
                 .htmlContent(request.getHtmlContent())
                 .build();
         try {
+            Dotenv dotenv = Dotenv.load();
+            String apiKey = dotenv.get("SENDINBLUE_API_KEY");
             return emailClient.sendEmail(apiKey, emailRequest);
         } catch (FeignException e){
             throw new ApplicationContextException("Failed to send email", e);
