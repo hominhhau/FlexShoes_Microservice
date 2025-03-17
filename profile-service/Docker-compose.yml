@@ -1,0 +1,34 @@
+version: '1.0'
+services:
+  customer-profile-db:
+    image: mariadb:10.6
+    container_name: customer-profile-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: customer_profile
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    networks:
+      - tiennguyendev
+
+  customer-profile-service:
+    build: .
+    container_name: springboot-app2
+    restart: always
+    depends_on:
+      - customer-profile-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://customer-profile-db:3306/customer_profile
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    ports:
+      - "8081:8081"
+    networks:
+      - tiennguyendev
+
+networks:
+  tiennguyendev:
+    driver: bridge
