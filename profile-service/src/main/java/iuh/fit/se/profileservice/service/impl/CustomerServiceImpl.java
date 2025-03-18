@@ -41,4 +41,8 @@ public class CustomerServiceImpl implements CustomerService {
         // TODO Auto-generated method stub
         return customerMapper.mapToCustomerDTO(customerRepository.findById(id).get());
     }
+    @Override
+    public CustomerDTO updateByID(Integer id, CustomerDTO customerDTO) {
+        return customerMapper.mapToCustomerDTO(customerRepository.save(customerMapper.mapToCustomerProfile(customerDTO)));
+    }
 }

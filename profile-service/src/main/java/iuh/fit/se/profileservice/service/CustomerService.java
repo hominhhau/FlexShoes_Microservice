@@ -9,5 +9,5 @@ public interface CustomerService {
         List<CustomerDTO> getAllCustomer();
         CustomerDTO save(CustomerDTO customersDTO);
         CustomerDTO findByID(Integer id);
-
+        CustomerDTO updateByID(Integer id, CustomerDTO customerDTO);
     }

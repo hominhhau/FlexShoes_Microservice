@@ -39,4 +39,10 @@ public class CustomerProfileController {
         List<CustomerDTO> customers = customerService.getAllCustomer();
         return new ResponseEntity<>(customers, HttpStatus.OK).getBody();
     }
+    @PostMapping("/update/{id}")
+    public ApiResponse<CustomerDTO> update(@PathVariable Integer id, @RequestBody @Valid CustomerDTO customerDTO) {
+        ApiResponse<CustomerDTO> result = new ApiResponse<CustomerDTO>();
+        result.setResponse(customerService.updateByID(id, customerDTO));
+        return result;
+    }
 }
