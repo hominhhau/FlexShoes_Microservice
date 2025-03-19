@@ -1,14 +1,15 @@
 package com.microservice.order_service.mapper;
 
-import com.microservice.order_service.dto.CustomerDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
-public interface CustomerMapper {
-    CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
-//
-//    CustomerDto mapToCustomerDTO(Customer customer);
-//
-//    Customer mapToCustomer(CustomerDTO customerDTO);
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CustomerMapper {
+    private final ModelMapper modelMapper;
+
+    public CustomerMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
+
 }

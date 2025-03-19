@@ -35,7 +35,8 @@ import java.util.List;
 		// Lấy hóa đơn theo ID
 		@GetMapping("/findById/{id}")
 		public MyAPIResponse<InvoiceDto> findByID(@PathVariable Integer id) {
-			return MyAPIResponse.<InvoiceDto>builder().result(invoiceService.getInvoice(id)).build();
+			return MyAPIResponse
+					.<InvoiceDto>builder().result(invoiceService.getInvoice(id)).build();
 		}
 
 		// Cập nhật hóa đơn

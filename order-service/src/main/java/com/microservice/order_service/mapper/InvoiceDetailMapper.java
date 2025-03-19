@@ -3,16 +3,31 @@ package com.microservice.order_service.mapper;
 import com.microservice.order_service.dto.InvoiceDetailDto;
 import com.microservice.order_service.dto.ProductDto;
 import com.microservice.order_service.entity.InvoiceDetail;
-import org.mapstruct.*;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface InvoiceDetailMapper {
+@Component
+public class InvoiceDetailMapper {
+	private final ModelMapper modelMapper;
 
-	@Mapping(target = "product", expression = "java(mapProduct(invoiceDetail.getProductId()))") // ✅ Ánh xạ toàn bộ ProductDto
-	InvoiceDetailDto toInvoiceDetailDto(InvoiceDetail invoiceDetail);
+	public InvoiceDetailMapper(ModelMapper modelMapper) {
+		this.modelMapper = modelMapper;
+		configureMapping();
+	}
 
-	// Giả lập ánh xạ từ productId sang ProductDto
-	default ProductDto mapProduct(Integer productId) {
+	private void configureMapping() {
+		modelMapper.typeMap(InvoiceDetail.class, InvoiceDetailDto.class).addMappings(mapper -> {
+			mapper.map(src -> src.getInvoice().getInvoiceId(), InvoiceDetailDto::setInvoiceId);
+		});
+	}
+
+	public InvoiceDetailDto toInvoiceDetailDto(InvoiceDetail invoiceDetail) {
+		InvoiceDetailDto dto = modelMapper.map(invoiceDetail, InvoiceDetailDto.class);
+		dto.setProduct(mapProduct(invoiceDetail.getProductId())); // Ánh xạ ProductDto từ productId
+		return dto;
+	}
+
+	private ProductDto mapProduct(Integer productId) {
 		return ProductDto.builder()
 				.productId(productId)
 				.productName("Tên sản phẩm " + productId) // Giả lập tên sản phẩm
