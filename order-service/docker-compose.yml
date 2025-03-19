@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Service MSSQL
+  mssql:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: mssql_container
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=031103
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '031103' -Q 'SELECT 1' || exit 1"
+      ]
+      interval: 10s      # Kiểm tra sau mỗi 10 giây
+      timeout: 3s        # Timeout nếu quá 3 giây không có phản hồi
+      retries: 3         # Thử lại tối đa 3 lần trước khi đánh dấu container là unhealthy
+      start_period: 30s  # Đợi 30 giây trước khi bắt đầu kiểm tra
+
+  # Service Spring Boot (user-service)
+  order-service:
+    build: .
+    container_name: order_service
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=OrderService
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: 031103
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    command: /bin/bash -c "sleep 10; /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '031103' -Q 'CREATE DATABASE OrderService;'"
+
+networks:
+  app-network:
+    driver: bridge
