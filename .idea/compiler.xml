@@ -9,9 +9,12 @@
         <module name="api-gateway" />
       </profile>
       <profile name="Annotation profile for notification-service" enabled="true">
+      <profile name="Annotation profile for payment-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <processorPath>
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         <option name="mapstruct.defaultComponentModel" value="spring" />
         <option name="mapstruct.verbose" value="true" />
         <processorPath useClasspath="false">
