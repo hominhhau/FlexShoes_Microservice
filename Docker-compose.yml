@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: main_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    networks:
+      - my_network
+
+  user-service:
+    build:
+      context: ./user-service  # Chỉ định thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    container_name: user_service
+    depends_on:
+      - mariadb
+    environment:
+      DATABASE_HOST: mariadb
+      DATABASE_USER: user
+      DATABASE_PASSWORD: userpassword
+      DATABASE_NAME: main_db
+    networks:
+      - my_network
+
+  profile-service:
+    build:
+      context: ./profile-service  # Chỉ định thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    container_name: profile_service
+    depends_on:
+      - mariadb
+    environment:
+      DATABASE_HOST: mariadb
+      DATABASE_USER: user
+      DATABASE_PASSWORD: userpassword
+      DATABASE_NAME: main_db
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
