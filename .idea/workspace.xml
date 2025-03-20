@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/payment-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-service/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/mapper/PaymentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/mapper/PaymentMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/mapper/PaymentVNPayDetailMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/mapper/PaymentVNPayDetailMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,7 +149,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1742453851167</updated>
-      <workItem from="1742453852366" duration="5214000" />
+      <workItem from="1742453852366" duration="6209000" />
     </task>
     <servers />
   </component>
