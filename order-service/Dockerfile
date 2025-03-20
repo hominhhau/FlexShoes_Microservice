@@ -28,6 +28,3 @@ EXPOSE 8080
 
 # Chạy ứng dụng Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
-///http
