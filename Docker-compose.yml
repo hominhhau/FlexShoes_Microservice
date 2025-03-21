@@ -2,18 +2,22 @@ version: '3.8'
 
 services:
   mariadb:
-    image: mariadb:latest
+    image: mariadb:10.6
     container_name: mariadb_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: main_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
+
     ports:
       - "3306:3306"
     networks:
-      - my_network
+      - tienguyendev
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
 
   user-service:
     build:
@@ -21,14 +25,18 @@ services:
       dockerfile: Dockerfile
     container_name: user_service
     depends_on:
-      - mariadb
+      mariadb :
+        condition: service_healthy
+
+
     environment:
-      DATABASE_HOST: mariadb
-      DATABASE_USER: user
-      DATABASE_PASSWORD: userpassword
-      DATABASE_NAME: main_db
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/main_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    ports:
+      - "8080:8080"
     networks:
-      - my_network
+      - tienguyendev
 
   profile-service:
     build:
@@ -36,15 +44,18 @@ services:
       dockerfile: Dockerfile
     container_name: profile_service
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+
     environment:
-      DATABASE_HOST: mariadb
-      DATABASE_USER: user
-      DATABASE_PASSWORD: userpassword
-      DATABASE_NAME: main_db
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/main_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    ports:
+      - "8081:8081"
     networks:
-      - my_network
+      - tienguyendev
 
 networks:
-  my_network:
+  tienguyendev:
     driver: bridge
