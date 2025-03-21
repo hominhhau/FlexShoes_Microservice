@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgresDB:
+    image: postgres:15
+    restart: always
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: ChatDB
+    ports:
+      - "5432:5432"
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
+
+  chat-service:
+    build: .
+    container_name: my_node_app
+    restart: always
+    depends_on:
+      - postgresDB
+    environment:
+      # - DB_PORT=5432
+      # - DB_HOST=postgresDB
+      - DB_HOST=host.docker.internal
+    ports:
+      - "8080:8080"
+    # volumes:
+    #   - .:/app
+    # command: ["node", "server.js"]
+
+# volumes:
+#   postgres_data:
+
+#  docker compose -p chat-service up -d
