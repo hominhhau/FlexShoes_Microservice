@@ -11,5 +11,9 @@ app.use(express.json());
 app.use('/products', productRoutes);
 connectDB();
 
+app.get("/", (req, res) => {
+    res.send("Inventory Service is running !");
+  });
+
 
 module.exports = app;
