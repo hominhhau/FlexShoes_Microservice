@@ -28,4 +28,5 @@ public class Token extends BaseEntity {
     @Column(nullable = false)
     private Instant expiryDate;
     public boolean revoked;
+    private boolean isRefreshToken = false;
 }

@@ -99,7 +99,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(2)
+    @Order(3)
     @Bean
     public SecurityFilterChain signInSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -116,8 +116,25 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+    @Order(2)
+    @Bean
+    public SecurityFilterChain refreshSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .securityMatcher((new AntPathRequestMatcher("/refresh-token")))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .userDetailsService(userDetailsService)
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()));
+                })
+                .httpBasic(Customizer.withDefaults());
 
-    @Order(3)
+        return httpSecurity.build();
+    }
+
+    @Order(4)
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher((new AntPathRequestMatcher("/api/**")))
@@ -142,7 +159,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(4)
+    @Order(5)
     @Bean
     SecurityFilterChain logoutFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher((new AntPathRequestMatcher("/logout")))
@@ -165,4 +182,5 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
 }
