@@ -5,13 +5,11 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.List;
 
 @Data
 @Builder
-public class SignInResponse {
-    private String token;
-    private String refreshToken;
+public class RefreshTokenResponse {
+    private String newAccessToken;
     private String type = "Bearer";
     private Long id;
     private String username;
