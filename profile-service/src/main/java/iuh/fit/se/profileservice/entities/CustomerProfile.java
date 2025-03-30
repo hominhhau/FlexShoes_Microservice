@@ -17,18 +17,23 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@EqualsAndHashCode( of = "customerId")
 public class CustomerProfile  extends  BaseEntity implements Serializable {
-    Long userID; //userID : la id cua account da tao ra ben user service khi sign up
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CUSTOMER_ID", columnDefinition = "int", updatable = false, insertable = false)
-    Integer customerId;
+    @Column(name = "PROFILE_KEY", updatable = false, insertable = false)
+    Long profileKey;
 
-    @Column(name = "CUSTOMER_NAME", columnDefinition = "nvarchar(105)")
-     String customerName;
+    @Column(name = "USER_ID", columnDefinition = "bigint", unique = true, nullable = false)
+    Long userID; //userID : la id cua account da tao ra ben user service khi sign up
 
-    @Column(name = "PHONE_NUMBER", columnDefinition = "nvarchar(12)")
+    @Column(name = "FIRST_NAME", columnDefinition = "nvarchar(50)")
+     String firstName;
+
+    @Column(name = "LAST_NAME", columnDefinition = "nvarchar(50)")
+    String lastName;
+
+    @Column(name = "PHONE_NUMBER", columnDefinition = "nvarchar(12)", unique = true)
      String phoneNumber;
 
     @Column(name = "GENDER")

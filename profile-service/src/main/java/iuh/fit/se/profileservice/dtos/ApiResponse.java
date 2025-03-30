@@ -12,27 +12,4 @@ public class ApiResponse<T> {
     private String message;
     private T response;
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setResponse(T response) {
-        this.response = response;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public T getResponse() {
-        return response;
-    }
 }

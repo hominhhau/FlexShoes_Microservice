@@ -7,18 +7,18 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException exception) {
 
-        List<String> errorMessage = new ArrayList<>();
+        Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult().getFieldErrors().forEach(error -> {
-            errorMessage.add(error.getDefaultMessage());
+            errors.put(error.getField(), error.getDefaultMessage());
         });
         return ResponseEntity
                 .badRequest()
@@ -26,15 +26,26 @@ public class GlobalExceptionHandler {
                         ApiResponse.builder()
                                 .status("FAILED")
                                 .message("Registration Failed: Please provide valid data.")
-                                .response(errorMessage)
+                                .response(errors)
                                 .build()
                 );
     }
 
-    @ExceptionHandler(value = UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<?>> userAlreadyExistsExceptionHandler(UserAlreadyExistsException exception) {
+    @ExceptionHandler(value = ProfileAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<?>> userAlreadyExistsExceptionHandler(ProfileAlreadyExistsException exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(
+                        ApiResponse.builder()
+                                .status("FAILED")
+                                .message(exception.getLocalizedMessage())
+                                .build()
+                );
+    }
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<ApiResponse<?>> userFailtoCreateExceptionHandler(RuntimeException exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_ACCEPTABLE)
                 .body(
                         ApiResponse.builder()
                                 .status("FAILED")
@@ -42,4 +53,16 @@ public class GlobalExceptionHandler {
                                 .build()
                 );
     }
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponse<?>> globalExceptionHandler(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        ApiResponse.builder()
+                                .status("FAILED")
+                                .message(exception.getMessage())
+                                .build()
+                );
+    }
+
 }
