@@ -43,4 +43,9 @@ public class AuthController {
         return authService.refreshToken(tokenRequest);
     }
 
+    @PostMapping("/introspect")
+    public ResponseEntity<ApiResponse<?>> introspectToken(@RequestBody TokenRequest tokenRequest) {
+        return authService.introspectToken(tokenRequest);
+    }
+
 }

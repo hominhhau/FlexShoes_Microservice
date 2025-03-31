@@ -32,9 +32,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -253,6 +251,59 @@ public class AuthServiceImpl implements AuthService {
                             .status("ERROR")
                             .message("Invalid refresh token")
                             .build());
+        }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> introspectToken(TokenRequest tokenRequest) {
+        String token = tokenRequest.getToken();  // Lấy token từ request
+
+        try {
+            Jwt jwt = this.jwtDecoder.decode(token);
+
+            // Kiểm tra xem token có hết hạn chưa
+            Instant expiresAt = jwt.getExpiresAt();
+            if (expiresAt == null || expiresAt.isBefore(Instant.now())) {
+                return ResponseEntity.ok(ApiResponse.builder()
+                        .status("ERROR")
+                        .message("Token has expired")
+                        .response(IntrospectResponse.builder().valid(false).build())
+                        .build());
+            }
+
+            // Kiểm tra xem token có bị thu hồi không
+            Token tokenEntity = tokenService.findByToken(token);
+            if (tokenEntity == null || tokenEntity.isRevoked()) {
+                return ResponseEntity.ok(ApiResponse.builder()
+                        .status("ERROR")
+                        .message("Token has been revoked or does not exist")
+                        .response(IntrospectResponse.builder().valid(false).build())
+                        .build());
+            }
+
+            // Trích xuất thông tin từ token
+            String username = jwt.getSubject();
+
+            // Tạo IntrospectResponse
+            IntrospectResponse introspectResponse = IntrospectResponse.builder()
+                    .valid(true)
+                    .username(username)
+                    .expiresAt(expiresAt)
+                    .build();
+
+            // Trả về ApiResponse
+            return ResponseEntity.ok(ApiResponse.builder()
+                    .status("SUCCESS")
+                    .message("Token is valid")
+                    .response(introspectResponse)
+                    .build());
+
+        } catch (JwtException ex) {
+            return ResponseEntity.ok(ApiResponse.builder()
+                    .status("ERROR")
+                    .message("Invalid token")
+                    .response(IntrospectResponse.builder().valid(false).build())
+                    .build());
         }
     }
 

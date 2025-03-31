@@ -12,4 +12,5 @@ public interface AuthService {
             throws UserAlreadyExistsException;
     ResponseEntity<ApiResponse<?>> signIn(SignInRequest signInRequest);
     ResponseEntity<ApiResponse<?>> refreshToken(TokenRequest tokenRequest);
+    ResponseEntity<ApiResponse<?>> introspectToken(TokenRequest tokenRequest);
 }
