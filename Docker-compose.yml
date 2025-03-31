@@ -25,14 +25,15 @@ services:
       dockerfile: Dockerfile
     container_name: user_service
     depends_on:
+      profile-service:
+        condition: service_started
       mariadb :
         condition: service_healthy
-
-
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/main_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
+      URL_USER_SERVICE: http://profile-service:8081/profile
     ports:
       - "8080:8080"
     networks:
