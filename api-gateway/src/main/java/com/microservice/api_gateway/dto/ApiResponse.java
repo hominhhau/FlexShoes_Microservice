@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ApiResponse<T> {
+    @Builder.Default
+    private int code = 1000;
     private String status;
     private String message;
     private T response;
