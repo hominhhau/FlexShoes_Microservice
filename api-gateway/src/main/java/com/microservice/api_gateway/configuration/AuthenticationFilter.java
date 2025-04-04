@@ -8,13 +8,16 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -34,11 +37,27 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     UsersService usersService;
     ObjectMapper objectMapper;
 
+    @NonFinal
+    String[] publicEndpoints = {
+            "/users/sign-in",
+            "/users/sign-up",
+            "/users/refresh-token"
+    };
+
+    @NonFinal
+    @Value("${app.api-prefix}")
+    private String apiPrefix;
 
     // This filter is executed for every request
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("AuthenticationFilter - " + exchange.getRequest().getPath());
+
+        if (isPublicEndpoint(exchange.getRequest())) {
+            log.info("Public endpoint, skipping authentication");
+            return chain.filter(exchange);
+        }
+
         // Get the token from the request
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
         if (CollectionUtils.isEmpty(authHeader)) {
@@ -97,5 +116,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         return response.writeWith(
                 Mono.just(response.bufferFactory().wrap(body.getBytes())));
+    }
+
+
+    private boolean isPublicEndpoint(ServerHttpRequest request) {
+        String path = request.getURI().getPath();
+        log.info("Request path: " + path);
+        for (String endpoint : publicEndpoints) {
+            if (path.contains(apiPrefix + endpoint)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
