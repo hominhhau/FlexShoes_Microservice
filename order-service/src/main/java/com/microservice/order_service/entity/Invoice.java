@@ -47,6 +47,7 @@ public class Invoice implements Serializable {
     private double total;
 
     // Chỉ lưu customerId, không ánh xạ trực tiếp Customer
+
     @Column(name = "CUSTOMER_ID", nullable = false)
     private Integer customerId;
 
