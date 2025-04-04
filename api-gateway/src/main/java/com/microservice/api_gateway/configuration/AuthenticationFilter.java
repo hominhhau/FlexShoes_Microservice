@@ -41,7 +41,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     String[] publicEndpoints = {
             "/users/sign-in",
             "/users/sign-up",
-            "/users/refresh-token"
+            "/users/refresh-token",
+            "/users/introspect",
     };
 
     @NonFinal
@@ -69,22 +70,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.get(0).substring(7);
         log.info("Token: " + token);
 
-//        usersService.introspect(token).subscribe( response -> {
-//            log.info("Response: " + response.getResponse().isValid());
-//        });
-//
-//        // Check if the token is valid
-//
-//        // If the token is valid, continue the request
-//        return chain.filter(exchange);
-
+        log.info("Introspecting token");
+        // Call the users service to introspect the token
         return usersService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getResponse().isValid())
-
+            if (introspectResponse.getResponse().isValid()) {
+                log.info("Token is valid");
                 return chain.filter(exchange);
+            }
             else {
                 log.info("Token is invalid");
-
                 return unauthenticated(exchange.getResponse());
             }
         }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
@@ -118,7 +112,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
 
-
+    // This method checks if the request is for a public endpoint
     private boolean isPublicEndpoint(ServerHttpRequest request) {
         String path = request.getURI().getPath();
         log.info("Request path: " + path);
