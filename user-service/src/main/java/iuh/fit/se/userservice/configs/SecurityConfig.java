@@ -91,7 +91,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain signUpSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher((new AntPathRequestMatcher("/sign-up")))
+                .securityMatcher((new AntPathRequestMatcher("/users/sign-up")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults());
@@ -103,7 +103,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain signInSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher((new AntPathRequestMatcher("/sign-in")))
+                .securityMatcher((new AntPathRequestMatcher("/users/sign-in")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -120,7 +120,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain refreshSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher((new AntPathRequestMatcher("/refresh-token")))
+                .securityMatcher((new AntPathRequestMatcher("/users/refresh-token")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -138,7 +138,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain introspectSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher(new AntPathRequestMatcher("/introspect")) // Áp dụng cho đường dẫn chính xác
+                .securityMatcher(new AntPathRequestMatcher("/users/introspect")) // Áp dụng cho đường dẫn chính xác
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()) // Cho phép truy cập tự do
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -158,7 +158,7 @@ public class SecurityConfig {
         httpSecurity.securityMatcher(new AntPathRequestMatcher("/api/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(new AntPathRequestMatcher("/introspect")).permitAll() // Thêm rule nàys
+                        .requestMatchers(new AntPathRequestMatcher("/users/introspect")).permitAll() // Thêm rule nàys
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
