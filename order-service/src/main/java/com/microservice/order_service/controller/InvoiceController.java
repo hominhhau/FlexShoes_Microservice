@@ -3,6 +3,7 @@ package com.microservice.order_service.controller;
 import com.microservice.order_service.dto.InvoiceDto;
 import com.microservice.order_service.dto.MyAPIResponse;
 import com.microservice.order_service.service.InvoiceService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,7 +29,7 @@ import java.util.List;
 
 		// Tạo hóa đơn mới
 		@PostMapping("/add")
-		public ResponseEntity<InvoiceDto> createInvoice(@RequestBody InvoiceDto invoiceDto) {
+		public ResponseEntity<InvoiceDto> createInvoice(@Valid @RequestBody InvoiceDto invoiceDto) {
 			return ResponseEntity.ok(invoiceService.saveInvoice(invoiceDto));
 		}
 
@@ -41,7 +42,7 @@ import java.util.List;
 
 		// Cập nhật hóa đơn
 		@PutMapping("/updateInvoice")
-		public MyAPIResponse<Boolean> updateInvoice(@RequestBody InvoiceDto invoiceDto) {
+		public MyAPIResponse<Boolean> updateInvoice( @Valid @RequestBody InvoiceDto invoiceDto) {
 			return MyAPIResponse.<Boolean>builder().result(invoiceService.updateInvoice(invoiceDto)).build();
 		}
 
