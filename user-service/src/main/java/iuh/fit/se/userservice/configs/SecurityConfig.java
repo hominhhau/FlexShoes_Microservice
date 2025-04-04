@@ -99,7 +99,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(4)
+    @Order(3)
     @Bean
     public SecurityFilterChain signInSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -134,7 +134,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(3) // Đảm bảo xử lý trước apiFilterChain (Order 4)
+    @Order(4) // Đảm bảo xử lý trước apiFilterChain (Order 4)
     @Bean
     public SecurityFilterChain introspectSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity

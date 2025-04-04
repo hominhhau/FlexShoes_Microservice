@@ -43,7 +43,8 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
 
         if (request.getRequestURI().equals("/sign-in") ||
                 request.getRequestURI().equals("/sign-up") ||
-                request.getRequestURI().equals("/refresh-token")) {
+                request.getRequestURI().equals("/refresh-token") ||
+                request.getRequestURI().equals("/introspect")) {
             filterChain.doFilter(request, response);
             return;
         }

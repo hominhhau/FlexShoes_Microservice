@@ -28,18 +28,21 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     UsersService usersService;
     ObjectMapper objectMapper;
 
+
+    // This filter is executed for every request
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("AuthenticationFilter - " + exchange.getRequest().getPath());
         // Get the token from the request
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
         if (CollectionUtils.isEmpty(authHeader)) {
+            log.info("Authorization header is missing");
             return unauthenticated(exchange.getResponse());
         }
 
@@ -47,28 +50,34 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.get(0).substring(7);
         log.info("Token: " + token);
 
-        usersService.introspect(token).subscribe( response -> {
-            log.info("Response: " + response.getResponse().isValid());
-        });
+//        usersService.introspect(token).subscribe( response -> {
+//            log.info("Response: " + response.getResponse().isValid());
+//        });
+//
+//        // Check if the token is valid
+//
+//        // If the token is valid, continue the request
+//        return chain.filter(exchange);
 
-        // Check if the token is valid
+        return usersService.introspect(token).flatMap(introspectResponse -> {
+            if (introspectResponse.getResponse().isValid())
 
-        // If the token is valid, continue the request
-        return chain.filter(exchange);
+                return chain.filter(exchange);
+            else {
+                log.info("Token is invalid");
 
-//        return identityService.introspect(token).flatMap(introspectResponse -> {
-//            if (introspectResponse.getResult().isValid())
-//                return chain.filter(exchange);
-//            else
-//                return unauthenticated(exchange.getResponse());
-//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+                return unauthenticated(exchange.getResponse());
+            }
+        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
 
+    // This method is called when the token is invalid
     @Override
     public int getOrder() {
         return -1;
     }
 
+    // This method is called when the token is invalid
     Mono<Void> unauthenticated(ServerHttpResponse response) {
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(1401)
