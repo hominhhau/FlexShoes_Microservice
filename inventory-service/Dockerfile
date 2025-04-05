@@ -9,6 +9,8 @@ COPY package*.json ./
 
 # Cài đặt dependencies
 RUN npm install --omit=dev
+RUN npm install swagger-jsdoc
+
 
 # Sao chép toàn bộ mã nguồn vào container
 COPY . .
