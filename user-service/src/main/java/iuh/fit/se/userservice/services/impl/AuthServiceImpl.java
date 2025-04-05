@@ -30,6 +30,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Instant;
 import java.util.*;
@@ -93,6 +95,7 @@ public class AuthServiceImpl implements AuthService {
         //Create a profile for sending to profile-service
         ProfileCreationRequest profileCreationRequest = profileMapper.mapToProfile(signUpRequest);
         profileCreationRequest.setUserID(result.getId());
+
         Object obj = profileClient.createProfile(profileCreationRequest);
         //Log result
         log.info("Created profile: " + obj);

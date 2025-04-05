@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>>  getAllCustomer() {
         List<CustomerDTO> customers = customerRepository.findAll().stream()
                 .map(item -> customerMapper.mapToCustomerDTO(item))

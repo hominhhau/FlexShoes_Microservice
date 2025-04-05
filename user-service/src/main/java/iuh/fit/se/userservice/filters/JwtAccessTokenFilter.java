@@ -41,10 +41,10 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        if (request.getRequestURI().equals("/sign-in") ||
-                request.getRequestURI().equals("/sign-up") ||
-                request.getRequestURI().equals("/refresh-token") ||
-                        request.getRequestURI().equals("/introspect")) {
+        if (request.getRequestURI().equals("/users/sign-in") ||
+                request.getRequestURI().equals("/users/sign-up") ||
+                request.getRequestURI().equals("/users/refresh-token") ||
+                request.getRequestURI().equals("/users/introspect")) {
             filterChain.doFilter(request, response);
             return;
         }
