@@ -1,29 +1,19 @@
 package com.microservice.order_service.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-public class ErrorResponse {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ErrorResponse<T> {
     private String message;
-    private List<String> details;
+    private String status;
+    private T result;
 
-    public ErrorResponse(String message, List<String> details) {
-        this.message = message;
-        this.details = details;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public List<String> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<String> details) {
-        this.details = details;
-    }
 }
