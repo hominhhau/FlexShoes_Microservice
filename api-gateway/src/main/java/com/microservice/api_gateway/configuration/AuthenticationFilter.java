@@ -47,21 +47,21 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.get(0).substring(7);
         log.info("Token: " + token);
 
-        usersService.introspect(token).subscribe( response -> {
-            log.info("Response: " + response.getResponse().isValid());
-        });
+//        usersService.introspect(token).subscribe( response -> {
+//            log.info("Response: " + response.getResponse().isValid());
+//        });
+//
+//        // Check if the token is valid
+//
+//        // If the token is valid, continue the request
+//        return chain.filter(exchange);
 
-        // Check if the token is valid
-
-        // If the token is valid, continue the request
-        return chain.filter(exchange);
-
-//        return identityService.introspect(token).flatMap(introspectResponse -> {
-//            if (introspectResponse.getResult().isValid())
-//                return chain.filter(exchange);
-//            else
-//                return unauthenticated(exchange.getResponse());
-//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+        return usersService.introspect(token).flatMap(introspectResponse -> {
+            if (introspectResponse.getResponse().isValid())
+                return chain.filter(exchange);
+            else
+                return unauthenticated(exchange.getResponse());
+        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
 
     @Override

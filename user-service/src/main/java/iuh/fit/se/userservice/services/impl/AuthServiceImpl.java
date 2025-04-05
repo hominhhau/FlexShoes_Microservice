@@ -131,54 +131,65 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<ApiResponse<?>> signIn(SignInRequest signInRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),
-                        signInRequest.getPassword()));
+        Authentication authentication = null;
+        try {
+             authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signInRequest.getUserName(),
+                            signInRequest.getPassword()));
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.builder()
+                            .status("ERROR")
+                            .message("Invalid username or password")
+                            .build());
+        }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtTokenUtil.generateToken(authentication, jwtEncoder);
-        String refreshToken = jwtTokenUtil.generateRefreshToken(authentication, jwtEncoder);
-        UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
-        System.out.println("User principal: " + userDetails);
-        User user = new User();
-        user.setId(userDetails.getId());
-        user.setUserName(userDetails.getUsername());
-        System.out.println(authentication.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtTokenUtil.generateToken(authentication, jwtEncoder);
+            String refreshToken = jwtTokenUtil.generateRefreshToken(authentication, jwtEncoder);
+            UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
+            System.out.println("User principal: " + userDetails);
+            User user = new User();
+            user.setId(userDetails.getId());
+            user.setUserName(userDetails.getUsername());
+            System.out.println(authentication.getAuthorities());
 
-        Token token = Token.builder()
-                .token(jwt)
-                .user(user)
-                .expiryDate(jwtTokenUtil.generateExpirationDate(true))
-                .revoked(false)
-                .isRefreshToken(false)
-                .build();
-        tokenService.saveToken(token);
-        Token refreshTokenEntity = Token.builder()
-                .token(refreshToken)
-                .user(user)
-                .expiryDate(jwtTokenUtil.generateExpirationDate(false))
-                .revoked(false)
-                .isRefreshToken(true)
-                .build();
-        tokenService.saveToken(refreshTokenEntity);
+            Token token = Token.builder()
+                    .token(jwt)
+                    .user(user)
+                    .expiryDate(jwtTokenUtil.generateExpirationDate(true))
+                    .revoked(false)
+                    .isRefreshToken(false)
+                    .build();
+            tokenService.saveToken(token);
+            Token refreshTokenEntity = Token.builder()
+                    .token(refreshToken)
+                    .user(user)
+                    .expiryDate(jwtTokenUtil.generateExpirationDate(false))
+                    .revoked(false)
+                    .isRefreshToken(true)
+                    .build();
+            tokenService.saveToken(refreshTokenEntity);
 
-        SignInResponse signInResponse = SignInResponse.builder()
-                .username(userDetails.getUsername())
-                .email(userDetails.getEmail())
-                .id(userDetails.getId())
-                .token(jwt)
-                .refreshToken(refreshToken)
-                .type("Bearer")
-                .roles(userDetails.getAuthorities())
-                .build();
+            SignInResponse signInResponse = SignInResponse.builder()
+                    .username(userDetails.getUsername())
+                    .email(userDetails.getEmail())
+                    .id(userDetails.getId())
+                    .token(jwt)
+                    .refreshToken(refreshToken)
+                    .type("Bearer")
+                    .roles(userDetails.getAuthorities())
+                    .build();
 
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("SUCCESS")
-                        .message("Sign in successfull!")
-                        .response(signInResponse)
-                        .build()
-        );
+            return ResponseEntity.ok(
+                    ApiResponse.builder()
+                            .status("SUCCESS")
+                            .message("Sign in successfull!")
+                            .response(signInResponse)
+                            .build()
+            );
+
+
     }
 
     @Override
