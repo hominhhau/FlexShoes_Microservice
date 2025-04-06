@@ -6,21 +6,9 @@ const NumberOfProductsSchema = new mongoose.Schema({
         required: true
     },
     size: {
-        // _id: {
-        //     type: mongoose.Schema.Types.ObjectId, ref: 'Size'
-        // },
-        // sizeName: {
-        //     type: String,
-        // }
         type: mongoose.Schema.Types.ObjectId, ref: 'Size'
     },
     color:{
-        // _id: {
-        //     type: mongoose.Schema.Types.ObjectId, ref: 'Color'
-        // },
-        // colorName: {
-        //     type: String,
-        // }
         type: mongoose.Schema.Types.ObjectId, ref: 'Color'
     },
 });
