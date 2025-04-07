@@ -14,13 +14,13 @@ connectDB();
 
 async function seedData() {
   try {
-    await Product.deleteMany({});
-    await Size.deleteMany({});
-    await Color.deleteMany({});
-    await NumberOfProducts.deleteMany({});
-    await ProductType.deleteMany({});
-    await BrandType.deleteMany({});
-    await Image.deleteMany({});
+    // await Product.deleteMany({});
+    // await Size.deleteMany({});
+    // await Color.deleteMany({});
+    // await NumberOfProducts.deleteMany({});
+    // await ProductType.deleteMany({});
+    // await BrandType.deleteMany({});
+    // await Image.deleteMany({});
 
     console.log("Seeding data...");
     const sizes = await Size.insertMany([

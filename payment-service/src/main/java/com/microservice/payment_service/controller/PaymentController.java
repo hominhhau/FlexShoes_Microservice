@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/payment")
 public class PaymentController {
     private final PaymentServiceImpl paymentService;
     private final PaymentVNPayDetailServiceImpl paymentVNPayDetailService;

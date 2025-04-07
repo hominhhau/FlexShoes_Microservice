@@ -17,13 +17,13 @@ app.use(cors());
 app.use(express.json());
 
 
-app.use('/', productRoutes);
-app.use('/', brandTypeRoutes);
-app.use('/', colorRoutes);
-app.use('/', sizeRoutes);
-app.use('/', imageRoutes);
-app.use('/', numberOfProductsRoutes);
-app.use('/', productTypes);
+app.use('/inventory', productRoutes);
+app.use('/inventory', brandTypeRoutes);
+app.use('/inventory', colorRoutes);
+app.use('/inventory', sizeRoutes);
+app.use('/inventory', imageRoutes);
+app.use('/inventory', numberOfProductsRoutes);
+app.use('/inventory', productTypes);
 
 connectDB();
 

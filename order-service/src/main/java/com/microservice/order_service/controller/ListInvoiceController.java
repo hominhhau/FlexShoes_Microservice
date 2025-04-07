@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/invoices")
+@RequestMapping("/invoices")
 public class ListInvoiceController {
 
     private final ListInvoiceService listInvoiceService;
@@ -24,7 +24,7 @@ public class ListInvoiceController {
         this.listInvoiceMapper = listInvoiceMapper;
     }
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping("/profile/{customerId}")
     public ResponseEntity<?> getInvoicesByCustomer(@PathVariable Integer customerId) {
         List<Invoice> invoices = listInvoiceService.getInvoicesByCustomerId(customerId);
 
