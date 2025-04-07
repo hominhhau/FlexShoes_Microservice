@@ -31,6 +31,6 @@ public interface InvoiceService {
 
     List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus);
 
-    ProductDto getProductInfo(Integer productId);
-    CustomerDto getCustomerInfo(Integer customerId);
+    ProductDto getProductInfo(String productId);
+    CustomerDto getCustomerInfo(Long customerId);
 }

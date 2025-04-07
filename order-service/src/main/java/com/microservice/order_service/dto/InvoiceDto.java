@@ -22,7 +22,7 @@ public class InvoiceDto {
 	private String deliveryMethod;
 	private String orderStatus;
 	private double total;
-	private Integer customerId;
+	private Long customerId;
 	private CustomerDto customer; // Thêm thuộc tính CustomerDto
 	private List<InvoiceDetailDto> invoiceDetails;
 }

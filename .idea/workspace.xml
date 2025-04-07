@@ -4,8 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="fix payment">
+    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="config inventory eureka">
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/config/AuthenticationRequestInterceptor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ApiResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/configuration/AuthenticationRequestInterceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/CustomerServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/CustomerServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/ProductServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/ProductServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/CustomerDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/CustomerDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDetailDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDetailDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ListInvoiceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ListInvoiceDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ProductDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ProductDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/entity/Invoice.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/entity/Invoice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/entity/InvoiceDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/entity/InvoiceDetail.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/mapper/InvoiceDetailMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/mapper/InvoiceDetailMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/mapper/ListInvoiceMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/mapper/ListInvoiceMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/repository/InvoiceRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/repository/InvoiceRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/InvoiceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/InvoiceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/impl/InvoiceServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/impl/InvoiceServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +75,7 @@
     "Application.PaymentServiceApplication.executor": "Run",
     "Application.ProfileServiceApplication.executor": "Run",
     "Application.UserServiceApplication.executor": "Run",
+    "Maven.order-service [clean].executor": "Run",
     "Maven.payment-service [clean].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -64,12 +84,14 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "Spring Boot.ApiGatewayApplication.executor": "Run",
     "Spring Boot.ConfigServerApplication.executor": "Run",
+    "Spring Boot.EurekaServerApplication.executor": "Run",
+    "Spring Boot.OrderServiceApplication.executor": "Run",
     "Spring Boot.PaymentServiceApplication.executor": "Run",
     "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "feature/config-eureka-server",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/KienTrucPhanMem/Project1/FlexShoes_Microservice/payment-service/src/main/java/com/microservice/payment_service",
+    "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/KienTrucPhanMem/Project1/FlexShoes_Microservice/order-service/src/main/java/com/microservice/order_service/config",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -91,11 +113,14 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\DHCN_STUDENTS\HK8\KienTrucPhanMem\Project1\FlexShoes_Microservice\order-service\src\main\java\com\microservice\order_service\config" />
       <recent name="C:\DHCN_STUDENTS\HK8\KienTrucPhanMem\Project1\FlexShoes_Microservice\payment-service\src\main\java\com\microservice\payment_service" />
       <recent name="C:\DHCN_STUDENTS\HK8\KienTrucPhanMem\Project1\FlexShoes_Microservice\config-server\src\main\resources\config" />
       <recent name="D:\FlexShoes_Microservice\FlexShoes_BE\FlexShoes_Microservice\payment-service" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.microservice.order_service.dto" />
+      <recent name="iuh.fit.se.profileservice.configuration" />
       <recent name="com.microservice.payment_service.dto" />
     </key>
   </component>
@@ -109,13 +134,13 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.EurekaServerApplication">
-    <configuration name="ApiGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.api_gateway.ApiGatewayApplication" />
-      <module name="api-gateway" />
+  <component name="RunManager" selected="Application.ConfigServerApplication">
+    <configuration name="ConfigServerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="fit.se.iuh.configserver.ConfigServerApplication" />
+      <module name="config-server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.microservice.api_gateway.*" />
+          <option name="PATTERN" value="fit.se.iuh.configserver.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -216,11 +241,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.UserServiceApplication" />
+        <item itemvalue="Application.ConfigServerApplication" />
         <item itemvalue="Spring Boot.EurekaServerApplication" />
         <item itemvalue="Application.OrderServiceApplication" />
         <item itemvalue="Application.ProfileServiceApplication" />
-        <item itemvalue="Spring Boot.UserServiceApplication" />
-        <item itemvalue="Application.ApiGatewayApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -258,7 +283,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744048060048</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="config inventory eureka">
+      <option name="closed" value="true" />
+      <created>1744049888690</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1744049888690</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -267,7 +300,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="change PORT" />
     <MESSAGE value="fix payment" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix payment" />
+    <MESSAGE value="config inventory eureka" />
+    <option name="LAST_COMMIT_MESSAGE" value="config inventory eureka" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

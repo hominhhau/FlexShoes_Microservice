@@ -11,8 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class InvoiceDetailDto {
 	Integer detailId;
 	Integer invoiceId;
-	Integer productId;
+	String productId;
 	int quantity;
-
 	ProductDto product; // ✅ Thêm đối tượng ProductDto vào đây
 }

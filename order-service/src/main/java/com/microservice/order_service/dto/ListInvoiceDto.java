@@ -17,6 +17,6 @@ public class ListInvoiceDto {
     String orderStatus;
     double total;
 
-    Integer productId; // Giữ lại productId nếu cần
+    String productId; // Giữ lại productId nếu cần
     ProductDto product; // ✅ Thêm thông tin sản phẩm đầy đủ
 }

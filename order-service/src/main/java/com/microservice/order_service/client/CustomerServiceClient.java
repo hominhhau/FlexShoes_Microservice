@@ -1,7 +1,10 @@
 package com.microservice.order_service.client;
 
+import com.microservice.order_service.dto.ApiResponse;
 import com.microservice.order_service.dto.CustomerDto;
+import com.microservice.order_service.dto.MyAPIResponse;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -9,7 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CustomerServiceClient {
 
     @GetMapping("/profile/{id}")
-    CustomerDto getCustomerById(@PathVariable("id") Integer id);
+    ResponseEntity<ApiResponse<CustomerDto>> getCustomerById(@PathVariable("id") Long id);
+
 
 //    @GetMapping("/api/customers/name/{name}")
 //    CustomerDto getCustomerByName(@PathVariable("name") String name);

@@ -12,12 +12,15 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProductDto {
-    private Integer productId;
+    private String productId;
     private String productName;
-    private double salePrice;
-    private double finalPrice;
+    private double discount;
     private String status;
     private List<String> images;
     private double originalPrice;
+    private String description;
+    private Integer totalQuantity;
+    private boolean gender;
+    private Integer tax;
 
 }
