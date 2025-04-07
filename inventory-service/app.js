@@ -16,7 +16,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 app.use('/inventory', productRoutes);
 app.use('/inventory', brandTypeRoutes);
 app.use('/inventory', colorRoutes);
@@ -29,6 +28,7 @@ connectDB();
 
 app.get("/", (req, res) => {
     res.send("Inventory Service is running !");
+   
 });
 
 
