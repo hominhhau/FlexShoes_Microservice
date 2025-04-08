@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
         <module name="config-server" />
+        <module name="eureka-server" />
       </profile>
       <profile name="Annotation profile for notification-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -42,6 +43,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="config-server" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
       <module name="notification-service" options="-parameters -Amapstruct.defaultComponentModel=lombok -Amapstruct.defaultComponentModel=spring -Amapstruct.verbose=true" />
       <module name="order-service" options="-parameters" />
       <module name="payment-service" options="-parameters" />
