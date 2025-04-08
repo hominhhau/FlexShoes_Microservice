@@ -17,6 +17,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Objects;
 
 @Component
 public class JwtAccessTokenFilter extends OncePerRequestFilter {
@@ -39,8 +41,10 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        if (request.getRequestURI().equals("/sign-in") ||
-                request.getRequestURI().equals("/sign-up")) {
+        if (request.getRequestURI().equals("/users/sign-in") ||
+                request.getRequestURI().equals("/users/sign-up") ||
+                request.getRequestURI().equals("/users/refresh-token") ||
+                request.getRequestURI().equals("/users/introspect")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -54,8 +58,9 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         Token tokenEntity = tokenService.findByToken(token);
 
+
         try {
-            if (null != tokenEntity && tokenEntity.revoked) {
+            if (( null != tokenEntity && tokenEntity.revoked ) ) {
                 SecurityContextHolder.clearContext();
                 ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "The access token you provided is revoked malformed or invalid.");
                 return;

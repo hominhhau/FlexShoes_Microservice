@@ -11,6 +11,7 @@ import com.microservice.order_service.repository.InvoiceRepository;
 import com.microservice.order_service.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,37 +30,30 @@ public class InvoiceServiceImpl implements InvoiceService {
 	private final InvoiceMapper invoiceMapper;
 
 	@Override
-	public ProductDto getProductInfo(Integer productId) {
+	public ProductDto getProductInfo(String productId) {
 		try {
+			System.out.println(productServiceClient.getProductById(productId));
 			return productServiceClient.getProductById(productId);
 		} catch (Exception e) {
-			return ProductDto.builder()
-					.productId(productId)
-					.productName("Sản phẩm mẫu " + productId)
-					.salePrice(100.0)
-					.finalPrice(90.0)
-					.status("DUMMY")
-					.images(List.of("dummy-image.jpg"))
-					.build();
+			throw new RuntimeException("Không thể lấy thông tin sản phẩm từ service: " + e.getMessage());
 		}
 	}
 	@Override
-	public CustomerDto getCustomerInfo(Integer customerId) {
+	public CustomerDto getCustomerInfo(Long customerId) {
 		try {
-			return customerServiceClient.getCustomerById(customerId);
+			System.out.println("HI");
+			System.out.println(customerServiceClient.getCustomerById(customerId));
+			ResponseEntity<ApiResponse<CustomerDto>> cus = customerServiceClient.getCustomerById(customerId);
+			return (CustomerDto) cus.getBody().getResponse();
 		} catch (Exception e) {
-			return CustomerDto.builder()
-					.customerId(customerId)
-					.customerName("Khách hàng mẫu" + customerId)
-					.email("dummy-customer@example.com")
-					.phoneNumber("0343906000")
-					.build();
+			throw new RuntimeException("Không thể lấy thông tin khách hàng từ service: " + e.getMessage());
 		}
 	}
 	@Override
 	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
 		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
 		CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
+		System.out.println(customer);
 		if (customer == null) {
 			throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
 		}
@@ -67,7 +61,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 		// Chuyển đổi DTO thành entity
 		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
 		invoice.setInvoiceId(null); // Đảm bảo tạo mới
-		invoice.setCustomerId(customer.getCustomerId()); // Gán ID khách hàng vào hóa đơn
+		invoice.setCustomerId(customer.getProfileKey()); // Gán ID khách hàng vào hóa đơn
 
 		List<InvoiceDetail> details = new ArrayList<>();
 
@@ -76,13 +70,18 @@ public class InvoiceServiceImpl implements InvoiceService {
 			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
 				// Gọi ProductService để lấy thông tin sản phẩm
 				ProductDto product = getProductInfo(detailDto.getProductId());
+				System.out.println("Product: " + product);
 				if (product == null) {
 					throw new RuntimeException("Sản phẩm ID " + detailDto.getProductId() + " không tồn tại!");
 				}
 
 				// Tạo chi tiết hóa đơn
+
 				InvoiceDetail detail = new InvoiceDetail();
-				detail.setProductId(product.getProductId());
+
+
+
+				detail.setProductId(detailDto.getProductId());
 				detail.setQuantity(detailDto.getQuantity());
 				detail.setInvoice(invoice); // Gán invoice vào detail
 
@@ -153,7 +152,19 @@ public class InvoiceServiceImpl implements InvoiceService {
 	public InvoiceDto getInvoice(Integer id) {
 		Invoice invoice = invoiceRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Invoice với ID " + id + " không tồn tại"));
-		return invoiceMapper.toDTO(invoice);
+//		invoiceMapper.toDTO(invoice);
+		InvoiceDto invoiceDto = invoiceMapper.toDTO(invoice);
+
+
+		invoiceDto.getInvoiceDetails().forEach(
+				invoiceDetailDto -> {
+					ProductDto product = getProductInfo(invoiceDetailDto.getProductId());
+					product.setProductId(invoiceDetailDto.getProductId());
+					invoiceDetailDto.setProduct(product);
+				}
+		);
+
+		return invoiceDto;
 	}
 
 	@Override
@@ -238,10 +249,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 	private static final List<CustomerDto> customers = new ArrayList<>();
 
 	// Hàm tìm customerId từ customerName trong danh sách cache
-	private Integer getCustomerIdByName(String customerName) {
+	private Long getCustomerIdByName(String customerName) {
 		for (CustomerDto customer : customers) {
-			if (customer.getCustomerName().equalsIgnoreCase(customerName)) {
-				return customer.getCustomerId();
+			if (customer.getLastName().equalsIgnoreCase(customerName)) {
+				return customer.getProfileKey();
 			}
 		}
 		return null; // Trả về null nếu không tìm thấy
@@ -249,7 +260,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 	@Override
 	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
-		Integer customerId = null;
+		Long customerId = null;
 
 		// Nếu có tên khách hàng, tìm customerId trong danh sách cache
 		if (customerName != null && !customerName.trim().isEmpty()) {

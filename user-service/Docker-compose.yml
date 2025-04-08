@@ -14,8 +14,9 @@ services:
     networks:
       - tiennguyendev
 
+
   user-service:
-    build: .
+    build: ./user-service/.
     container_name: springboot-app
     restart: always
     depends_on:

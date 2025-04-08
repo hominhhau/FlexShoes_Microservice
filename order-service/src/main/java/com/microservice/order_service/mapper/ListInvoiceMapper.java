@@ -32,7 +32,7 @@ public class ListInvoiceMapper {
         dto.setIssueDate(invoice.getIssueDate());
         dto.setOrderStatus(invoice.getOrderStatus());
         dto.setTotal(invoice.getTotal());
-        dto.setProduct(mapProductIdToProduct(invoiceDetail.getProductId()));
+//        dto.setProduct(mapProductIdToProduct(invoiceDetail.getProductId()));
 
         return dto;
     }
@@ -60,14 +60,12 @@ public class ListInvoiceMapper {
                 .collect(Collectors.toList());
     }
 
-    private ProductDto mapProductIdToProduct(Integer productId) {
-        return (productId == null) ? null : ProductDto.builder()
-                .productId(productId)
-                .productName("Tên sản phẩm " + productId)
-                .salePrice(0.0)
-                .finalPrice(0.0)
-                .status("UNKNOWN")
-                .build();
-    }
+//    private ProductDto mapProductIdToProduct(String productId) {
+//        return (productId == null) ? null : ProductDto.builder()
+//                .productId(productId)
+//                .productName("Tên sản phẩm " + productId)
+//                .status("UNKNOWN")
+//                .build();
+//    }
 }
 

@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class SignInResponse {
     private String token;
+    private String refreshToken;
     private String type = "Bearer";
     private Long id;
     private String username;

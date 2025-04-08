@@ -3,6 +3,7 @@ package iuh.fit.se.userservice.utils;
 import iuh.fit.se.userservice.auths.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -18,6 +19,11 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+
+    @Value("${ACCESS.DURATION}")
+    private long ACCESS_DURATION;
+    @Value("${REFRESH.DURATION}")
+    private long REFRESH_DURATION;
     @SuppressWarnings("ReassignedVariable")
     public String generateToken(Authentication authentication, JwtEncoder jwtEncoder) {
         String token = "";
@@ -27,7 +33,27 @@ public class JwtTokenUtil {
             JwtClaimsSet claims = JwtClaimsSet.builder()
                     .issuer("iuh.fit.se")
                     .issuedAt(now)
-                    .expiresAt(generateExpirationDate())
+                    .expiresAt(generateExpirationDate(true))
+                    .subject(userPrincipal.getUsername())
+                    .claim("scope", userPrincipal.getAuthorities()
+                            .stream().map(r -> r.getAuthority()).collect(Collectors.toList()))
+                    .build();
+
+            token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return token;
+    }
+    public String generateRefreshToken(Authentication authentication, JwtEncoder jwtEncoder) {
+        String token = "";
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        try {
+            Instant now = Instant.now();
+            JwtClaimsSet claims = JwtClaimsSet.builder()
+                    .issuer("iuh.fit.se")
+                    .issuedAt(now)
+                    .expiresAt(generateExpirationDate(false))
                     .subject(userPrincipal.getUsername())
                     .claim("scope", userPrincipal.getAuthorities()
                             .stream().map(r -> r.getAuthority()).collect(Collectors.toList()))
@@ -50,7 +76,10 @@ public class JwtTokenUtil {
                 userPrincipal.isEnabled() &&
                 userPrincipal.getUsername().equals(getUsernameFromToken(jwtToken));
     }
-    public Instant generateExpirationDate() {
-        return Instant.now().plus(10, ChronoUnit.MINUTES);
+    public Instant generateExpirationDate(boolean isAccessToken) {
+        if (!isAccessToken) {
+            return Instant.now().plus( REFRESH_DURATION, ChronoUnit.MINUTES);
+        }
+        return Instant.now().plus(ACCESS_DURATION * 30, ChronoUnit.SECONDS);
     }
 }

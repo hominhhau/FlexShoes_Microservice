@@ -51,29 +51,29 @@ const ProductSchema = new mongoose.Schema({
     ],
     inventory:[
         {
-            quantity:{
-              type: Number, ref: 'NumberOfProducts'
-            },
-            // numberOfProduct:{
-            //     type: mongoose.Schema.Types.ObjectId, ref: 'NumberOfProducts'   
-
+            // quantity:{
+            //   type: Number, ref: 'NumberOfProducts'
             // },
-            size:{
-               _id: {
-                     type: mongoose.Schema.Types.ObjectId, ref: 'Size'
-               },
-               sizeName: {
-                     type: String,
-               }
-            },
-            color:{
-                _id: {
-                    type: mongoose.Schema.Types.ObjectId, ref: 'Color'
-                },
-                colorName: {
-                    type: String,
-                }
-            }
+            numberOfProduct:{
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'NumberOfProducts'   
+            },       
+            // size:{
+            //    _id: {
+            //          type: mongoose.Schema.Types.ObjectId, ref: 'Size'
+            //    },
+            //    sizeName: {
+            //          type: String,
+            //    }
+            // },
+            // color:{
+            //     _id: {
+            //         type: mongoose.Schema.Types.ObjectId, ref: 'Color'
+            //     },
+            //     colorName: {
+            //         type: String,
+            //     }
+            // }
         }
     ]
 

@@ -91,7 +91,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain signUpSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher((new AntPathRequestMatcher("/sign-up")))
+                .securityMatcher((new AntPathRequestMatcher("/users/sign-up")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults());
@@ -99,11 +99,28 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(2)
+    @Order(3)
     @Bean
     public SecurityFilterChain signInSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .securityMatcher((new AntPathRequestMatcher("/sign-in")))
+                .securityMatcher((new AntPathRequestMatcher("/users/sign-in")))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .userDetailsService(userDetailsService)
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()));
+                })
+                .httpBasic(Customizer.withDefaults());
+
+        return httpSecurity.build();
+    }
+    @Order(2)
+    @Bean
+    public SecurityFilterChain refreshSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .securityMatcher((new AntPathRequestMatcher("/users/refresh-token")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -117,32 +134,46 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    @Order(3)
+    @Order(4) // Đảm bảo xử lý trước apiFilterChain (Order 4)
     @Bean
-    SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.securityMatcher((new AntPathRequestMatcher("/api/**")))
-                // 1: Disable Cross-Site Request Forgery (CSRF)
+    public SecurityFilterChain introspectSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .securityMatcher(new AntPathRequestMatcher("/users/introspect")) // Áp dụng cho đường dẫn chính xác
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        // 2: The user should be authenticated for any request in the application.
-                        authorize -> authorize.anyRequest().authenticated()
-                )
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
-                .sessionManagement(
-                        // 3: Spring Security will never create an HttpSession and it will never use it to obtain the Security Context.
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(new JwtAccessTokenFilter(this.jwtDecoder(), this.jwtTokenUil,this.userDetailsService,this.tokenService), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(
-                        (ex) -> ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                                .accessDeniedHandler(this.customAccessDeniedHandler))
-                // 4: Spring Security’s HTTP Basic Authentication support is enabled by default. However, as soon as any servlet-based configuration is provided, HTTP Basic must be explicitly provided.
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()) // Cho phép truy cập tự do
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()));
+                })
                 .httpBasic(Customizer.withDefaults());
 
         return httpSecurity.build();
     }
 
-    @Order(4)
+
+    @Order(5)
+    @Bean
+    SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.securityMatcher(new AntPathRequestMatcher("/api/**"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(new AntPathRequestMatcher("/users/introspect")).permitAll() // Thêm rule nàys
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JwtAccessTokenFilter(this.jwtDecoder(), this.jwtTokenUil, this.userDetailsService, this.tokenService),
+                        UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(this.customAccessDeniedHandler))
+                .httpBasic(Customizer.withDefaults());
+
+        return httpSecurity.build();
+    }
+
+
+    @Order(6)
     @Bean
     SecurityFilterChain logoutFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher((new AntPathRequestMatcher("/logout")))
@@ -165,4 +196,10 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
+
+
+
+
+
 }

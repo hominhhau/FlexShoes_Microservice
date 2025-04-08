@@ -3,12 +3,12 @@ package iuh.fit.se.profileservice.controllers;
 
 import iuh.fit.se.profileservice.dtos.ApiResponse;
 import iuh.fit.se.profileservice.dtos.CustomerDTO;
+import iuh.fit.se.profileservice.exceptions.ProfileAlreadyExistsException;
 import iuh.fit.se.profileservice.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,29 +20,22 @@ import java.util.List;
 public class CustomerProfileController {
     CustomerService customerService;
 
-    @PostMapping("/add")
-    public ApiResponse<CustomerDTO> register(@RequestBody @Valid CustomerDTO customerDTO) {
-        ApiResponse<CustomerDTO> result = new ApiResponse<CustomerDTO>();
-        result.setResponse(customerService.save(customerDTO));
-        return result;
-
+    @PostMapping("/")
+    public ResponseEntity<ApiResponse<?>> register(@RequestBody @Valid CustomerDTO customerDTO) throws ProfileAlreadyExistsException {
+        return customerService.createCustomer(customerDTO);
     }
-    @GetMapping("/findByID/{id}")
-    public CustomerDTO findByID(@PathVariable Integer id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> findByID(@PathVariable Long id) {
         return customerService.findByID(id);
     }
 
-
-    //API để lấy tất cả khách hàng (GET /api/customers)
-    @GetMapping("/getAll")
-    public List<CustomerDTO> getAllCustomers() {
-        List<CustomerDTO> customers = customerService.getAllCustomer();
-        return new ResponseEntity<>(customers, HttpStatus.OK).getBody();
+    @GetMapping("/customers")
+    public ResponseEntity<ApiResponse<?>> getAllCustomers() {
+       return customerService.getAllCustomer();
     }
     @PostMapping("/update/{id}")
-    public ApiResponse<CustomerDTO> update(@PathVariable Integer id, @RequestBody @Valid CustomerDTO customerDTO) {
-        ApiResponse<CustomerDTO> result = new ApiResponse<CustomerDTO>();
-        result.setResponse(customerService.updateByID(id, customerDTO));
-        return result;
+    public ResponseEntity<ApiResponse<?>> update(@PathVariable Long id, @RequestBody @Valid CustomerDTO customerDTO) {
+        return customerService.updateByID(id, customerDTO);
+
     }
 }
