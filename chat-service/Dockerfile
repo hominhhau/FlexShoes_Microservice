@@ -27,7 +27,7 @@ ENV DB_PORT=5432
 ENV DB_DIALECT=postgres
 
 # Expose cổng mà ứng dụng Node.js chạy
-EXPOSE 8080
+EXPOSE 8089
 
 # Chạy ứng dụng Node.js
 CMD ["npm", "run", "build"]

@@ -4,18 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="config server">
-      <change afterPath="$PROJECT_DIR$/chat-service/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chat-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chat-service/docker-compose.yml" afterDir="false" />
+    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/WebClientConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/WebClientConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chat-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/src/controller/chatController.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/controller/chatController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/src/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/models/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -271,7 +264,7 @@
       <workItem from="1744092122590" duration="2895000" />
       <workItem from="1744130110411" duration="3000" />
       <workItem from="1744219001492" duration="3000" />
-      <workItem from="1744295797098" duration="2504000" />
+      <workItem from="1744295797098" duration="4895000" />
     </task>
     <task id="LOCAL-00001" summary="change PORT">
       <option name="closed" value="true" />
@@ -313,7 +306,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744094948090</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="merge">
+      <option name="closed" value="true" />
+      <created>1744298522959</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744298522959</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -336,7 +337,8 @@
     <MESSAGE value="config inventory eureka" />
     <MESSAGE value="fix order service" />
     <MESSAGE value="config server" />
-    <option name="LAST_COMMIT_MESSAGE" value="config server" />
+    <MESSAGE value="merge" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
