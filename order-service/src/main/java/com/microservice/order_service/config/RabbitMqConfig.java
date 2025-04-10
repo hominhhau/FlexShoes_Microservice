@@ -1,4 +1,4 @@
-package iuh.fit.se.orderservice.configs;
+package com.microservice.order_service.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
