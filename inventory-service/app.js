@@ -16,6 +16,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Cấu hình CORS
+app.use(cors({
+    origin: 'http://localhost:3000', // Origin của frontend
+    credentials: true, // Cho phép gửi cookie/credentials
+  }));
+
 app.use('/inventory', productRoutes);
 app.use('/inventory', brandTypeRoutes);
 app.use('/inventory', colorRoutes);

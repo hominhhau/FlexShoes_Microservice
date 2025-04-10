@@ -12,20 +12,60 @@ module.exports = {
       res.status(500).json({ message: "Error when get all products" });
     }
   },
+  // getProductById: async (req, res) => {
+  //   try {
+  //     console.log("ID nhận được:", req.params.id);
+  //     const product = await Product.findById(req.params.id);
+  //     console.log("Product tìm được: ", product);
+  //     if (!product) {
+  //       return res.status(404).json({ message: "Product not found" });
+  //     }
+  //     res.status(200).json(product);
+  //   } catch (error) {
+  //     console.log("Khong get duoc SP");
+  //     res.status(500).json({ message: "Error when get product by id" });
+  //   }
+  // },
   getProductById: async (req, res) => {
     try {
       console.log("ID nhận được:", req.params.id);
-      const product = await Product.findById(req.params.id);
+  
+      const product = await Product.findById(req.params.id)
+        .populate({
+          path: 'image.imageID',
+          select: 'URL',
+        })
+        .populate({
+          path: 'inventory',
+          model: 'NumberOfProducts',
+          populate: [
+            {
+              path: 'size',
+              model: 'Size',
+              select: 'nameSize',
+            },
+            {
+              path: 'color',
+              model: 'Color',
+              select: 'colorName',
+            },
+          ],
+        })
+        .populate('proType', 'producTypeName')
+        .populate('braType', 'brandTypeName');
+  
       console.log("Product tìm được: ", product);
+  
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
+  
       res.status(200).json(product);
     } catch (error) {
-      console.log("Khong get duoc SP");
-      res.status(500).json({ message: "Error when get product by id" });
+      console.log("Không get được SP:", error);
+      res.status(500).json({ message: "Error when get product by id", error: error.message });
     }
-  },
+  },  
   getFilteredProducts: async (req, res) => {
     try {
       const { productTypeId, brandTypeId, sizeId, colorId } = req.body;
