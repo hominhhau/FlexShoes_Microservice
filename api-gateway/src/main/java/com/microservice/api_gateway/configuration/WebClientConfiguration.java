@@ -30,9 +30,11 @@ public class WebClientConfiguration {
     CorsWebFilter corsWebFilter(){
         // Cấu hình CORS
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("*"));  // Cho phép tất cả các origin
+        config.setAllowCredentials(true);  // Cho phép gửi cookie
+        config.setAllowedOriginPatterns(List.of("*"));  // Cho phép tất cả các nguồn gốc
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Cho phép các phương thức HTTP
         config.setAllowedHeaders(List.of("*"));  // Cho phép tất cả các header
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);  // Áp dụng cấu hình CORS cho tất cả các đường dẫn

@@ -70,8 +70,8 @@ const PORT = process.env.PORT || 8085;
 
 
 
-app.listen(PORT,'0.0.0.0', () => {
-    console.log(`Server/service running on port ${PORT}`);
-    //registerWithEureka();
-    //console.log("Swagger UI: http://localhost:5000/api-docs");
-});
+// app.listen(PORT,'0.0.0.0', () => {
+//     console.log(`Server/service running on port ${PORT}`);
+//     //registerWithEureka();
+//     //console.log("Swagger UI: http://localhost:5000/api-docs");
+// });

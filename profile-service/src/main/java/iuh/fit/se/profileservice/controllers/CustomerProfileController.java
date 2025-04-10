@@ -29,6 +29,11 @@ public class CustomerProfileController {
         return customerService.findByID(id);
     }
 
+
+    @GetMapping("/user/{userID}")
+    public ResponseEntity<ApiResponse<?>> findByuserID(@PathVariable Long userID) {
+        return customerService.findByuserID(userID);
+    }
     @GetMapping("/customers")
     public ResponseEntity<ApiResponse<?>> getAllCustomers() {
        return customerService.getAllCustomer();

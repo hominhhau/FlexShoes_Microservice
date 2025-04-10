@@ -13,5 +13,5 @@ public class InvoiceDetailDto {
 	Integer invoiceId;
 	String productId;
 	int quantity;
-	ProductDto product; // ✅ Thêm đối tượng ProductDto vào đây
+	ProductDto product;
 }
