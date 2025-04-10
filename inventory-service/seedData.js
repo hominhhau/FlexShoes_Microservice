@@ -1,109 +1,136 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-const connectDB = require("./configs/db");
+// path=seed.js
+const mongoose = require('mongoose');
+const BrandType = require('./models/BrandType');
+const Color = require('./models/Color');
+const Size = require('./models/Size');
+const Product = require('./models/Product');
+const Image = require('./models/Image');
+const NumberOfProducts = require('./models/NumberOfProducts');
 
-const Size = require("./models/Size");
-const Color = require("./models/Color");
-const NumberOfProducts = require("./models/NumberOfProducts");
-const Product = require("./models/Product");
-const ProductType = require("./models/ProductType");
-const BrandType = require("./models/BrandType");
-const Image = require("./models/Image");
-
-connectDB();
-
-async function seedData() {
+const seedData = async () => {
   try {
-    // await Product.deleteMany({});
-    // await Size.deleteMany({});
-    // await Color.deleteMany({});
-    // await NumberOfProducts.deleteMany({});
-    // await ProductType.deleteMany({});
-    // await BrandType.deleteMany({});
-    // await Image.deleteMany({});
+    // Kết nối đến MongoDB
+    await mongoose.connect('mongodb://localhost:27017/inventoryDB');
 
-    console.log("Seeding data...");
-    const sizes = await Size.insertMany([
-      { nameSize: "39" },
-      { nameSize: "40" },
-      { nameSize: "41" },
+    // Xóa dữ liệu cũ
+    await BrandType.deleteMany({});
+    await Color.deleteMany({});
+    await Size.deleteMany({});
+    await Product.deleteMany({});
+    await Image.deleteMany({});
+    await NumberOfProducts.deleteMany({});
+
+    // Dữ liệu cho BrandType
+    const brands = await BrandType.insertMany([
+      { brandTypeName: 'Nike', description: 'Leading global brand known for innovative athletic footwear' },
+      { brandTypeName: 'Adidas', description: 'Popular sportswear brand with a focus on performance and lifestyle shoes' },
+      { brandTypeName: 'Puma', description: 'International brand with a variety of casual and athletic shoes' },
+      { brandTypeName: 'NewBalance', description: 'Brand specializing in running and casual footwear with superior comfort' },
+      { brandTypeName: 'Reebok', description: 'Iconic sports brand known for its fitness and training footwear' },
+      { brandTypeName: 'Converse', description: 'Classic American brand famous for its Chuck Taylor All-Star sneakers' },
+      { brandTypeName: 'Vans', description: 'Skateboarding brand with a strong presence in youth culture' },
+      { brandTypeName: 'UnderArmour', description: 'Athletic brand focused on performance and innovation in sportswear' },
+      { brandTypeName: 'ASICS', description: 'Japanese brand recognized for high-quality running and athletic shoes' },
+      { brandTypeName: 'Fila', description: 'Global sportswear brand with a blend of casual and athletic styles' }
     ]);
+
+    // Dữ liệu cho Color
     const colors = await Color.insertMany([
-      { colorName: "Đỏ" },
-      { colorName: "Xanh" },
-      { colorName: "Đen" },
+      { colorName: 'Red', hex: '#FF0000' },
+      { colorName: 'Blue', hex: '#0000FF' },
+      { colorName: 'Green', hex: '#008000' },
+      { colorName: 'Black', hex: '#000000' },
+      { colorName: 'White', hex: '#FFFFFF' },
+      { colorName: 'Gray', hex: '#808080' },
+      { colorName: 'Yellow', hex: '#FFFF00' },
+      { colorName: 'Pink', hex: '#FFC0CB' },
+      { colorName: 'Brown', hex: '#A52A2A' },
+      { colorName: 'Purple', hex: '#800080' }
     ]);
 
-    // Tạo dữ liệu NumberOfProducts
-    const numberOfProducts = await NumberOfProducts.insertMany([
-      {
-        quantity: 10,
-        size: { _id: sizes[0]._id, sizeName: sizes[0].nameSize },
-        color: { _id: colors[0]._id, colorName: colors[0].colorName },
-      },
-      {
-        quantity: 5,
-        size: { _id: sizes[1]._id, sizeName: sizes[1].nameSize },
-        color: { _id: colors[1]._id, colorName: colors[1].colorName },
-      },
+    // Dữ liệu cho Size
+    const sizes = await Size.insertMany([
+      { nameSize: 'S' },
+      { nameSize: 'M' },
+      { nameSize: 'L' },
+      { nameSize: 'XL' },
+      { nameSize: 'XXL' },
+      { nameSize: '36' },
+      { nameSize: '37' },
+      { nameSize: '38' },
+      { nameSize: '39' },
+      { nameSize: '40' },
+      { nameSize: '41' },
+      { nameSize: '42' },
+      { nameSize: '43' },
+      { nameSize: '44' },
+      { nameSize: '45' }
     ]);
 
-    const productType = await ProductType.create({
-      producTypeName: "Giày chạy bộ",
-      description: "Dành cho chạy bộ, nhẹ, bám đường tốt",
-    });
-    const brandType = await BrandType.create({
-      brandTypeName: "Nike",
-      description: "Thương hiệu thể thao hàng đầu",
-    });
-    const image = await Image.create({
-      imageName: "Nike Air Max",
-      URL: "https://picsum.photos/200",
-    });
-    await Product.create([
+    // Dữ liệu cho Image
+    const images = await Image.insertMany([
+      { imageName: 'nike-air-max-trang-xanh-1.png', URL: 'https://picsum.photos/seed/picsum/200/300' },
+      { imageName: 'nike-air-max-trang-xanh-2.png', URL: 'https://picsum.photos/seed/picsum/200/300' },
+      { imageName: 'adidas-ultraboost01-trang-1.png', URL: 'https://picsum.photos/seed/picsum/200/300' },
+      { imageName: 'adidas-ultraboost01-trang-2.png', URL: 'https://picsum.photos/seed/picsum/200/300' }
+    ]);
+
+    // Dữ liệu cho NumberOfProducts
+    const quantities = await NumberOfProducts.insertMany([
+      { quantity: 50, size: sizes[0]._id, color: colors[1]._id }, // S, Blue
+      { quantity: 50, size: sizes[1]._id, color: colors[0]._id }  // M, Red
+      // Thêm các số lượng khác tương tự
+    ]);
+
+    // Dữ liệu cho Product
+    const products = await Product.insertMany([
       {
-        productName: "Nike Air Max 2024",
-        originalPrice: 3000000,
-        description: "Giày thể thao Nike cao cấp",
+        productName: 'Nike Air Max',
+        description: 'Comfortable and stylish sneakers',
+        originalPrice: 120.00,
         status: true,
-        discount: 10,
+        discount: 5.00,
+        totalQuantity: 50,
         gender: true,
-        tax: 5,
-        sellingPrice: 2700000,
-        proType: productType._id,
-        braType: brandType._id,
-        image: [{ imageID: image._id }],
-        inventory: numberOfProducts.map((nop) => ({
-          quantity: nop.quantity,
-          size: { _id: nop.size._id, sizeName: nop.size.sizeName },
-          color: { _id: nop.color._id, colorName: nop.color.colorName },
-        })),
+        tax: 10.0,
+        sellingPrice: 115.00,
+        proType: brands[0]._id, // ID của Nike
+        image: {
+          imageID: images[0]._id // Chỉ lưu ObjectId của hình ảnh
+        },
+        inventory: [
+          { numberOfProduct: quantities[0]._id }, // S, Blue
+          { numberOfProduct: quantities[1]._id }  // M, Red
+        ]
       },
       {
-        productName: "Nike Air Air Jordan 2023",
-        originalPrice: 4000000,
-        description: "Giày thể thao Nike cao cấpp",
+        productName: 'Adidas Ultraboost',
+        description: 'High-performance running shoes',
+        originalPrice: 150.00,
         status: true,
-        discount: 20,
+        discount: 15.00,
+        totalQuantity: 50,
         gender: true,
-        tax: 3,
-        sellingPrice: 2200000,
-        proType: productType._id,
-        braType: brandType._id,
-        image: [{ imageID: image._id }],
-        inventory: numberOfProducts.map((nop) => ({
-          quantity: nop.quantity,
-          size: { _id: nop.size._id, sizeName: nop.size.sizeName },
-          color: { _id: nop.color._id, colorName: nop.color.colorName },
-        })),
-      },
+        tax: 10.0,
+        sellingPrice: 135.00,
+        proType: brands[1]._id, // ID của Adidas
+        image: {
+          imageID: images[1]._id // Chỉ lưu ObjectId của hình ảnh
+        },
+        inventory: [
+          { numberOfProduct: quantities[0]._id }, // S, Blue
+          { numberOfProduct: quantities[1]._id }  // M, Red
+        ]
+      }
+      // Thêm các sản phẩm khác tương tự
     ]);
 
-    console.log("Seeding completed!");
+    console.log('Dữ liệu đã được nhập thành công!');
   } catch (error) {
-    console.error("Error seeding data:", error);
+    console.error('Lỗi khi nhập dữ liệu:', error);
   } finally {
-    mongoose.disconnect();
+    mongoose.connection.close();
   }
-}
+};
+
 seedData();
