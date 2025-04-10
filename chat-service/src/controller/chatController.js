@@ -88,8 +88,46 @@ const getAllSender = async (req, res) => {
   }
 };
 
+const getLastMessage = async (req, res) => {
+  try {
+    const senderIds = req.query.senderIds
+      ?.split(",")
+      .map((id) => parseInt(id))
+      .filter(Boolean);
+    if (!senderIds || senderIds.length === 0) {
+      return res.status(400).json({ message: "senderIds is required" });
+    }
+    
+    const latestMessages = await Promise.all(
+      senderIds.map(async (clientId) => {
+        const latestMessage = await db.Chat.findOne({
+          where: { clientId },
+          order: [["createdAt", "DESC"]],
+        });
+
+        return latestMessage;
+      })
+    );
+
+    return res.status(200).json({
+      EM: "success", //error message
+      EC: 0,
+      DT: latestMessages.filter(Boolean), // data
+    });
+  } catch (error) {
+    console.log("error", error);
+
+    return res.status(500).json({
+      EM: "error from sever getLastMessage", //error message
+      EC: -1, //error code
+      DT: "", // data
+    });
+  }
+};
+
 module.exports = {
   sendMess,
   showMess,
   getAllSender,
+  getLastMessage,
 };
