@@ -21,7 +21,9 @@ module.exports = {
       message : {
         type: Sequelize.STRING,
       },
-
+      status: {
+        type: Sequelize.INTEGER, // 0 - chưa xem, 1 - đã xem
+      },
 
       createdAt: {
         allowNull: false,
