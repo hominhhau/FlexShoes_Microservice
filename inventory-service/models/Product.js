@@ -44,6 +44,7 @@ const ProductSchema = new mongoose.Schema({
     },
     image: [
         {
+            _id: false,
             imageID: {
                 type: mongoose.Schema.Types.ObjectId, ref: 'Image'
             }
@@ -51,17 +52,22 @@ const ProductSchema = new mongoose.Schema({
     ],
     inventory:[
         {
-            numberOfProduct: {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: 'NumberOfProducts'
-            }
-          }
+            _id: false,// tùy
+            numberOfProduct:{
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'NumberOfProducts'   
+            },       
+        }
     ]
 
 });
-ProductSchema.pre('save', function (next) {
-    this.totalQuantity = this.inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+ProductSchema.pre('save', async function (next) {
+    await this.populate('inventory.numberOfProduct');
+    this.totalQuantity = this.inventory.reduce((sum, item) => {
+        return sum + (item.numberOfProduct?.quantity || 0);
+    }, 0);
     next();
 });
+
 
 module.exports = mongoose.model("Product", ProductSchema);

@@ -25,6 +25,19 @@
         </processorPath>
         <module name="notification-service" />
       </profile>
+<<<<<<< HEAD
+=======
+      <profile name="Annotation profile for payment-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="payment-service" />
+        <module name="order-service" />
+      </profile>
+>>>>>>> babee8de2f7705239ef9b96f4ab415bddaee0be6
       <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -36,6 +49,7 @@
         <module name="user-service" />
         <module name="payment-service" />
       </profile>
+<<<<<<< HEAD
       <profile name="Annotation profile for order-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -45,6 +59,8 @@
         </processorPath>
         <module name="order-service" />
       </profile>
+=======
+>>>>>>> babee8de2f7705239ef9b96f4ab415bddaee0be6
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
