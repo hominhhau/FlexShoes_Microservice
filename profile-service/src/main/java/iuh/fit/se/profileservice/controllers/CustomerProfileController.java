@@ -38,4 +38,8 @@ public class CustomerProfileController {
         return customerService.updateByID(id, customerDTO);
 
     }
+    @PostMapping("/check-profile")
+    public boolean checkProfile(@RequestBody String phoneNumber) {
+        return customerService.checkProfile(phoneNumber);
+    }
 }

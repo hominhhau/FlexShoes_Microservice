@@ -14,16 +14,49 @@ module.exports = {
   },
   getProductById: async (req, res) => {
     try {
-      console.log("ID nhận được:", req.params.id);
-      const product = await Product.findById(req.params.id);
+      const productId = req.params.id;
+      console.log("ID nhận được:", productId);
+  
+      const product = await Product.findById(productId)
+        .populate({
+          path: 'image.imageID',
+          select: 'URL',
+        })
+        .populate({
+          path: 'inventory',
+          model: 'NumberOfProducts',
+          populate: [
+            {
+              path: 'numberOfProduct', // Populate the numberOfProduct document itself
+              populate: [ // Then populate fields within numberOfProduct
+                {
+                  path: 'size',
+                  model: 'Size',
+                  select: 'nameSize',
+                },
+                {
+                  path: 'color',
+                  model: 'Color',
+                  select: 'colorName hex', // Lấy cả hex code cho màu sắc nếu cần
+                },
+              ],
+            },
+          ],
+        })
+        .populate('proType', 'producTypeName description') // Lấy thêm description nếu cần
+        .populate('braType', 'brandTypeName description'); // Lấy thêm description nếu cần
+  
       console.log("Product tìm được: ", product);
+  
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
       }
+  
       res.status(200).json(product);
+  
     } catch (error) {
-      console.log("Khong get duoc SP");
-      res.status(500).json({ message: "Error when get product by id" });
+      console.error("Lỗi khi lấy sản phẩm theo ID:", error);
+      res.status(500).json({ message: "Lỗi khi lấy sản phẩm theo ID", error: error.message });
     }
   },
   getFilteredProducts: async (req, res) => {

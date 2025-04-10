@@ -1,6 +1,7 @@
 package iuh.fit.se.userservice.exceptions;
 
 import iuh.fit.se.userservice.dtos.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,18 @@ public class GlobalExceptionHandler {
                                 .status("FAILED")
                                 .message("Registration Failed: Please provide valid data.")
                                 .response(errors)
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponse<?>> globalExceptionHandler(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        ApiResponse.builder()
+                                .status("FAILED")
+                                .message(exception.getMessage())
                                 .build()
                 );
     }

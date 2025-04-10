@@ -89,6 +89,12 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException("Email already exist");
         }
 
+        System.out.println("Hi Tien");
+        if (profileClient.checkProfile(signUpRequest.getPhoneNumber())) {
+            throw new UserAlreadyExistsException("Phone number already exist");
+        }
+
+
         User user = createUser(signUpRequest);
         User result = userService.saveUser(user);
 

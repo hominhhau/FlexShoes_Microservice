@@ -15,11 +15,7 @@ const listingProductRoutes = require('./routes/listingProductRoutes');
 
 const app = express();
 
-// ✅ CORS config to allow credentials from localhost:3000
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-}));
+
 
 // Body parser middleware
 app.use(express.json());
@@ -34,6 +30,12 @@ app.use('/inventory', numberOfProductsRoutes);
 app.use('/inventory', productTypes);
 app.use('/inventory', listingProductRoutes);
 
+// ✅ CORS config to allow credentials from localhost:3000
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
+
 // Connect DB
 connectDB();
 
@@ -42,8 +44,49 @@ app.get("/", (req, res) => {
     res.send("Inventory Service is running!");
 });
 
+const { Eureka } = require('eureka-js-client');
+
+function registerWithEureka(port) {
+    const hostName = "localhost";
+    const ipAddr = '127.0.0.1';
+
+    const client = new Eureka({
+        instance: {
+            app: 'inventory-service',
+            hostName,
+            ipAddr,
+            port: {
+                '$': port,
+                '@enabled': true
+            },
+            vipAddress: 'inventory-service',
+            dataCenterInfo: {
+                '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
+                name: 'MyOwn'
+            }
+        },
+        eureka: {
+            host: 'localhost',
+            port: 8761,
+            servicePath: '/eureka/apps/',
+            maxRetries: 3,
+            requestRetryDelay: 5000
+        }
+    });
+
+    client.start(error => {
+        if (error) {
+            console.error('❌ Lỗi khi đăng ký Eureka:', error);
+        } else {
+            console.log('🎉 Đã đăng ký service với Eureka!');
+        }
+    });
+}
+
+
 // Start server
 const PORT = process.env.PORT || 8085;
 app.listen(PORT, () => {
+    registerWithEureka(PORT); // Đăng ký với Eureka tại đây
     console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -95,4 +95,10 @@ public class CustomerServiceImpl implements CustomerService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @Override
+    public boolean checkProfile(String phone) {
+
+        return customerRepository.existsByPhoneNumber(phone);
+    }
 }
