@@ -1,4 +1,5 @@
 const app = require('./app');
+const cors = require('cors');
 // const swaggerJsDoc = require("swagger-jsdoc");
 // const swaggerUi = require("swagger-ui-express");
 const PORT = process.env.PORT || 8085;
@@ -68,6 +69,10 @@ function registerWithEureka() {
     });
   }
 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  }));
 
 
 app.listen(PORT,'0.0.0.0', () => {

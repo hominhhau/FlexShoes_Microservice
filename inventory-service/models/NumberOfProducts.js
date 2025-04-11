@@ -11,5 +11,8 @@ const NumberOfProductsSchema = new mongoose.Schema({
     color:{
         type: mongoose.Schema.Types.ObjectId, ref: 'Color'
     },
+    product: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true
+    },
 });
 module.exports = mongoose.model("NumberOfProducts", NumberOfProductsSchema);
