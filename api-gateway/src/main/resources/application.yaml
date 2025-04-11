@@ -16,7 +16,7 @@ management:
     sampling:
       probability: 1.0
 
-spring:
+spring: 
   application:
     name: api-gateway
   config:

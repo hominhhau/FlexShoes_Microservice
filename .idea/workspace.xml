@@ -5,6 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge">
+      <change afterPath="$PROJECT_DIR$/chat-service/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/inventory-service/controllers/listingProductController.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/inventory-service/routes/listingProductRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/app.js" afterDir="false" />
@@ -19,6 +24,29 @@
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/exceptions/GlobalExceptionHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/WebClientConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/WebClientConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/src/controller/chatController.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/controller/chatController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/src/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/models/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config-server.rar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/models/ProductType.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/models/ProductType.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/seed.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/seed.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/seedData.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/seedData.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/CustomerServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/client/CustomerServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/controller/InvoiceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/controller/InvoiceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDetailDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDetailDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ListInvoiceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/ListInvoiceDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/impl/InvoiceServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/service/impl/InvoiceServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/repository/CustomerRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/repository/CustomerRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/CustomerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/CustomerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,6 +117,7 @@
     "Spring Boot.PaymentServiceApplication.executor": "Run",
     "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "Merging feature/order-service",
     "git-widget-placeholder": "feature/invoices",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/KienTrucPhanMem/Project1/FlexShoes_Microservice/order-service/src/main/java/com/microservice/order_service/config",
@@ -134,7 +163,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ConfigServerApplication">
+  <component name="RunManager" selected="Application.ConfigServerApplication">
     <configuration name="ConfigServerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="fit.se.iuh.configserver.ConfigServerApplication" />
       <module name="config-server" />
@@ -177,13 +206,6 @@
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.api_gateway.ApiGatewayApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ConfigServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="config-server" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="fit.se.iuh.configserver.ConfigServerApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -266,6 +288,7 @@
       <updated>1742453851167</updated>
       <workItem from="1742453852366" duration="6209000" />
       <workItem from="1744092122590" duration="2895000" />
+      <workItem from="1744098184108" duration="599000" />
       <workItem from="1744130110411" duration="3000" />
       <workItem from="1744219001492" duration="3000" />
       <workItem from="1744295797098" duration="4895000" />
@@ -311,15 +334,7 @@
       <option name="project" value="LOCAL" />
       <updated>1744094948090</updated>
     </task>
-    <task id="LOCAL-00006" summary="merge">
-      <option name="closed" value="true" />
-      <created>1744298522959</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1744298522959</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,8 +357,7 @@
     <MESSAGE value="config inventory eureka" />
     <MESSAGE value="fix order service" />
     <MESSAGE value="config server" />
-    <MESSAGE value="merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge" />
+    <option name="LAST_COMMIT_MESSAGE" value="config server" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

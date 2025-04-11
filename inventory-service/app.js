@@ -3,7 +3,6 @@ const cors = require('cors');
 const connectDB = require('./configs/db');
 require('dotenv').config();
 
-// Import routes
 const productRoutes = require('./routes/productRoutes');
 const brandTypeRoutes = require('./routes/brandTypeRoutes');
 const numberOfProductsRoutes = require('./routes/numberOfProductsRoutes');
@@ -14,7 +13,6 @@ const productTypes = require('./routes/productTypeRoutes');
 const listingProductRoutes = require('./routes/listingProductRoutes');
 
 const app = express();
-
 
 
 // Body parser middleware
@@ -34,6 +32,8 @@ app.use('/inventory', listingProductRoutes);
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Đảm bảo bao gồm các phương thức bạn sử dụng
+    allowedHeaders: 'Content-Type, Authorization', // Thêm các header tùy chỉnh nếu có
 }));
 
 // Connect DB
