@@ -17,7 +17,7 @@ import java.util.List;
 	@RequestMapping("/invoices")
 	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	@RequiredArgsConstructor
-	@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.HEAD, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.DELETE}, allowedHeaders = {"Content-Type", "Authorization"})
+//	@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.HEAD, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.DELETE}, allowedHeaders = {"Content-Type", "Authorization"})
 // Hoặc trên từng method:
 	public class InvoiceController {
 		InvoiceService invoiceService;
