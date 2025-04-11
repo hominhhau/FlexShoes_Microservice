@@ -4,13 +4,13 @@ const Color = require('../models/Color');
 module.exports = {
     //Get all colors
     getAllColors: async (req, res) => {
-        try{
+        try {
             const colors = await Color.find();
-            console.log("Test console Color:",colors);
+
             res.status(200).json(colors);
-        }catch(error){
+        } catch (error) {
             console.log("Khong get duoc Color");
-            res.status(500).json({message: "Error when get all colors"});
+            res.status(500).json({ message: "Error when get all colors" });
         }
     },
     getColorById: async (req, res) => {

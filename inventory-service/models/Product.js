@@ -13,7 +13,7 @@ const ProductSchema = new mongoose.Schema({
         type: String
     },
     status:{
-        type: Boolean,
+        type: String,
         default: true
     },
     discount:{
@@ -25,7 +25,7 @@ const ProductSchema = new mongoose.Schema({
         default: 0
     },
     gender:{
-        type: Boolean,
+        type: String,
         required: true
     },
     tax:{

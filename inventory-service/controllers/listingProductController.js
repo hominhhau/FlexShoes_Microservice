@@ -10,7 +10,7 @@ module.exports = {
         const { colors, sizes, brands, category, genders, minPrice, maxPrice } = req.query;
         console.log('Query Params:', req.query);
 
-        let query = { status: true };
+        let query = { status: 'Available' }; // Adjusted to match schema default
 
         try {
             // Filter by brand
@@ -40,14 +40,15 @@ module.exports = {
 
             // Filter by gender
             if (genders) {
-                const genderList = genders.split(',');
-                const genderConditions = [];
+                const genderList = genders.split(',').map(g => g.trim().toUpperCase());
+                const validGenders = ['MEN', 'WOMEN', 'UNISEX'];
+                const filteredGenders = genderList.filter(g => validGenders.includes(g));
 
-                if (genderList.includes('Men')) genderConditions.push(true);
-                if (genderList.includes('Women')) genderConditions.push(false);
-                if (genderList.includes('Unisex')) genderConditions.push(true, false);
-
-                query.gender = { $in: [...new Set(genderConditions)] };
+                if (filteredGenders.length > 0) {
+                    query.gender = { $in: filteredGenders };
+                } else {
+                    return res.status(200).json([]); // No valid genders provided
+                }
             }
 
             // Filter by price
@@ -57,7 +58,7 @@ module.exports = {
                 if (maxPrice) query.sellingPrice.$lte = parseFloat(maxPrice);
             }
 
-            // // Filter by size
+            // Filter by size
             let sizeConditions = [];
             if (sizes) {
                 const sizeList = sizes.split(',');
@@ -65,7 +66,7 @@ module.exports = {
                 sizeConditions = sizeDocs.map(s => s._id);
             }
 
-            // // Filter by color
+            // Filter by color
             let colorConditions = [];
             if (colors) {
                 const colorList = colors.split(',');
@@ -84,7 +85,7 @@ module.exports = {
                 if (matchedNumbers.length > 0) {
                     const matchedProducts = await Product.find({
                         'inventory.numberOfProduct': { $in: matchedNumbers }
-                    }).distinct('_id');
+                    }).distinct('_id'); // Ensure unique product IDs
 
                     if (matchedProducts.length > 0) {
                         query._id = { $in: matchedProducts };
@@ -98,17 +99,23 @@ module.exports = {
 
             console.log('Final Query:', query);
 
+            // Fetch products and ensure no duplicates by using distinct
             const products = await Product.find(query)
-                .populate('proType')
-                .populate('braType')
-                .populate({
-                    path: 'inventory.numberOfProduct',
-                    populate: [
-                        { path: 'size' },
-                        { path: 'color' }
-                    ]
-                })
-                .populate('image.imageID');
+                .distinct('_id') // Ensure unique products
+                .then(async (productIds) => {
+                    // Fetch full product details for the unique IDs
+                    return await Product.find({ _id: { $in: productIds } })
+                        .populate('proType')
+                        .populate('braType')
+                        .populate({
+                            path: 'inventory.numberOfProduct',
+                            populate: [
+                                { path: 'size' },
+                                { path: 'color' }
+                            ]
+                        })
+                        .populate('image.imageID');
+                });
 
             return res.status(200).json(products);
         } catch (error) {

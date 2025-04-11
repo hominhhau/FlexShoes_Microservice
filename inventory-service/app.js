@@ -3,7 +3,7 @@ const cors = require('cors');
 const connectDB = require('./configs/db');
 require('dotenv').config();
 
-// Import routes
+
 const productRoutes = require('./routes/productRoutes');
 const brandTypeRoutes = require('./routes/brandTypeRoutes');
 const numberOfProductsRoutes = require('./routes/numberOfProductsRoutes');
@@ -15,16 +15,17 @@ const listingProductRoutes = require('./routes/listingProductRoutes');
 
 const app = express();
 
+
 // ✅ CORS config to allow credentials from localhost:3000
 app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
+  origin: 'http://localhost:3000',
+  credentials: true,
 }));
 
 // Body parser middleware
 app.use(express.json());
 
-// Route middlewares
+
 app.use('/inventory', productRoutes);
 app.use('/inventory', brandTypeRoutes);
 app.use('/inventory', colorRoutes);
@@ -38,12 +39,11 @@ app.use('/inventory', listingProductRoutes);
 connectDB();
 
 // Test endpoint
-app.get("/", (req, res) => {
-    res.send("Inventory Service is running!");
-});
+
+
 
 // Start server
 const PORT = process.env.PORT || 8085;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

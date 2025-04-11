@@ -1,126 +1,127 @@
-const mongoose = require("mongoose");
-const Product = require("../models/Product");
+const mongoose = require('mongoose');
+const Product = require('../models/Product');
+const NumberOfProducts = require('../models/NumberOfProducts');
+const Image = require('../models/Image');
+const { uploadFile } = require('../utils/file.service');
 
 module.exports = {
   getAllProducts: async (req, res) => {
     try {
       const products = await Product.find();
-      console.log("Test console SanPham:", products);
+      console.log('Test console SanPham:', products);
       res.status(200).json(products);
     } catch (error) {
-      console.log("Khong get duoc SP");
-      res.status(500).json({ message: "Error when get all products" });
+      console.log('Khong get duoc SP');
+      res.status(500).json({ message: 'Error when get all products' });
     }
   },
+
   getProductById: async (req, res) => {
     try {
-      console.log("ID nhận được:", req.params.id);
+      console.log('ID nhận được:', req.params.id);
       const product = await Product.findById(req.params.id);
-      console.log("Product tìm được: ", product);
+      console.log('Product tìm được: ', product);
       if (!product) {
-        return res.status(404).json({ message: "Product not found" });
+        return res.status(404).json({ message: 'Product not found' });
       }
       res.status(200).json(product);
     } catch (error) {
-      console.log("Khong get duoc SP");
-      res.status(500).json({ message: "Error when get product by id" });
+      console.log('Khong get duoc SP');
+      res.status(500).json({ message: 'Error when get product by id' });
     }
   },
-  getFilteredProducts: async (req, res) => {
+
+  createProduct: async (req, res) => {
     try {
-      const { productTypeId, brandTypeId, sizeId, colorId } = req.body;
-      // Chuyển tham số ID thành mongoose.ObjectId nếu chúng là chuỗi
-      const productTypeObjectId = new mongoose.Types.ObjectId(productTypeId);
-      const brandTypeObjectId = new mongoose.Types.ObjectId(brandTypeId);
-      const sizeObjectId = new mongoose.Types.ObjectId(sizeId);
-      const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
-      console.log("productTypeId:", productTypeId);
-      console.log("brandTypeId:", brandTypeId);
-      console.log("sizeId:", sizeId);
-      console.log("colorId:", colorId);
 
-      const result = await Product.aggregate([
-        {
-          $match: {
-            sellingPrice: { $gte: 1000000, $lte: 3000000 },
-            gender: true,
-            proType: productTypeObjectId,
-            braType: brandTypeObjectId,
-          },
-        },
-        {
-          $unwind: "$inventory",
-        },
-        {
-          $lookup: {
-            from: "NumberOfProducts",
-            localField: "inventory.numberOfProduct",
-            foreignField: "_id",
-            as: "numberOfProductDetails",
-          },
-        },
-        {
-          $unwind: "$numberOfProductDetails",
-        },
-        {
-          $lookup: {
-            from: "sizes",
-            localField: "numberOfProductDetails.size",
-            foreignField: "_id",
-            as: "sizeDetail",
-          },
-        },
-        {
-          $lookup: {
-            from: "colors",
-            localField: "numberOfProductDetails.color",
-            foreignField: "_id",
-            as: "colorDetail",
-          },
-        },
-        {
-          $unwind: "$sizeDetail",
-        },
-        {
-          $unwind: "$colorDetail",
-        },
-        {
-          $match: {
-            "sizeDetail._id": sizeObjectId,
-            "colorDetail._id": colorObjectId,
-          },
-        },
-        {
-          $group: {
-            _id: "$_id",
-            productName: { $first: "$productName" },
-            sellingPrice: { $first: "$sellingPrice" },
-            gender: { $first: "$gender" },
-            braType: { $first: "$braType" },
-            proType: { $first: "$proType" },
-            description: { $first: "$description" },
-            inventory: { $push: "$inventory" },
-            image: { $first: "$image" },
-          },
-        },
-      ]);
-
-      // Kiểm tra nếu không có kết quả
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "Không tìm thấy sản phẩm phù hợp" });
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No images uploaded' });
       }
 
-      return res.status(200).json({
-        message: "Lọc sản phẩm thành công",
-        products: result,
+      const {
+        productName,
+        description,
+        originalPrice,
+        discount,
+        vat,
+        status,
+        gender,
+        brandId,
+        categoryId,
+        inventory,
+      } = req.body;
+
+      // Upload ảnh lên S3 và tạo document Image
+      const imageUploadPromises = req.files.map(async (file) => {
+        console.log('Uploading file:', file.originalname);
+        const url = await uploadFile(file); // Upload lên S3
+        const imageDoc = new Image({
+          imageName: file.originalname, // Dùng originalname làm imageName
+          URL: url, // Gán URL từ S3
+        });
+        await imageDoc.save();
+        return { imageID: imageDoc._id }; // Trả về object chứa imageID
+      });
+      const imageDocs = await Promise.all(imageUploadPromises);
+      console.log('Created Image documents:', imageDocs);
+
+      // Parse inventory từ chuỗi JSON
+      let parsedInventory;
+      try {
+        parsedInventory = JSON.parse(inventory);
+      } catch (error) {
+        return res.status(400).json({ message: 'Invalid inventory format', error: error.message });
+      }
+
+      // Tạo document NumberOfProducts
+      let totalQuantity = 0; // Initialize totalQuantity
+
+      const inventoryPromises = parsedInventory.map(async (item) => {
+        totalQuantity += parseInt(item.quantity, 10); // Accumulate total quantity
+        const numberOfProduct = new NumberOfProducts({
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        });
+        await numberOfProduct.save();
+        return { numberOfProduct: numberOfProduct._id }; // Return object containing numberOfProduct
+      });
+      const inventoryDocs = await Promise.all(inventoryPromises);
+      console.log('Created NumberOfProducts documents:', inventoryDocs);
+      // giá gốc -(giá gốc*giảm giá/100) + giá trị VAT trên giá gốc
+      const discountPercentage =
+        parseFloat(originalPrice) - (parseFloat(originalPrice) * parseFloat(discount)) / 100 + parseFloat(vat || 0);
+
+      // Tạo Product với image và inventory đã có
+      const newProduct = new Product({
+        productName,
+        description,
+        originalPrice: parseFloat(originalPrice),
+        sellingPrice: discountPercentage,
+        status: status, // Chuyển đổi để khớp schema
+        gender,
+        discount: parseFloat(discount),
+        braType: brandId,
+        proType: categoryId,
+        image: imageDocs, // Gán mảng imageID
+        inventory: inventoryDocs, // Gán mảng numberOfProduct
+        totalQuantity: totalQuantity, // Gán tổng số lượng sản phẩm
+        tax: parseFloat(vat || 0), // Gán giá trị VAT từ req.body
+      });
+
+      console.log('newProduct:', newProduct);
+
+      // Lưu Product vào database
+      const savedProduct = await newProduct.save();
+
+      res.status(201).json({
+        message: 'Product created successfully',
+        product: savedProduct,
       });
     } catch (error) {
-      // Xử lý lỗi
-      console.error("Lỗi khi lọc sản phẩm:", error);
-      return res.status(500).json({ message: "Lỗi khi lọc sản phẩm" });
+      console.error('Error creating product:', error);
+      res.status(500).json({ message: 'Error creating product', error: error.message });
     }
   },
 };

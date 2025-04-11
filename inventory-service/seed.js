@@ -72,63 +72,63 @@ const seedData = async () => {
 
     ]);
 
-    // ✅ Seed Image
-    const images = await Image.insertMany([
-      { imageName: 'nike-air-max-trang-xanh-1.png', URL: 'https://picsum.photos/seed/picsum1/200/300' },
-      { imageName: 'nike-air-max-trang-xanh-2.png', URL: 'https://picsum.photos/seed/picsum2/200/300' },
-      { imageName: 'adidas-ultraboost01-trang-1.png', URL: 'https://picsum.photos/seed/picsum3/200/300' },
-      { imageName: 'adidas-ultraboost01-trang-2.png', URL: 'https://picsum.photos/seed/picsum4/200/300' }
-    ]);
+    // // ✅ Seed Image
+    // const images = await Image.insertMany([
+    //   { imageName: 'nike-air-max-trang-xanh-1.png', URL: 'https://picsum.photos/seed/picsum1/200/300' },
+    //   { imageName: 'nike-air-max-trang-xanh-2.png', URL: 'https://picsum.photos/seed/picsum2/200/300' },
+    //   { imageName: 'adidas-ultraboost01-trang-1.png', URL: 'https://picsum.photos/seed/picsum3/200/300' },
+    //   { imageName: 'adidas-ultraboost01-trang-2.png', URL: 'https://picsum.photos/seed/picsum4/200/300' }
+    // ]);
 
     // ✅ Seed Quantity (NumberOfProducts)
-    const quantities = await NumberOfProducts.insertMany([
-      { quantity: 50, size: sizes[0]._id, color: colors[0]._id },
-      { quantity: 50, size: sizes[1]._id, color: colors[1]._id },
-      { quantity: 50, size: sizes[2]._id, color: colors[2]._id },
-      { quantity: 50, size: sizes[3]._id, color: colors[3]._id },
+    // const quantities = await NumberOfProducts.insertMany([
+    //   { quantity: 50, size: sizes[0]._id, color: colors[0]._id },
+    //   { quantity: 50, size: sizes[1]._id, color: colors[1]._id },
+    //   { quantity: 50, size: sizes[2]._id, color: colors[2]._id },
+    //   { quantity: 50, size: sizes[3]._id, color: colors[3]._id },
 
 
-    ]);
+    // ]);
 
-    // ✅ Seed Product
-    const products = await Product.insertMany([
-      {
-        productName: 'Nike Air Max',
-        description: 'Comfortable and stylish sneakers',
-        originalPrice: 120.00,
-        status: true,
-        discount: 5.00,
-        totalQuantity: 50,
-        gender: true,
-        tax: 10.0,
-        sellingPrice: 115.00,
-        proType: productTypes[0]._id,
-        braType: brands[0]._id,
-        image: { imageID: images[0]._id },
-        inventory: [
-          { numberOfProduct: quantities[0]._id },
-          { numberOfProduct: quantities[1]._id }
-        ]
-      },
-      {
-        productName: 'Adidas Ultraboost',
-        description: 'High-performance running shoes',
-        originalPrice: 150.00,
-        status: true,
-        discount: 15.00,
-        totalQuantity: 50,
-        gender: true,
-        tax: 10.0,
-        sellingPrice: 135.00,
-        proType: productTypes[1]._id,
-        braType: brands[1]._id,
-        image: { imageID: images[1]._id },
-        inventory: [
-          { numberOfProduct: quantities[2]._id },
-          { numberOfProduct: quantities[3]._id }
-        ]
-      }
-    ]);
+    // // ✅ Seed Product
+    // const products = await Product.insertMany([
+    //   {
+    //     productName: 'Nike Air Max',
+    //     description: 'Comfortable and stylish sneakers',
+    //     originalPrice: 120.00,
+    //     status: true,
+    //     discount: 5.00,
+    //     totalQuantity: 50,
+    //     gender: true,
+    //     tax: 10.0,
+    //     sellingPrice: 115.00,
+    //     proType: productTypes[0]._id,
+    //     braType: brands[0]._id,
+    //     image: { imageID: images[0]._id },
+    //     inventory: [
+    //       { numberOfProduct: quantities[0]._id },
+    //       { numberOfProduct: quantities[1]._id }
+    //     ]
+    //   },
+    //   {
+    //     productName: 'Adidas Ultraboost',
+    //     description: 'High-performance running shoes',
+    //     originalPrice: 150.00,
+    //     status: true,
+    //     discount: 15.00,
+    //     totalQuantity: 50,
+    //     gender: true,
+    //     tax: 10.0,
+    //     sellingPrice: 135.00,
+    //     proType: productTypes[1]._id,
+    //     braType: brands[1]._id,
+    //     image: { imageID: images[1]._id },
+    //     inventory: [
+    //       { numberOfProduct: quantities[2]._id },
+    //       { numberOfProduct: quantities[3]._id }
+    //     ]
+    //   }
+    // ]);
 
     console.log('✅ Dữ liệu đã được seed thành công!');
   } catch (error) {

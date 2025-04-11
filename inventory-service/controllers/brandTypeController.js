@@ -4,66 +4,66 @@ const BrandType = require('../models/BrandType');
 
 module.exports = {
     getAllBrandTypes: async (req, res) => {
-        try{
+        try {
             const brandTypes = await BrandType.find();
-            console.log("Test console BrandType:",brandTypes);
+
             res.status(200).json(brandTypes);
-        }catch(error){
+        } catch (error) {
             console.log("Khong get duoc BrandType");
-            res.status(500).json({message: "Error when get all brand types"});
+            res.status(500).json({ message: "Error when get all brand types" });
         }
     },
     getBrandTypeById: async (req, res) => {
-        try{
-            console.log("ID nhận được:",req.params.id);
+        try {
+            console.log("ID nhận được:", req.params.id);
             const brandType = await BrandType.findById(req.params.id);
-            console.log("BrandType tìm được: ",brandType);
-            if(!brandType){
-                return res.status(404).json({message: "Brand type not found"});
+
+            if (!brandType) {
+                return res.status(404).json({ message: "Brand type not found" });
             }
             res.status(200).json(brandType);
-        }catch(error){
+        } catch (error) {
             console.log("Khong get duoc BrandType by id");
-            res.status(500).json({message: "Error when get brand type by id"});
+            res.status(500).json({ message: "Error when get brand type by id" });
         }
     },
     getBrandTypeByName: async (req, res) => {
-        try{
-            console.log("Name nhận được:",req.params.name);
-            const brandType = await BrandType.findOne({brandTypeName: req.params.name});
-            console.log("BrandType tìm được: ",brandType);
-            if(!brandType){
-                return res.status(404).json({message: "Brand type not found"});
+        try {
+            console.log("Name nhận được:", req.params.name);
+            const brandType = await BrandType.findOne({ brandTypeName: req.params.name });
+            console.log("BrandType tìm được: ", brandType);
+            if (!brandType) {
+                return res.status(404).json({ message: "Brand type not found" });
             }
             res.status(200).json(brandType);
-        }catch(error){
+        } catch (error) {
             console.log("Khong get duoc BrandType by name");
-            res.status(500).json({message: "Error when get brand type by name"});
+            res.status(500).json({ message: "Error when get brand type by name" });
         }
     },
     createBrandType: async (req, res) => {
-        try{
+        try {
             const newBrandType = new BrandType(req.body);
             await newBrandType.save();
-            console.log("BrandType tao thanh cong: ",newBrandType);
+            console.log("BrandType tao thanh cong: ", newBrandType);
             res.status(201).json(newBrandType);
-        }catch(error){
+        } catch (error) {
             console.log("Khong tao duoc BrandType");
-            res.status(500).json({message: "Error when create brand type"});
+            res.status(500).json({ message: "Error when create brand type" });
         }
     },
     deleteBrandType: async (req, res) => {
-        try{
+        try {
             const brandType = await BrandType.findByIdAndDelete(req.params.id);
-            console.log("ID nhận được:",req.params.id);
-            if(!brandType){
-                return res.status(404).json({message: "Brand type not found"});
+            console.log("ID nhận được:", req.params.id);
+            if (!brandType) {
+                return res.status(404).json({ message: "Brand type not found" });
             }
-            console.log("BrandType xoa thanh cong: ",brandType);
-            res.status(200).json({message: "Brand type deleted successfully"});
-        }catch(error){
+            console.log("BrandType xoa thanh cong: ", brandType);
+            res.status(200).json({ message: "Brand type deleted successfully" });
+        } catch (error) {
             console.log("Khong xoa duoc BrandType");
-            res.status(500).json({message: "Error when delete brand type"});
+            res.status(500).json({ message: "Error when delete brand type" });
         }
     }
 };
