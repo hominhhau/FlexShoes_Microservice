@@ -3,6 +3,7 @@ const cors = require('cors');
 const connectDB = require('./configs/db');
 require('dotenv').config();
 
+// Import routes
 const productRoutes = require('./routes/productRoutes');
 const brandTypeRoutes = require('./routes/brandTypeRoutes');
 const numberOfProductsRoutes = require('./routes/numberOfProductsRoutes');
@@ -14,6 +15,11 @@ const listingProductRoutes = require('./routes/listingProductRoutes');
 
 const app = express();
 
+// ✅ CORS config to allow credentials from localhost:3000
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+}));
 
 // Body parser middleware
 app.use(express.json());
