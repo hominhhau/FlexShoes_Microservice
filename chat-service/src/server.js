@@ -29,7 +29,7 @@ app.get("/getLastMessage", chatController.getLastMessage);
 app.post("/updateMessageStatus", chatController.updateMessageStatus);
 
 // Bắt đầu lắng nghe trên một cổng
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

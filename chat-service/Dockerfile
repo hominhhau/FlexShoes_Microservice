@@ -27,10 +27,10 @@ ENV DB_PORT=5432
 ENV DB_DIALECT=postgres
 
 # Expose cổng mà ứng dụng Node.js chạy
-EXPOSE 8080
+EXPOSE 8089
 
 # Chạy ứng dụng Node.js
 CMD ["npm", "run", "build"]
 
 # docker build --tag node-docker .
-# docker run -p 8080:8080 -d node-docker
+# docker run -p 8089:8089 -d node-docker
