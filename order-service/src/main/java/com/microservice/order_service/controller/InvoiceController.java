@@ -42,6 +42,11 @@ import java.util.List;
 					.<InvoiceDto>builder().result(invoiceService.getInvoice(id)).build();
 		}
 
+        @GetMapping("/findByCustomerId/{customerId}")
+        public MyAPIResponse<Object> findByCustomerId(@PathVariable Long customerId) {
+            return MyAPIResponse
+                    .builder().result(invoiceService.getInvoicesByCustomerId(customerId)).build();
+        }
 		// Cập nhật hóa đơn
 		@PutMapping("/updateInvoice")
 		public MyAPIResponse<Boolean> updateInvoice( @Valid @RequestBody InvoiceDto invoiceDto) {

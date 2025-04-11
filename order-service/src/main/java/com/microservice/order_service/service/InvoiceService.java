@@ -33,4 +33,5 @@ public interface InvoiceService {
 
     ProductDto getProductInfo(String productId);
     CustomerDto getCustomerInfo(Long customerId);
+    List<InvoiceDto> getInvoicesByCustomerId(Long customerId);
 }

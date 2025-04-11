@@ -17,7 +17,7 @@ public class ProductDto {
     private double discount;
     private String status;
     private List<String> images;
-    private double originalPrice;
+    private double sellingPrice;
     private String description;
     private Integer totalQuantity;
     private boolean gender;

@@ -97,65 +97,161 @@ public class InvoiceServiceImpl implements InvoiceService {
 //		// Trả về DTO kèm theo thông tin khách hàng
 //		return invoiceMapper.toDTO(savedInvoice, customer);
 //	}
-	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
-		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
-		CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
-		System.out.println("Thông tin khách hàng: " + customer);
-		if (customer == null) {
-			throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
-		}
+//	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
+//		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
+//		CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
+//		System.out.println("Thông tin khách hàng: " + customer);
+//		if (customer == null) {
+//			throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
+//		}
+//
+//		// Chuyển đổi DTO thành entity
+//		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+//		invoice.setInvoiceId(null); // Đảm bảo tạo mới
+//		invoice.setCustomerId(customer.getUserID());
+//
+//		List<InvoiceDetail> details = new ArrayList<>();
+//
+//		// Kiểm tra danh sách chi tiết hóa đơn
+//		if (invoiceDto.getInvoiceDetails() != null) {
+//			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
+//				// **Kiểm tra giá trị productId ngay lập tức**
+//				System.out.println("InvoiceDetailDto productId nhận được: " + detailDto.getProductId());
+//
+//				// Gọi ProductService để lấy thông tin sản phẩm
+//				String productId = detailDto.getProductId();
+//				ProductDto product = null;
+//				if (productId != null && !productId.isEmpty()) {
+//					product = getProductInfo(productId);
+//					System.out.println("Thông tin sản phẩm: " + product);
+//					if (product == null) {
+//						throw new RuntimeException("Sản phẩm ID " + productId + " không tồn tại!");
+//					}
+//                    detailDto.setProduct(product);
+//                    System.out.println("product khi taoh" + product);
+//				} else {
+//					System.err.println("Cảnh báo: productId trong InvoiceDetailDto là null hoặc rỗng.");
+//					// **Tùy thuộc vào yêu cầu nghiệp vụ, bạn có thể xử lý khác ở đây:**
+//					// - Bỏ qua chi tiết hóa đơn này
+//					// - Gán một giá trị mặc định (nếu có logic cho nó)
+//					// - Tiếp tục và có thể gây ra lỗi ở bước sau
+//					// Trong ví dụ này, chúng ta sẽ không tạo InvoiceDetail nếu productId là null hoặc rỗng.
+//					continue;
+//				}
+//
+//				// Tạo chi tiết hóa đơn
+//				InvoiceDetail detail = new InvoiceDetail();
+//				detail.setProductId(productId);
+//				detail.setQuantity(detailDto.getQuantity());
+//				detail.setInvoice(invoice);
+//
+//				details.add(detail);
+//			}
+//		}
+//
+//		invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
+//
+//		// Lưu hóa đơn, Hibernate sẽ lưu luôn các chi tiết hóa đơn do cascade
+//		Invoice savedInvoice = invoiceRepository.save(invoice);
+//
+//		// Trả về DTO kèm theo thông tin khách hàng
+//		return invoiceMapper.toDTO(savedInvoice, customer);
+//	}
 
-		// Chuyển đổi DTO thành entity
-		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-		invoice.setInvoiceId(null); // Đảm bảo tạo mới
-		invoice.setCustomerId(customer.getUserID());
+    public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
+        // Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
+        CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
+        System.out.println("Thông tin khách hàng: " + customer);
+        if (customer == null) {
+            throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
+        }
 
-		List<InvoiceDetail> details = new ArrayList<>();
+        // Chuyển đổi DTO thành entity
+        Invoice invoice = invoiceMapper.toEntity(invoiceDto);
+        invoice.setInvoiceId(null); // Đảm bảo tạo mới
+        invoice.setCustomerId(customer.getUserID());
 
-		// Kiểm tra danh sách chi tiết hóa đơn
-		if (invoiceDto.getInvoiceDetails() != null) {
-			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
-				// **Kiểm tra giá trị productId ngay lập tức**
-				System.out.println("InvoiceDetailDto productId nhận được: " + detailDto.getProductId());
+        List<InvoiceDetail> details = new ArrayList<>();
 
-				// Gọi ProductService để lấy thông tin sản phẩm
-				String productId = detailDto.getProductId();
-				ProductDto product = null;
-				if (productId != null && !productId.isEmpty()) {
-					product = getProductInfo(productId);
-					System.out.println("Thông tin sản phẩm: " + product);
-					if (product == null) {
-						throw new RuntimeException("Sản phẩm ID " + productId + " không tồn tại!");
-					}
-				} else {
-					System.err.println("Cảnh báo: productId trong InvoiceDetailDto là null hoặc rỗng.");
-					// **Tùy thuộc vào yêu cầu nghiệp vụ, bạn có thể xử lý khác ở đây:**
-					// - Bỏ qua chi tiết hóa đơn này
-					// - Gán một giá trị mặc định (nếu có logic cho nó)
-					// - Tiếp tục và có thể gây ra lỗi ở bước sau
-					// Trong ví dụ này, chúng ta sẽ không tạo InvoiceDetail nếu productId là null hoặc rỗng.
-					continue;
-				}
+        // Kiểm tra danh sách chi tiết hóa đơn
+        if (invoiceDto.getInvoiceDetails() != null) {
+            for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
+                // **Kiểm tra giá trị productId ngay lập tức**
+                System.out.println("InvoiceDetailDto productId nhận được: " + detailDto.getProductId());
 
-				// Tạo chi tiết hóa đơn
-				InvoiceDetail detail = new InvoiceDetail();
-				detail.setProductId(productId);
-				detail.setQuantity(detailDto.getQuantity());
-				detail.setInvoice(invoice); // Gán invoice vào detail
+                // Gọi ProductService để lấy thông tin sản phẩm
+                String productId = detailDto.getProductId();
+                ProductDto product = null;
+                if (productId != null && !productId.isEmpty()) {
+                    product = getProductInfo(productId);
+                    System.out.println("Thông tin sản phẩm: " + product);
+                    if (product == null) {
+                        throw new RuntimeException("Sản phẩm ID " + productId + " không tồn tại!");
+                    }
+                    // **Set the ProductDto to the InvoiceDetailDto**
+                    detailDto.setProduct(product);
+                } else {
+                    System.err.println("Cảnh báo: productId trong InvoiceDetailDto là null hoặc rỗng.");
+                    continue;
+                }
 
-				details.add(detail);
-			}
-		}
+                // Tạo chi tiết hóa đơn entity
+                InvoiceDetail detail = new InvoiceDetail();
+                detail.setProductId(productId);
+                detail.setQuantity(detailDto.getQuantity());
+                detail.setInvoice(invoice);
 
-		invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
+                details.add(detail);
+            }
+        }
 
-		// Lưu hóa đơn, Hibernate sẽ lưu luôn các chi tiết hóa đơn do cascade
-		Invoice savedInvoice = invoiceRepository.save(invoice);
+        invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
 
-		// Trả về DTO kèm theo thông tin khách hàng
-		return invoiceMapper.toDTO(savedInvoice, customer);
-	}
+        // Lưu hóa đơn, Hibernate sẽ lưu luôn các chi tiết hóa đơn do cascade (assuming configured)
+        Invoice savedInvoice = invoiceRepository.save(invoice);
 
+        // Convert the saved Invoice entity back to DTO, including the populated InvoiceDetails
+        InvoiceDto savedInvoiceDto = invoiceMapper.toDTO(savedInvoice, customer);
+        savedInvoiceDto.setInvoiceDetails(invoiceDto.getInvoiceDetails()); // Transfer the DtoList with ProductDto
+
+        return savedInvoiceDto;
+    }
+
+    @Override
+    public List<InvoiceDto> getInvoicesByCustomerId(Long customerId) {
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID không được để trống!");
+        }
+
+        List<Invoice> invoices = invoiceRepository.findByCustomerId(customerId);
+
+        if (invoices == null || invoices.isEmpty()) {
+            System.out.println("Không tìm thấy hóa đơn nào cho khách hàng có ID: " + customerId);
+            return new ArrayList<>();
+        }
+
+        System.out.println("Tìm thấy " + invoices.size() + " hóa đơn cho khách hàng ID: " + customerId);
+
+        return invoices.stream()
+                .map(invoice -> {
+                    CustomerDto customerDto = getCustomerInfo(invoice.getCustomerId());
+                    InvoiceDto invoiceDto = invoiceMapper.toDTO(invoice, customerDto);
+                    List<InvoiceDetailDto> detailDtos = invoice.getInvoiceDetails().stream()
+                            .map(detail -> {
+                                InvoiceDetailDto detailDto = new InvoiceDetailDto();
+                                detailDto.setProductId(detail.getProductId());
+                                detailDto.setQuantity(detail.getQuantity());
+                                // **Fetch Product information for each detail**
+                                ProductDto productDto = getProductInfo(detail.getProductId());
+                                detailDto.setProduct(productDto);
+                                return detailDto;
+                            })
+                            .collect(Collectors.toList());
+                    invoiceDto.setInvoiceDetails(detailDtos);
+                    return invoiceDto;
+                })
+                .collect(Collectors.toList());
+    }
 
 	@Override
 	public List<InvoiceDto> getAllInvoice() {
