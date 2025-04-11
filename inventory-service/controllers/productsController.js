@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const Image = require("../models/Image");
+const NumberOfProducts = require("../models/NumberOfProducts");
 
 module.exports = {
   getAllProducts: async (req, res) => {
@@ -123,4 +125,111 @@ module.exports = {
       return res.status(500).json({ message: "Lỗi khi lọc sản phẩm" });
     }
   },
+  createProduct: async (req, res) => {
+    try {
+      console.log("📥 Dữ liệu nhận được từ client:", req.body);
+  
+      const {
+        productName,
+        description,
+        originalPrice,
+        status,
+        sellingPrice,
+        vat,
+        gender,
+        images,
+        brand,
+        productCategory,
+      } = req.body;
+  
+      if (
+        productName === undefined ||
+        originalPrice === undefined ||
+        sellingPrice === undefined ||
+        gender === undefined ||
+        !productCategory?.categoryId ||
+        !brand?.brandId
+      ) {
+        return res.status(400).json({ message: "Thiếu thông tin bắt buộc để tạo sản phẩm." });
+      }
+  
+      // //Lấy danh sách inventory
+      // const allInventories = await NumberOfProducts.find();
+      // if (allInventories.length === 0) {
+      //   return res.status(400).json({ message: "Không có dữ liệu inventory (NumberOfProducts) nào." });
+      // }
+  
+      //Lấy hình ảnh ngẫu nhiên từ DB
+      const allImages = await Image.find();
+      if (!allImages.length) {
+        return res.status(400).json({ message: "Không có hình ảnh nào trong database." });
+      }
+  
+      const numberOfImages = Math.floor(Math.random() * 3) + 1;
+      const selectedImages = [];
+      const usedIndexes = new Set();
+  
+      while (selectedImages.length < numberOfImages) {
+        const index = Math.floor(Math.random() * allImages.length);
+        if (!usedIndexes.has(index)) {
+          usedIndexes.add(index);
+          selectedImages.push({ imageID: allImages[index]._id });
+        }
+      }
+  
+      // ✅ Gán inventory
+      // const inventory = allInventories.map(inv => ({
+      //   numberOfProduct: inv._id
+      // }));
+  
+      // ✅ Tính tổng số lượng tồn
+      //const totalQuantity = allInventories.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  
+      // ✅ Tạo sản phẩm mới (bỏ các field bạn không truyền từ client)
+      const newProduct = new Product({
+        productName,
+        description,
+        originalPrice,
+        status,
+        sellingPrice,
+        vat,
+        gender,
+        image: selectedImages,
+        //inventory,
+        // totalQuantity,
+        brand,
+        productCategory
+      });
+  
+      await newProduct.save();
+
+       // Sau khi tạo xong, lấy danh sách inventory liên quan tới sản phẩm này
+    const relatedInventories = await NumberOfProducts.find({ product: newProduct._id });
+
+    const inventory = relatedInventories.map(inv => ({
+      numberOfProduct: inv._id
+    }));
+
+    const totalQuantity = relatedInventories.reduce((sum, item) => sum + (item.quantity || 0), 0);
+
+    // Gán vào sản phẩm rồi lưu lại
+    newProduct.inventory = inventory;
+    newProduct.totalQuantity = totalQuantity;
+    await newProduct.save();
+  
+      res.status(201).json({
+        message: "Tạo sản phẩm thành công",
+        product: newProduct
+      });
+  
+    } catch (error) {
+      console.error("Lỗi khi tạo sản phẩm:", error.message);
+      console.error("stack:", error.stack);
+      res.status(500).json({
+        message: "Lỗi khi tạo sản phẩm",
+        error: error.message
+      });
+    }
+  },
+  
 };

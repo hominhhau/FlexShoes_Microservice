@@ -155,6 +155,8 @@ async function seedData() {
 
       // Lấy ngẫu nhiên 1-3 ảnh đầu tiên sau khi shuffle
       const selectedImages = shuffledImages.slice(0, numberOfImages);
+      const genders = ["male", "female", "unisex"];
+
       await Product.create({
         productName: productList[i],
         originalPrice: Math.floor(Math.random() * 2000000) + 2000000,
@@ -162,7 +164,7 @@ async function seedData() {
         totalQuantity: numberOfProducts[i % numberOfProducts.length].quantity,
         status: true,
         discount: Math.floor(Math.random() * 20),
-        gender: Math.random() < 0.5,
+        gender: genders[Math.floor(Math.random() * genders.length)],
         tax: 5,
         sellingPrice: Math.floor(Math.random() * 1800000) + 1000000,
         proType: productType[i % productType.length]._id,
