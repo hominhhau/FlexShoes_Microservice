@@ -9,6 +9,7 @@ const sendMess = async (req, res) => {
       adminId: 1,
       senderId: req.body.senderId,
       message: req.body.message,
+      status: 0 // chưa xem
     });
 
     let mess = await db.Chat.findAll({
@@ -97,7 +98,7 @@ const getLastMessage = async (req, res) => {
     if (!senderIds || senderIds.length === 0) {
       return res.status(400).json({ message: "senderIds is required" });
     }
-
+    
     const latestMessages = await Promise.all(
       senderIds.map(async (clientId) => {
         const latestMessage = await db.Chat.findOne({
@@ -125,8 +126,43 @@ const getLastMessage = async (req, res) => {
   }
 };
 
+const updateMessageStatus = async (req, res) => {
+  try {
+    const { clientId } = req.body;
+
+    await db.Chat.update(
+      { status: 1 }, // Đã đọc
+      {
+        where: {
+          clientId: clientId,
+          status: 0, // Chỉ update những tin nhắn chưa đọc
+        },
+      }
+    );
+
+    return res.status(200).json({
+      EM: "success",
+      //error message
+      EC: 0,
+      DT: [], // data
+    });
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).json({
+      EM: "error from sever getAllSender",
+      //error message
+      EC: -1,
+      //error code
+      DT: "", // data
+    });
+  }
+};
+
+
 module.exports = {
   sendMess,
   showMess,
   getAllSender,
+  getLastMessage,
+  updateMessageStatus,
 };
