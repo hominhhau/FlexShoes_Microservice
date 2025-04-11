@@ -45,7 +45,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/users/introspect",
             "/invoices/recent",
             "/inventory/filterProductsByCriteria",
-            "/inventory/getAllProducts"
+            "/inventory/getAllProducts",
+            "/inventory/getAllProductTypes",
+            "/inventory/createProduct",
+            "/inventory/attachInventoryToProduct",
+            "/inventory/getAllColors",
+            "/inventory/getAllSizes",
+            "/inventory/getAllProductTypes",
+            "/inventory/getAllBrandTypes",
+
 
     };
 

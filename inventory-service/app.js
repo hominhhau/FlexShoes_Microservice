@@ -16,10 +16,10 @@ const listingProductRoutes = require('./routes/listingProductRoutes');
 const app = express();
 
 // ✅ CORS config to allow credentials from localhost:3000
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-}));
+// app.use(cors({
+//     origin: 'http://localhost:3000',
+//     credentials: true,
+// }));
 
 // Body parser middleware
 app.use(express.json());
@@ -46,9 +46,9 @@ app.use(cors({
 connectDB();
 
 // Test endpoint
-app.get("/", (req, res) => {
-    res.send("Inventory Service is running!");
-});
+// app.get("/", (req, res) => {
+//     res.send("Inventory Service is running!");
+// });
 
 const { Eureka } = require('eureka-js-client');
 
