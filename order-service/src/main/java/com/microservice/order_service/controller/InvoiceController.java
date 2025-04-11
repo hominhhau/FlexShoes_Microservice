@@ -43,9 +43,8 @@ import java.util.List;
 		}
 
         @GetMapping("/findByCustomerId/{customerId}")
-        public MyAPIResponse<Object> findByCustomerId(@PathVariable Long customerId) {
-            return MyAPIResponse
-                    .builder().result(invoiceService.getInvoicesByCustomerId(customerId)).build();
+        public ResponseEntity<List<InvoiceDto>> findByCustomerId(@PathVariable Long customerId) {
+            return ResponseEntity.ok(invoiceService.getInvoicesByCustomerId(customerId));
         }
 		// Cập nhật hóa đơn
 		@PutMapping("/updateInvoice")
