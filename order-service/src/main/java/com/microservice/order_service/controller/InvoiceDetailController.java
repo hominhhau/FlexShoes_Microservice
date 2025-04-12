@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/invoiceDetail")
+@RequestMapping("/invoiceDetail")
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class InvoiceDetailController {
 	InvoiceDetailService invoiceDetailService;

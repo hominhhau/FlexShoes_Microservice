@@ -29,7 +29,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
             "(:orderStatus IS NULL OR LOWER(i.orderStatus) LIKE LOWER(CONCAT('%', :orderStatus, '%'))) ")
     List<Invoice> searchInvoices(
             @Param("id") Integer id,
-            @Param("customerId") Integer customerId,
+            @Param("customerId") Long customerId,
             @Param("orderStatus") String orderStatus);
-
+    List<Invoice> findByCustomerId(Long customerId);
 }

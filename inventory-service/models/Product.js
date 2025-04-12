@@ -13,7 +13,7 @@ const ProductSchema = new mongoose.Schema({
         type: String
     },
     status:{
-        type: Boolean,
+        type: String,
         default: true
     },
     discount:{
@@ -25,7 +25,7 @@ const ProductSchema = new mongoose.Schema({
         default: 0
     },
     gender:{
-        type: Boolean,
+        type: String,
         required: true
     },
     tax:{
@@ -44,6 +44,7 @@ const ProductSchema = new mongoose.Schema({
     },
     image: [
         {
+            _id: false,
             imageID: {
                 type: mongoose.Schema.Types.ObjectId, ref: 'Image'
             }
@@ -51,36 +52,22 @@ const ProductSchema = new mongoose.Schema({
     ],
     inventory:[
         {
-            quantity:{
-              type: Number, ref: 'NumberOfProducts'
-            },
-            // numberOfProduct:{
-            //     type: mongoose.Schema.Types.ObjectId, ref: 'NumberOfProducts'   
-
-            // },
-            size:{
-               _id: {
-                     type: mongoose.Schema.Types.ObjectId, ref: 'Size'
-               },
-               sizeName: {
-                     type: String,
-               }
-            },
-            color:{
-                _id: {
-                    type: mongoose.Schema.Types.ObjectId, ref: 'Color'
-                },
-                colorName: {
-                    type: String,
-                }
-            }
+            _id: false,// tùy
+            numberOfProduct:{
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: 'NumberOfProducts'   
+            },       
         }
     ]
 
 });
-ProductSchema.pre('save', function (next) {
-    this.totalQuantity = this.inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+ProductSchema.pre('save', async function (next) {
+    await this.populate('inventory.numberOfProduct');
+    this.totalQuantity = this.inventory.reduce((sum, item) => {
+        return sum + (item.numberOfProduct?.quantity || 0);
+    }, 0);
     next();
 });
+
 
 module.exports = mongoose.model("Product", ProductSchema);

@@ -6,20 +6,14 @@ const NumberOfProductsSchema = new mongoose.Schema({
         required: true
     },
     size: {
-        _id: {
-            type: mongoose.Schema.Types.ObjectId, ref: 'Size'
-        },
-        sizeName: {
-            type: String,
-        }
+        type: mongoose.Schema.Types.ObjectId, ref: 'Size'
     },
-    color:{
-        _id: {
-            type: mongoose.Schema.Types.ObjectId, ref: 'Color'
-        },
-        colorName: {
-            type: String,
-        }
+    color: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Color'
+    },
+    product: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Product',
+
     },
 });
 module.exports = mongoose.model("NumberOfProducts", NumberOfProductsSchema);

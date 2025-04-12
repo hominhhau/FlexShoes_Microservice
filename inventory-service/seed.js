@@ -1,179 +1,139 @@
-console.log("Chạy seed.js");
-const mongoose = require("mongoose");
-const connectDB = require("./configs/db");
-const BrandType = require("./models/BrandType");
-const Color = require("./models/Color");
-const Image = require("./models/Image");
-const Size = require("./models/Size");
-const NumberOfProducts = require("./models/NumberOfProducts");
-const ProductType = require("./models/ProductType");
-const Product = require("./models/Product");
-require("dotenv").config();
-
-const brandTypes = [
-  { brandTypeName: "Thể thao", description: "Dòng giày chuyên dụng cho thể thao." },
-  { brandTypeName: "Sneaker", description: "Dòng giày thời trang phổ biến." },
-  { brandTypeName: "Boot", description: "Dòng giày bền bỉ và cá tính." },
-  { brandTypeName: "Sandal", description: "Dòng giày nhẹ nhàng, thoáng mát." },
-];
-const colors = [
-  { colorName: "Đen" },
-  { colorName: "Trắng" },
-  { colorName: "Xám" },
-  { colorName: "Xanh" },
-  { colorName: "Đỏ" },
-  { colorName: "Vàng" },
-  { colorName: "Cam" },
-  { colorName: "Hồng" },
-  { colorName: "Tím" },
-  { colorName: "Nâu" },
-];
-const images = [
-  {imageName: "Nike Air Max", URL: "https://picsum.photos/200"},
-  {imageName: "Adidas UltraBoost", URL: "https://picsum.photos/200"},
-  {imageName: "Puma RS-X", URL: "https://picsum.photos/200"},
-  {imageName: "Vans Old Skool", URL: "https://picsum.photos/200"},
-  {imageName: "Converse Chuck Taylor", URL: "https://picsum.photos/200"}
-];
-const sizeData = [
-  { nameSize: "36" },
-  { nameSize: "37" },
-  { nameSize: "38" },
-  { nameSize: "39" },
-  { nameSize: "40" },
-  { nameSize: "41" },
-  { nameSize: "42" },
-  { nameSize: "43" },
-  { nameSize: "44" }
-];
-const productTypesData = [
-  { producTypeName: "Sneakers", description: "Comfortable sports shoes" },
-  { producTypeName: "Formal", description: "Elegant office wear shoes" },
-  { producTypeName: "Boots", description: "Sturdy and stylish boots" }
-];
+// path=seed.js
+const mongoose = require('mongoose');
+const BrandType = require('./models/BrandType');
+const ProductType = require('./models/ProductType'); // ✅ Thêm dòng này vì bạn sử dụng ProductType
+const Color = require('./models/Color');
+const Size = require('./models/Size');
+const Product = require('./models/Product');
+const Image = require('./models/Image');
+const NumberOfProducts = require('./models/NumberOfProducts');
 
 const seedData = async () => {
   try {
-    await connectDB(); 
-    console.log("Kết nối MongoDB thành công!");
+    // ✅ Kết nối đến MongoDB
+    await mongoose.connect('mongodb://localhost:27017/inventoryDB');
 
-    // Xóa dữ liệu cũ trước khi thêm mới (tuỳ chọn)
-    //await BrandType.deleteMany({});
-    //await Color.deleteMany({});
-    //await Image.deleteMany({});
-    //await Size.deleteMany({});
-    //await NumberOfProducts.deleteMany({})
-    //await ProductType.deleteMany({});
-    await Product.deleteMany({});
-    console.log("Đã xóa dữ liệu cũ.");
+    // ✅ Xóa dữ liệu cũ
+    await Promise.all([
+      BrandType.deleteMany({}),
+      ProductType.deleteMany({}),
+      Color.deleteMany({}),
+      Size.deleteMany({}),
+      Product.deleteMany({}),
+      Image.deleteMany({}),
+      NumberOfProducts.deleteMany({})
+    ]);
 
-    // Thêm dữ liệu mới
-    //await BrandType.insertMany(brandTypes);
-    //await Color.insertMany(colors);
-    //await Image.insertMany(images);
-    //await Size.insertMany(sizeData);
+    // ✅ Seed BrandType
+    const brands = await BrandType.insertMany([
+      { brandTypeName: 'Nike', description: 'Leading global brand known for innovative athletic footwear' },
+      { brandTypeName: 'Adidas', description: 'Popular sportswear brand with a focus on performance and lifestyle shoes' },
+      { brandTypeName: 'Puma', description: 'International brand with a variety of casual and athletic shoes' },
+      { brandTypeName: 'NewBalance', description: 'Brand specializing in running and casual footwear with superior comfort' },
+      { brandTypeName: 'Reebok', description: 'Iconic sports brand known for its fitness and training footwear' },
+      { brandTypeName: 'Converse', description: 'Classic American brand famous for its Chuck Taylor All-Star sneakers' },
+      { brandTypeName: 'Vans', description: 'Skateboarding brand with a strong presence in youth culture' },
+      { brandTypeName: 'UnderArmour', description: 'Athletic brand focused on performance and innovation in sportswear' },
+      { brandTypeName: 'ASICS', description: 'Japanese brand recognized for high-quality running and athletic shoes' },
+      { brandTypeName: 'Fila', description: 'Global sportswear brand with a blend of casual and athletic styles' }
+    ]);
+
+    // ✅ Seed ProductType
+    // ✅ Seed ProductType (CATEGORY)
+    const productTypes = await ProductType.insertMany([
+      { productTypeName: 'Casual shoes', description: 'Category for casual and everyday wear shoes' },
+      { productTypeName: 'Runners', description: 'Category for running shoes and trainers' },
+      { productTypeName: 'Hiking', description: 'Category for hiking and trekking shoes' },
+      { productTypeName: 'Sneaker', description: 'Fashion sneakers for casual and streetwear' },
+      { productTypeName: 'Basketball', description: 'Basketball-specific performance shoes' },
+      { productTypeName: 'Golf', description: 'Golf shoes with stability and grip for swings' },
+      { productTypeName: 'Outdoor', description: 'Shoes designed for outdoor adventures and durability' }
+    ]);
 
 
-    //ID cua size va color tu db 
-  //   const size = await Size.findOne({nameSize: "36"});
-  //   const color = await Color.findOne({colorName: "Đen"});
-  //   if(!size || !color){
-  //     console.log("Khong tim thay size hoac color");
-  //     mongoose.connection.close();
-  //     return;
-  //   }
+    // ✅ Seed Color
+    const colors = await Color.insertMany([
+      { colorName: 'Red', hex: '#FF0000' },
+      { colorName: 'Blue', hex: '#0000FF' },
+      { colorName: 'Green', hex: '#008000' },
+      { colorName: 'Black', hex: '#000000' },
+      { colorName: 'White', hex: '#FFFFFF' },
+      { colorName: 'Gray', hex: '#808080' },
+      { colorName: 'Yellow', hex: '#FFFF00' },
+      { colorName: 'Pink', hex: '#FFC0CB' },
+      { colorName: 'Brown', hex: '#A52A2A' },
+      { colorName: 'Purple', hex: '#800080' }
+    ]);
+
+    // ✅ Seed Size
+    const sizes = await Size.insertMany([
+      { nameSize: '38' }, { nameSize: '39' }, { nameSize: '40' },
+      { nameSize: '41' }, { nameSize: '42' }, { nameSize: '43' }, { nameSize: '44' }, { nameSize: '45' }, { nameSize: '46' }, { nameSize: '47' }
+
+    ]);
+
+    // // ✅ Seed Image
+    // const images = await Image.insertMany([
+    //   { imageName: 'nike-air-max-trang-xanh-1.png', URL: 'https://picsum.photos/seed/picsum1/200/300' },
+    //   { imageName: 'nike-air-max-trang-xanh-2.png', URL: 'https://picsum.photos/seed/picsum2/200/300' },
+    //   { imageName: 'adidas-ultraboost01-trang-1.png', URL: 'https://picsum.photos/seed/picsum3/200/300' },
+    //   { imageName: 'adidas-ultraboost01-trang-2.png', URL: 'https://picsum.photos/seed/picsum4/200/300' }
+    // ]);
+
+    // ✅ Seed Quantity (NumberOfProducts)
+    // const quantities = await NumberOfProducts.insertMany([
+    //   { quantity: 50, size: sizes[0]._id, color: colors[0]._id },
+    //   { quantity: 50, size: sizes[1]._id, color: colors[1]._id },
+    //   { quantity: 50, size: sizes[2]._id, color: colors[2]._id },
+    //   { quantity: 50, size: sizes[3]._id, color: colors[3]._id },
 
 
-  
-  //   const numberOfProductsData = [
-  //     {
-  //         quantity: 100,
-  //         size: {
-  //             _id: size._id,
-  //             sizeName: size.nameSize
-  //         },
-  //         color: {
-  //             _id: color._id,
-  //             colorName: color.colorName
-  //         }
-  //     },
-  //     {
-  //         quantity: 50,
-  //         size: {
-  //             _id: size._id,
-  //             sizeName: size.nameSize
-  //         },
-  //         color: {
-  //             _id: color._id,
-  //             colorName: color.colorName
-  //         }
-  //     }
-  // ];
-  // await NumberOfProducts.insertMany(numberOfProductsData);
+    // ]);
 
-    //await ProductType.insertMany(productTypesData);
+    // // ✅ Seed Product
+    // const products = await Product.insertMany([
+    //   {
+    //     productName: 'Nike Air Max',
+    //     description: 'Comfortable and stylish sneakers',
+    //     originalPrice: 120.00,
+    //     status: true,
+    //     discount: 5.00,
+    //     totalQuantity: 50,
+    //     gender: true,
+    //     tax: 10.0,
+    //     sellingPrice: 115.00,
+    //     proType: productTypes[0]._id,
+    //     braType: brands[0]._id,
+    //     image: { imageID: images[0]._id },
+    //     inventory: [
+    //       { numberOfProduct: quantities[0]._id },
+    //       { numberOfProduct: quantities[1]._id }
+    //     ]
+    //   },
+    //   {
+    //     productName: 'Adidas Ultraboost',
+    //     description: 'High-performance running shoes',
+    //     originalPrice: 150.00,
+    //     status: true,
+    //     discount: 15.00,
+    //     totalQuantity: 50,
+    //     gender: true,
+    //     tax: 10.0,
+    //     sellingPrice: 135.00,
+    //     proType: productTypes[1]._id,
+    //     braType: brands[1]._id,
+    //     image: { imageID: images[1]._id },
+    //     inventory: [
+    //       { numberOfProduct: quantities[2]._id },
+    //       { numberOfProduct: quantities[3]._id }
+    //     ]
+    //   }
+    // ]);
 
-    const proType = await ProductType.findOne({producTypeName: "Sneakers"});
-    const braType = await BrandType
-    .findOne({brandTypeName: "Sneaker"});
-    const size = await Size.findOne({nameSize: "36"});
-    const color = await Color.findOne({colorName: "Đen"});
-
-    if(!proType || !braType || !size || !color){
-      console.log("Khong tim thay product type hoac brand type hoac size hoac color");
-      mongoose.connection.close();
-      return;
-    }
-
-    const image = await Image.create({imageName: "Nike Air Max", URL: "https://picsum.photos/200"});
-
-    const inventoryItem = await NumberOfProducts.create({
-      quantity: 100,
-      size: {
-        _id: size._id,
-        sizeName: size.nameSize
-      },
-      color: {
-        _id: color._id,
-        colorName: color.colorName
-      }
-    });
-
-    const productData = {
-      productName: "Nike Air Max",
-      originalPrice: 1200000,
-      description: "Comfortable sports shoes from Nike",
-      status: true,
-      discount: 10,
-      gender: true, // true = Nam, false = Nữ
-      tax: 5,
-      sellingPrice: 1100000,
-      proType: proType._id,
-      braType: braType._id,
-      image: [{ _id: image._id }], // Chỉ lưu ObjectId của hình ảnh
-      inventory: [
-        {
-          // quantity: inventoryItem._id,
-          quantity: inventoryItem.quantity,
-          size: inventoryItem.size,
-          color: inventoryItem.color
-        },
-        {
-          // quantity: inventoryItem._id,
-          quantity: inventoryItem.quantity,
-          size: inventoryItem.size,
-          color: inventoryItem.color
-        }
-  ]
-  };
-
-    await Product.create(productData);
-    console.log("Dữ liệu đã được thêm thành công!");
-
-    mongoose.connection.close();
-    console.log("Đóng kết nối MongoDB.");
+    console.log('✅ Dữ liệu đã được seed thành công!');
   } catch (error) {
-    console.error("Lỗi khi seed dữ liệu:", error);
+    console.error('❌ Lỗi khi seed dữ liệu:', error);
+  } finally {
     mongoose.connection.close();
   }
 };

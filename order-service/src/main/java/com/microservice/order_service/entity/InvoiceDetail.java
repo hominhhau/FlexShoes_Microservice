@@ -26,10 +26,14 @@ public class InvoiceDetail implements Serializable {
 
     // Chỉ lưu productId, không ánh xạ trực tiếp Product
     @Column(name = "PRODUCT_ID", nullable = false)
-    private Integer productId;
+    private String productId;
 
     @Column(name = "QUANTITY")
     private int quantity;
+
+
+
+
 //
 
 }

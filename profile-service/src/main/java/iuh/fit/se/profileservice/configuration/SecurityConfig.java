@@ -20,6 +20,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
+            "check-profile",
     };
 
     private final CustomJwtDecoder customJwtDecoder;

@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/invoices")
+@RequestMapping("/invoices")
+@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.HEAD, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.POST, RequestMethod.DELETE}, allowedHeaders = {"Content-Type", "Authorization"})
 public class ListInvoiceController {
 
     private final ListInvoiceService listInvoiceService;
@@ -24,7 +25,7 @@ public class ListInvoiceController {
         this.listInvoiceMapper = listInvoiceMapper;
     }
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping("/invoices/{customerId}")
     public ResponseEntity<?> getInvoicesByCustomer(@PathVariable Integer customerId) {
         List<Invoice> invoices = listInvoiceService.getInvoicesByCustomerId(customerId);
 

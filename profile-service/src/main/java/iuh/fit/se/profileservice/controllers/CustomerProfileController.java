@@ -29,6 +29,11 @@ public class CustomerProfileController {
         return customerService.findByID(id);
     }
 
+
+    @GetMapping("/user/{userID}")
+    public ResponseEntity<ApiResponse<?>> findByuserID(@PathVariable Long userID) {
+        return customerService.findByuserID(userID);
+    }
     @GetMapping("/customers")
     public ResponseEntity<ApiResponse<?>> getAllCustomers() {
        return customerService.getAllCustomer();
@@ -37,5 +42,9 @@ public class CustomerProfileController {
     public ResponseEntity<ApiResponse<?>> update(@PathVariable Long id, @RequestBody @Valid CustomerDTO customerDTO) {
         return customerService.updateByID(id, customerDTO);
 
+    }
+    @PostMapping("/check-profile")
+    public boolean checkProfile(@RequestBody String phoneNumber) {
+        return customerService.checkProfile(phoneNumber);
     }
 }

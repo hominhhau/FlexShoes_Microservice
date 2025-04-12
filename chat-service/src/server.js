@@ -25,6 +25,8 @@ app.get("/chat", (req, res) => {
 app.post("/send", chatController.sendMess);
 app.post("/show", chatController.showMess);
 app.get("/getAllSender", chatController.getAllSender);
+app.get("/getLastMessage", chatController.getLastMessage);
+app.post("/updateMessageStatus", chatController.updateMessageStatus);
 
 // Bắt đầu lắng nghe trên một cổng
 const PORT = process.env.PORT || 8080;

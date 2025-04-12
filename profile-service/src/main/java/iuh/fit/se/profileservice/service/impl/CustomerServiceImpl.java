@@ -95,4 +95,31 @@ public class CustomerServiceImpl implements CustomerService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @Override
+    public boolean checkProfile(String phone) {
+
+        return customerRepository.existsByPhoneNumber(phone);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> findByuserID(Long userID) {
+        CustomerProfile customerProfile = customerRepository.findByUserID(userID);
+        if (customerProfile == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ApiResponse.builder()
+                            .status("FAILED")
+                            .message("Customer not found with userID: " + userID)
+                            .response(null)
+                            .build()
+            );
+        }
+        CustomerDTO customerDTO = customerMapper.mapToCustomerDTO(customerProfile);
+        return ResponseEntity.ok(
+                ApiResponse.<CustomerDTO>builder()
+                        .status("SUCCESS")
+                        .message("Found customer with userID " + userID + " successful")
+                        .response(customerDTO)
+                        .build());
+    }
 }
