@@ -176,14 +176,14 @@ public class SecurityConfig {
     @Order(6)
     @Bean
     SecurityFilterChain logoutFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.securityMatcher((new AntPathRequestMatcher("/logout")))
+        httpSecurity.securityMatcher((new AntPathRequestMatcher("/users/logout")))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // (3)
                 .addFilterBefore(new JwtAccessTokenFilter(this.jwtDecoder(), this.jwtTokenUil,this.userDetailsService,this.tokenService), UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/users/logout")
                         .addLogoutHandler(logoutHandlerService)
                         .logoutSuccessHandler((request, response, authentication) -> {
                             SecurityContextHolder.clearContext();

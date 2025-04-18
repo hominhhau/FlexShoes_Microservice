@@ -3,6 +3,7 @@ const cors = require('cors');
 const connectDB = require('./configs/db');
 require('dotenv').config();
 
+// Import routes
 const productRoutes = require('./routes/productRoutes');
 const brandTypeRoutes = require('./routes/brandTypeRoutes');
 const numberOfProductsRoutes = require('./routes/numberOfProductsRoutes');
@@ -11,9 +12,15 @@ const colorRoutes = require('./routes/colorRoutes');
 const sizeRoutes = require('./routes/sizeRoutes');
 const productTypes = require('./routes/productTypeRoutes');
 const listingProductRoutes = require('./routes/listingProductRoutes');
+const chatGPTRoutes = require('./routes/chatGPTRoutes');
 
 const app = express();
 
+// ✅ CORS config to allow credentials from localhost:3000
+// app.use(cors({
+//     origin: 'http://localhost:3000',
+//     credentials: true,
+// }));
 
 // Body parser middleware
 app.use(express.json());
@@ -27,6 +34,7 @@ app.use('/inventory', imageRoutes);
 app.use('/inventory', numberOfProductsRoutes);
 app.use('/inventory', productTypes);
 app.use('/inventory', listingProductRoutes);
+app.use('/inventory', chatGPTRoutes);
 
 // ✅ CORS config to allow credentials from localhost:3000
 app.use(cors({
@@ -40,9 +48,9 @@ app.use(cors({
 connectDB();
 
 // Test endpoint
-app.get("/", (req, res) => {
-    res.send("Inventory Service is running!");
-});
+// app.get("/", (req, res) => {
+//     res.send("Inventory Service is running!");
+// });
 
 const { Eureka } = require('eureka-js-client');
 

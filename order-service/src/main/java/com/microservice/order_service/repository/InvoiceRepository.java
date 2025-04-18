@@ -31,5 +31,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
             @Param("id") Integer id,
             @Param("customerId") Long customerId,
             @Param("orderStatus") String orderStatus);
-
+    List<Invoice> findByCustomerId(Long customerId);
 }

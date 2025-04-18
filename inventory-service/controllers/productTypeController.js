@@ -5,7 +5,7 @@ module.exports = {
     getAllProductTypes: async (req, res) => {
         try {
             const productTypes = await ProductType.find();
-            console.log("Test console ProductType:", productTypes);
+
             res.status(200).json(productTypes);
         } catch (error) {
             console.log("Khong get duoc ProductType");
@@ -25,15 +25,15 @@ module.exports = {
         }
     },
     getProductTypeByName: async (req, res) => {
-        try{
-            const productType = await ProductType.findOne({productTypeName: req.params.name});
-            if(!productType){
-                return res.status(404).json({message: "Product type not found"});
+        try {
+            const productType = await ProductType.findOne({ productTypeName: req.params.name });
+            if (!productType) {
+                return res.status(404).json({ message: "Product type not found" });
             }
             res.status(200).json(productType);
-        }catch(error){
+        } catch (error) {
             console.log("Khong get duoc ProductType by name");
-            res.status(500).json({message: "Error when get product type by name"});
+            res.status(500).json({ message: "Error when get product type by name" });
         }
     },
     createProductType: async (req, res) => {
