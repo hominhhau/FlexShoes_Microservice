@@ -12,6 +12,7 @@ const colorRoutes = require('./routes/colorRoutes');
 const sizeRoutes = require('./routes/sizeRoutes');
 const productTypes = require('./routes/productTypeRoutes');
 const listingProductRoutes = require('./routes/listingProductRoutes');
+const chatGPTRoutes = require('./routes/chatGPTRoutes');
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/inventory', imageRoutes);
 app.use('/inventory', numberOfProductsRoutes);
 app.use('/inventory', productTypes);
 app.use('/inventory', listingProductRoutes);
+app.use('/inventory', chatGPTRoutes);
 
 // ✅ CORS config to allow credentials from localhost:3000
 app.use(cors({
