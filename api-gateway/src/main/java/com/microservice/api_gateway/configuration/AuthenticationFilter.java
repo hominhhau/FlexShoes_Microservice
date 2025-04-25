@@ -54,8 +54,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/inventory/getAllProductTypes",
             "/inventory/getAllBrandTypes",
             "/inventory/chatgpt",
-
-
+            "/inventory/update",
+            "/payment/create_payment",
+            "/payment/payment-return",
 
     };
 
