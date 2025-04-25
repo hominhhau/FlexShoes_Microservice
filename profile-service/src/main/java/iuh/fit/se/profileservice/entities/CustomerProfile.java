@@ -39,6 +39,9 @@ public class CustomerProfile  extends  BaseEntity implements Serializable {
     @Column(name = "GENDER")
      String gender;
 
+    @Column(name = "EMAIL")
+    String email;
+
     @ElementCollection
     @CollectionTable(name = "ADDRESS", joinColumns =  @JoinColumn(name = "CUSTOMER_ID"))
     @Column(name = "ADDRESS", columnDefinition = "nvarchar(105)")

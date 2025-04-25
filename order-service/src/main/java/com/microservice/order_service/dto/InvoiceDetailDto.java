@@ -12,13 +12,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvoiceDetailDto {
 	Integer detailId;
-	//	@NotNull(message = "Invoice ID là bắt buộc")
+		@NotNull(message = "Invoice ID là bắt buộc")
 	Integer invoiceId;
 
-	//	@NotNull(message = "Product ID là bắt buộc")
+		@NotNull(message = "Product ID là bắt buộc")
 	String productId;
 
-	//	@Min(value = 1, message = "Quantity phải lớn hơn 0")
+		@Min(value = 1, message = "Quantity phải lớn hơn 0")
 	int quantity;
 	ProductDto product;
 }

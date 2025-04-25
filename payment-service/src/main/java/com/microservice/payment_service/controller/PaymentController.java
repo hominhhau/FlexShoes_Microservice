@@ -31,25 +31,62 @@ public class PaymentController {
     }
 
     @PostMapping("/create_payment")
-    public ResponseEntity<?> createPayment(@RequestBody PaymentDto paymentDto, HttpServletRequest request) throws UnsupportedEncodingException {
-        if ("VNPay".equalsIgnoreCase(paymentDto.getPaymentMethod())) {
-
-            // get data invoice to invoiceID
-
-            InvoiceDto invoiceDto = (InvoiceDto) paymentService.getInfoOrder(paymentDto.getOrderId());
-
-            if (invoiceDto == null) {
-                // thong báo lôi
-                ResponseEntity.badRequest().body(invoiceDto);
-            } else {
-                paymentService.createPayment(paymentDto);
-                return createVNPayPayment(invoiceDto, request);
-            }
+    public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> paymentData, HttpServletRequest request) throws UnsupportedEncodingException {
+        System.out.println("paymentData: " + paymentData);
+        if (paymentData == null || !paymentData.containsKey("order")) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "fail",
+                    "message", "Invalid payment data"
+            ));
         }
 
-        Boolean result = paymentService.createPayment(paymentDto);
-        return result ? ResponseEntity.ok(paymentDto) : ResponseEntity.badRequest().body(paymentDto);
+        Map<String, Object> order = (Map<String, Object>) paymentData.get("order");
+        Map<String, Object> orderData = (Map<String, Object>) order.get("data"); // Access the nested 'data' map
+        String paymentMethod = (String) orderData.get("paymentMethod");
+        Integer invoiceId = (Integer) orderData.get("invoiceId");
+        Number totalNumber = (Number) orderData.get("total"); // Safely retrieve total as Number
+
+        if (invoiceId == null || totalNumber == null || paymentMethod == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "fail",
+                    "message", "Missing invoiceId, total or paymentMethod"
+            ));
+        }
+
+        Double total = totalNumber.doubleValue(); // Convert to Double
+        InvoiceDto invoiceDto = new InvoiceDto(invoiceId, total);
+
+        // Phân loại phương thức thanh toán
+        switch (paymentMethod) {
+            case "Bank Transfer":
+                // Tạo PaymentDto từ dữ liệu truyền vào
+                PaymentDto paymentDto = new PaymentDto();
+                paymentDto.setOrderId(invoiceId);
+                paymentDto.setPaymentMethod("VNPay");
+                paymentDto.setStatus("PENDING");
+
+                paymentService.createPayment(paymentDto);
+                return createVNPayPayment(invoiceDto, request);
+
+            case "Cash on Delivery":
+                PaymentDto paymentDto1 = new PaymentDto();
+                paymentDto1.setOrderId(invoiceId);
+                paymentDto1.setPaymentMethod("COD");
+                paymentDto1.setStatus("PENDING");
+                paymentService.createPayment(paymentDto1);
+                return ResponseEntity.ok(Map.of(
+                        "status", "ok",
+                        "message", "COD payment created successfully"
+                ));
+
+            default:
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "fail",
+                        "message", "Unsupported payment method: " + paymentMethod
+                ));
+        }
     }
+
 
     public ResponseEntity<?> createVNPayPayment(
             @RequestBody InvoiceDto invoiceDto,
@@ -137,7 +174,7 @@ public class PaymentController {
                 "data", vnp_OrderInfo
         ));
     }
-//http://localhost:8081/api/payment/payment-return?vnp_Amount=80500000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14840014&vnp_CardType=ATM&vnp_OrderInfo=11&vnp_PayDate=20250311124610&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14840014&vnp_TransactionStatus=00&vnp_TxnRef=11&vnp_SecureHash=599e78908b1f1ba80b46436394a398ee51a1b8ac5a3ba0bc5aca12a090c4f2b91eba2241fee8bf3f0a8fdead3789950bee2d52f6e21699502b634b576190f165
+    //   http://localhost:8081/api/payment/payment-return?vnp_Amount=322000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14926649&vnp_CardType=ATM&vnp_OrderInfo=15&vnp_PayDate=20250425172635&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14926649&vnp_TransactionStatus=00&vnp_TxnRef=15&vnp_SecureHash=4cc2a63a990b6f43c9feff2ac3c8051514923cc86fa3e93aab8aaf3ac3b8ebe08c45b9cfa90e759270671f089645d2e14a66e529aa2311a3f48f5a2a755392c1
     @GetMapping("/payment-return")
     public ResponseEntity<?> handlePaymentReturn(
             @RequestParam String vnp_Amount,
@@ -166,13 +203,15 @@ public class PaymentController {
             dto.setVnPayResponse(vnp_ResponseCode);
             System.out.println(dto);
 
-          paymentVNPayDetailService.createPaymentVNPayDetail(dto);
+            paymentVNPayDetailService.createPaymentVNPayDetail(dto);
 
 
 
             //UPDATE PAYMENT
             p.setStatus("SUCCESS");
             paymentService.updatePayment(p);
+            // chuyển trang
+
             return ResponseEntity.ok(Map.of(
                     "status", "ok",
                     "message", "Payment Successful",

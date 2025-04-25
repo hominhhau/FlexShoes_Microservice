@@ -2,6 +2,7 @@ package com.microservice.notification_service.service;
 
 import com.microservice.notification_service.dto.reponse.EmailResponse;
 import com.microservice.notification_service.dto.request.EmailRequest;
+import com.microservice.notification_service.dto.request.Recipient;
 import com.microservice.notification_service.dto.request.SendEmailRequest;
 import com.microservice.notification_service.dto.request.Sender;
 import com.microservice.notification_service.repository.httpclient.EmailClient;
@@ -39,5 +40,21 @@ public class EmailService {
         } catch (FeignException e){
             throw new ApplicationContextException("Failed to send email", e);
         }
+    }
+
+    public void sendRegistrationSuccessEmail(Recipient recipient) {
+        String subject = "Đăng ký tài khoản thành công";
+        String htmlContent = "<h3>Chào mừng bạn đến với Flex Shoes!</h3>" +
+                "<p>Chào <strong>" + recipient.getName() + "</strong>,</p>" +
+                "<p>Bạn đã đăng ký tài khoản thành công. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>" +
+                "<p>Trân trọng,<br/>Đội ngũ Flex Shoes</p>";
+
+        SendEmailRequest request = SendEmailRequest.builder()
+                .to(recipient)
+                .subject(subject)
+                .htmlContent(htmlContent)
+                .build();
+
+        sendEmail(request);
     }
 }

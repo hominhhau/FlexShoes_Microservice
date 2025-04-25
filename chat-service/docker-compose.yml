@@ -8,7 +8,8 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: ChatDB
+      # sửa lại tên database ở đây
+      POSTGRES_DB: ChatDB   
     ports:
       - "5432:5432"
     volumes:
@@ -21,15 +22,14 @@ services:
     depends_on:
       - postgresDB
     environment:
-      # - DB_PORT=5432
-      # - DB_HOST=postgresDB
-      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_HOST=postgresDB
+      # - DB_HOST=host.docker.internal
     ports:
       - "8089:8089"
     volumes:
       - .:/app
     working_dir: /app
-    command: ["npm", "run", "build"]
 
 volumes:
   postgres_data:
