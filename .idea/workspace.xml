@@ -25,7 +25,6 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
-        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -87,14 +86,13 @@
     "Spring Boot.ApiGatewayApplication.executor": "Run",
     "Spring Boot.ConfigServerApplication.executor": "Run",
     "Spring Boot.EurekaServerApplication.executor": "Run",
-    "Spring Boot.NotificationServiceApplication.executor": "Run",
     "Spring Boot.OrderServiceApplication.executor": "Run",
     "Spring Boot.PaymentServiceApplication.executor": "Run",
     "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
-    "git-widget-placeholder": "release__1",
+    "git-widget-placeholder": "feature/invoices",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/BIGDATA/CK/eureka-server",
+    "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/KienTrucPhanMem/Project1/FlexShoes_Microservice/order-service/src/main/java/com/microservice/order_service/config",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -123,7 +121,6 @@
       <recent name="D:\FlexShoes_Microservice\FlexShoes_BE\FlexShoes_Microservice\payment-service" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="iuh.fit.se.userservice.dtos" />
       <recent name="com.microservice.order_service.dto" />
       <recent name="iuh.fit.se.profileservice.configuration" />
       <recent name="com.microservice.payment_service.dto" />
@@ -246,9 +243,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.OrderServiceApplication" />
         <item itemvalue="Spring Boot.UserServiceApplication" />
-        <item itemvalue="Application.ConfigServerApplication" />
         <item itemvalue="Spring Boot.EurekaServerApplication" />
+        <item itemvalue="Application.ConfigServerApplication" />
         <item itemvalue="Application.OrderServiceApplication" />
         <item itemvalue="Application.ProfileServiceApplication" />
       </list>
@@ -284,13 +282,7 @@
       <workItem from="1744375779637" duration="4097000" />
       <workItem from="1744386732775" duration="491000" />
       <workItem from="1744381478908" duration="5161000" />
-      <workItem from="1744391992503" duration="8937000" />
-      <workItem from="1744403390812" duration="647000" />
-      <workItem from="1744424895201" duration="1209000" />
-      <workItem from="1744834503684" duration="2000" />
-      <workItem from="1744902111807" duration="5000" />
-      <workItem from="1744968770464" duration="2926000" />
-      <workItem from="1745425505540" duration="34000" />
+      <workItem from="1744391992503" duration="7611000" />
     </task>
     <task id="LOCAL-00001" summary="change PORT">
       <option name="closed" value="true" />
