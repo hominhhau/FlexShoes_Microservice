@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge inventory">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -315,7 +315,7 @@
       <workItem from="1744694001382" duration="5000" />
       <workItem from="1744954143806" duration="9134000" />
       <workItem from="1744974133863" duration="1560000" />
-      <workItem from="1745570865206" duration="478000" />
+      <workItem from="1745570865206" duration="4624000" />
     </task>
     <task id="LOCAL-00001" summary="change PORT">
       <option name="closed" value="true" />
