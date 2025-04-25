@@ -7,7 +7,28 @@ const { uploadFile } = require('../utils/file.service');
 module.exports = {
   getAllProducts: async (req, res) => {
     try {
-      const products = await Product.find();
+      const products = await Product.find()
+      .populate({
+        path: 'inventory',
+        model: 'NumberOfProducts',
+        populate: [
+          {
+            path: 'numberOfProduct', // Populate the numberOfProduct document itself
+            populate: [ // Then populate fields within numberOfProduct
+              {
+                path: 'size',
+                model: 'Size',
+                select: 'nameSize',
+              },
+              {
+                path: 'color',
+                model: 'Color',
+                select: 'colorName hex', // Lấy cả hex code cho màu sắc nếu cần
+              },
+            ],
+          },
+        ],
+      })
       console.log('Test console SanPham:', products);
       res.status(200).json(products);
     } catch (error) {

@@ -17,10 +17,11 @@ COPY . .
 # build thư mục build
 RUN npm run build-src
 
-# Cấu hình biến môi trường để kết nối PostgreSQL
+# Thiết lập biến môi trường mặc định (có thể bị ghi đè từ docker-compose)
 ENV DB_SSL=false 
 ENV DB_USERNAME=postgres
 ENV DB_PASSWORD=1234
+# sửa lại tên database ở đây
 ENV DB_DATABASE_NAME=ChatDB
 ENV DB_HOST=localhost
 ENV DB_PORT=5432
@@ -30,7 +31,7 @@ ENV DB_DIALECT=postgres
 EXPOSE 8089
 
 # Chạy ứng dụng Node.js
-CMD ["npm", "run", "build"]
+CMD ["sh", "-c", "npx sequelize-cli db:migrate && npm run build"]
 
 # docker build --tag node-docker .
-# docker run -p 8080:8080 -d node-docker
+# docker run -p 8089:8089 -d node-docker

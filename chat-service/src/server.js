@@ -4,6 +4,7 @@ const cors = require("cors");
 const configCORS = require("./config/cors.js");
 const configViewEngine = require("./config/viewEngine.js");
 const chatController = require("./controller/chatController.js");
+const ChatGPTController = require('../src/controller/chatgptController.js')
 
 const app = express();
 // config viewEngine
@@ -28,8 +29,12 @@ app.get("/getAllSender", chatController.getAllSender);
 app.get("/getLastMessage", chatController.getLastMessage);
 app.post("/updateMessageStatus", chatController.updateMessageStatus);
 
+// chatbot AI chatGPT
+app.post('/chatgpt', ChatGPTController.chatGPTResponse);
+
+
 // Bắt đầu lắng nghe trên một cổng
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

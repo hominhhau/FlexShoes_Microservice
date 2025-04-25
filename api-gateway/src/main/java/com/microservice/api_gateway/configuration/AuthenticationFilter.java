@@ -55,6 +55,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/inventory/getAllBrandTypes",
             "/notification/registration-success",
 
+            "/inventory/getNumberOfProductsById/**",
 
     };
 
