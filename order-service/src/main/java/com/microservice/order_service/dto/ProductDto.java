@@ -23,7 +23,7 @@ public class ProductDto {
     private double sellingPrice;
     private String description;
     private Integer totalQuantity;
-    private boolean gender;
+    private String gender;
     private Integer tax;
 
 }
