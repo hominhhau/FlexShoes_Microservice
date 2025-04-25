@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge inventory" />
+    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge inventory">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -111,7 +113,7 @@
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;feature/inventoryadmin&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Document_IUH/KienTrucPhanMem/codenop/21036271_HoMinhHau_SoftwareArchitecture&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/FlexShoes_Microservice/FlexShoes_BEv1/FlexShoes_Microservice&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -331,6 +333,7 @@
       <workItem from="1745570694592" duration="10355000" />
       <workItem from="1745589641051" duration="2162000" />
       <workItem from="1745595289029" duration="1263000" />
+      <workItem from="1745601603024" duration="649000" />
     </task>
     <task id="LOCAL-00001" summary="change PORT">
       <option name="closed" value="true" />
