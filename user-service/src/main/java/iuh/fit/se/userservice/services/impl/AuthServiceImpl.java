@@ -101,6 +101,8 @@ public class AuthServiceImpl implements AuthService {
         User user = createUser(signUpRequest);
         User result = userService.saveUser(user);
 
+
+
         //Create a profile for sending to profile-service
         ProfileCreationRequest profileCreationRequest = profileMapper.mapToProfile(signUpRequest);
         profileCreationRequest.setUserID(result.getId());
@@ -109,10 +111,16 @@ public class AuthServiceImpl implements AuthService {
         //Log result
         log.info("Created profile: " + obj);
 
-        // Gửi email xác nhận
-        notificationClient.sendRegistrationEmail(
-                new Recipient(result.getEmail(), result.getUserName())
-        );
+//        log.debug("Sending recipient: {}", result);
+//        log.info("Successfully created user: " + result.getUserName());
+//        log.info("Successfully created profile for email: " + result.getEmail());
+//
+//        // Gửi email xác nhận
+//        notificationClient.sendRegistrationEmail(
+//                new Recipient(result.getUserName(), result.getEmail())
+//        );
+
+        log.info("Successfully sent email to " + result.getEmail());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.builder()
