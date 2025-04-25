@@ -32,6 +32,7 @@ public class PaymentController {
 
     @PostMapping("/create_payment")
     public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> paymentData, HttpServletRequest request) throws UnsupportedEncodingException {
+        System.out.println("paymentData: " + paymentData);
         if (paymentData == null || !paymentData.containsKey("order")) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "fail",
@@ -173,7 +174,7 @@ public class PaymentController {
                 "data", vnp_OrderInfo
         ));
     }
- //   http://localhost:8081/api/payment/payment-return?vnp_Amount=322000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14926649&vnp_CardType=ATM&vnp_OrderInfo=15&vnp_PayDate=20250425172635&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14926649&vnp_TransactionStatus=00&vnp_TxnRef=15&vnp_SecureHash=4cc2a63a990b6f43c9feff2ac3c8051514923cc86fa3e93aab8aaf3ac3b8ebe08c45b9cfa90e759270671f089645d2e14a66e529aa2311a3f48f5a2a755392c1
+    //   http://localhost:8081/api/payment/payment-return?vnp_Amount=322000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP14926649&vnp_CardType=ATM&vnp_OrderInfo=15&vnp_PayDate=20250425172635&vnp_ResponseCode=00&vnp_TmnCode=57322TUD&vnp_TransactionNo=14926649&vnp_TransactionStatus=00&vnp_TxnRef=15&vnp_SecureHash=4cc2a63a990b6f43c9feff2ac3c8051514923cc86fa3e93aab8aaf3ac3b8ebe08c45b9cfa90e759270671f089645d2e14a66e529aa2311a3f48f5a2a755392c1
     @GetMapping("/payment-return")
     public ResponseEntity<?> handlePaymentReturn(
             @RequestParam String vnp_Amount,
@@ -202,7 +203,7 @@ public class PaymentController {
             dto.setVnPayResponse(vnp_ResponseCode);
             System.out.println(dto);
 
-          paymentVNPayDetailService.createPaymentVNPayDetail(dto);
+            paymentVNPayDetailService.createPaymentVNPayDetail(dto);
 
 
 
