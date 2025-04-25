@@ -4,17 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge inventory">
-      <change afterPath="$PROJECT_DIR$/config-server/src/main/resources/config/notification-service.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/Recipient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/NotificationClient.java" afterDir="false" />
+    <list default="true" id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="merge order">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/controller/EmailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/controller/EmailController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/service/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/dto/InvoiceDto.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +83,7 @@
     "Spring Boot.PaymentServiceApplication.executor": "Run",
     "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
-    "git-widget-placeholder": "feature/invoices",
+    "git-widget-placeholder": "release__2",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/DHCN_STUDENTS/HK8/KienTrucPhanMem/Project1/FlexShoes_Microservice/order-service/src/main/java/com/microservice/order_service/config",
     "node.js.detected.package.eslint": "true",
@@ -102,7 +95,7 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
     "run.configurations.included.in.services": "true",
-    "settings.editor.selected.configurable": "spring",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   },
@@ -364,7 +357,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744394988037</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="merge order">
+      <option name="closed" value="true" />
+      <created>1745597922763</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1745597922763</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -390,9 +391,9 @@
     <MESSAGE value="merge product admin" />
     <MESSAGE value="merge order service" />
     <MESSAGE value="merge chat" />
-    <MESSAGE value="merge order" />
     <MESSAGE value="merge inventory" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge inventory" />
+    <MESSAGE value="merge order" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge order" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
