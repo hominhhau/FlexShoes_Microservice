@@ -7,6 +7,7 @@ import iuh.fit.se.userservice.entities.Token;
 import iuh.fit.se.userservice.entities.User;
 import iuh.fit.se.userservice.exceptions.UserAlreadyExistsException;
 import iuh.fit.se.userservice.mappers.ProfileMapper;
+import iuh.fit.se.userservice.repositories.httpClient.NotificationClient;
 import iuh.fit.se.userservice.repositories.httpClient.ProfileClient;
 import iuh.fit.se.userservice.services.AuthService;
 import iuh.fit.se.userservice.services.RoleService;
@@ -40,6 +41,7 @@ import java.util.*;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
 
+    private NotificationClient notificationClient;
     private UserService userService;
     private RoleService roleService;
     private TokenService tokenService;
@@ -63,8 +65,8 @@ public class AuthServiceImpl implements AuthService {
                            JwtDecoder jwtDecoder,
                            UserDetailsServiceImpl userDetailsService,
                            ProfileClient profileClient,
-                           ProfileMapper profileMapper
-    ) {
+                           ProfileMapper profileMapper,
+                           NotificationClient notificationClient) {
         this.userService = userService;
         this.roleService = roleService;
         this.tokenService = tokenService;
@@ -76,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
         this.userDetailsService = userDetailsService;
         this.profileClient = profileClient;
         this.profileMapper = profileMapper;
+        this.notificationClient = notificationClient;
     }
 
     @Override
@@ -105,6 +108,11 @@ public class AuthServiceImpl implements AuthService {
         Object obj = profileClient.createProfile(profileCreationRequest);
         //Log result
         log.info("Created profile: " + obj);
+
+        // Gửi email xác nhận
+        notificationClient.sendRegistrationEmail(
+                new Recipient(result.getEmail(), result.getUserName())
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.builder()
