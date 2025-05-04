@@ -9,7 +9,8 @@ const sendMess = async (req, res) => {
       adminId: 1,
       senderId: req.body.senderId,
       message: req.body.message,
-      status: 0 // chưa xem
+      status: 0, // chưa xem
+      type: req.body.type, // text, image
     });
 
     let mess = await db.Chat.findAll({
