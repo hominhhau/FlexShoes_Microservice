@@ -9,8 +9,36 @@ const Size = require("../models/Size");
 module.exports = {
   getAllProducts: async (req, res) => {
     try {
-      const products = await Product.find().populate("image.imageID");
+      const products = await Product.find()
+        .populate({
+          path: "image.imageID",
+          model: "Image",
+          select: "URL",
+        })
+        .populate({
+          path: "inventory",
+          model: "NumberOfProducts",
+          populate: [
+            {
+              path: "numberOfProduct", // Populate the numberOfProduct document itself
+              populate: [
+                // Then populate fields within numberOfProduct
+                {
+                  path: "size",
+                  model: "Size",
+                  select: "nameSize",
+                },
+                {
+                  path: "color",
+                  model: "Color",
+                  select: "colorName hex", // Lấy cả hex code cho màu sắc nếu cần
+                },
+              ],
+            },
+          ],
+        });
 
+      console.log("Test console SanPham:", products);
       res.status(200).json(products);
     } catch (error) {
       console.log("Khong get duoc SP");
@@ -52,7 +80,6 @@ module.exports = {
         })
         .populate("proType", "productTypeName description") // Lấy thêm description nếu cần
         .populate("braType", "brandTypeName description"); // Lấy thêm description nếu cần
-
       console.log("Product tìm được: ", product);
 
       if (!product) {
@@ -62,12 +89,10 @@ module.exports = {
       res.status(200).json(product);
     } catch (error) {
       console.error("Lỗi khi lấy sản phẩm theo ID:", error);
-      res
-        .status(500)
-        .json({
-          message: "Lỗi khi lấy sản phẩm theo ID",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Lỗi khi lấy sản phẩm theo ID",
+        error: error.message,
+      });
     }
   },
 
@@ -290,69 +315,75 @@ module.exports = {
     }
   },
 
-purchase: async (req, res) => {
-  const { items } = req.body;
-  console.log('Dữ liệu nhận được từ frontend:', req.body);
+  purchase: async (req, res) => {
+    const { items } = req.body;
+    console.log("Dữ liệu nhận được từ frontend:", req.body);
 
-  try {
-    //Duyet qua tung sp
-    for (let item of items) {
-      const { productId, colorName, sizeName, quantity } = item;
+    try {
+      //Duyet qua tung sp
+      for (let item of items) {
+        const { productId, colorName, sizeName, quantity } = item;
 
-      const product = await Product.findById(productId).populate("inventory.numberOfProduct");
-      if (!product)
-        return res.status(404).json({ message: "Product not found" });
+        const product = await Product.findById(productId).populate(
+          "inventory.numberOfProduct"
+        );
+        if (!product)
+          return res.status(404).json({ message: "Product not found" });
 
-      //find ObjectId của color và size
-      const color = await Color.findOne({ colorName: colorName });
-      const size = await Size.findOne({ nameSize: sizeName });
+        //find ObjectId của color và size
+        const color = await Color.findOne({ colorName: colorName });
+        const size = await Size.findOne({ nameSize: sizeName });
 
-      if (!color || !size) {
-        return res.status(400).json({ message: `Không tìm thấy màu hoặc size: ${colorName}, ${sizeName}` });
+        if (!color || !size) {
+          return res
+            .status(400)
+            .json({
+              message: `Không tìm thấy màu hoặc size: ${colorName}, ${sizeName}`,
+            });
+        }
+
+        const colorId = color._id;
+        const sizeId = size._id;
+
+        //find item trong inventory khop mau va size
+        const inventoryItem = product.inventory.find(
+          (i) =>
+            i.numberOfProduct.color.toString() === colorId.toString() &&
+            i.numberOfProduct.size.toString() === sizeId.toString()
+        );
+
+        if (!inventoryItem) {
+          return res.status(400).json({
+            message: `Không tìm thấy sản phẩm với size ${sizeName} và màu ${colorName}`,
+          });
+        }
+
+        if (inventoryItem.numberOfProduct.quantity < quantity) {
+          return res.status(400).json({
+            message: `Không đủ hàng cho size ${sizeName}, màu ${colorName}`,
+          });
+        }
+
+        //tru sl ton kho
+        inventoryItem.numberOfProduct.quantity -= quantity;
+        await inventoryItem.numberOfProduct.save();
       }
 
-      const colorId = color._id;
-      const sizeId = size._id;
-
-      //find item trong inventory khop mau va size
-      const inventoryItem = product.inventory.find(i =>
-        i.numberOfProduct.color.toString() === colorId.toString() &&
-        i.numberOfProduct.size.toString() === sizeId.toString()
-      );
-
-      if (!inventoryItem) {
-        return res.status(400).json({
-          message: `Không tìm thấy sản phẩm với size ${sizeName} và màu ${colorName}`,
-        });
+      //update sl ton kho
+      for (let item of items) {
+        const product = await Product.findById(item.productId).populate(
+          "inventory.numberOfProduct"
+        );
+        product.totalQuantity = product.inventory.reduce((sum, i) => {
+          return sum + (i.numberOfProduct?.quantity || 0);
+        }, 0);
+        await product.save();
       }
 
-      if (inventoryItem.numberOfProduct.quantity < quantity) {
-        return res.status(400).json({
-          message: `Không đủ hàng cho size ${sizeName}, màu ${colorName}`,
-        });
-      }
-
-      //tru sl ton kho
-      inventoryItem.numberOfProduct.quantity -= quantity;
-      await inventoryItem.numberOfProduct.save();
+      res.json({ message: "Thành công", updated: true });
+    } catch (err) {
+      console.error("Chi tiết lỗi:", err);
+      res.status(500).json({ message: "Có lỗi xảy ra khi xử lý đơn hàng" });
     }
-
-    //update sl ton kho
-    for (let item of items) {
-      const product = await Product.findById(item.productId).populate("inventory.numberOfProduct");
-      product.totalQuantity = product.inventory.reduce((sum, i) => {
-        return sum + (i.numberOfProduct?.quantity || 0);
-      }, 0);
-      await product.save();
-    }
-
-
-    res.json({ message: "Thành công", updated: true });
-  } catch (err) {
-    console.error("Chi tiết lỗi:", err);
-    res.status(500).json({ message: "Có lỗi xảy ra khi xử lý đơn hàng" });
-  }
-},
-
+  },
 };
-

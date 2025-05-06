@@ -24,6 +24,10 @@ module.exports = {
       status: {
         type: Sequelize.INTEGER, // 0 - chưa xem, 1 - đã xem
       },
+      type: {
+        type: Sequelize.STRING, // text, image
+        defaultValue: "text",
+      },
 
       createdAt: {
         allowNull: false,
