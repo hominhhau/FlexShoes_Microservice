@@ -28,6 +28,9 @@ module.exports = {
         type: Sequelize.STRING, // text, image
         defaultValue: "text",
       },
+      productId: {
+        type: Sequelize.STRING, // id sản phẩm
+      },
 
       createdAt: {
         allowNull: false,

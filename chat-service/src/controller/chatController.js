@@ -11,6 +11,7 @@ const sendMess = async (req, res) => {
       message: req.body.message,
       status: 0, // chưa xem
       type: req.body.type, // text, image
+      productId: req.body.productId, // id sản phẩm
     });
 
     let mess = await db.Chat.findAll({
