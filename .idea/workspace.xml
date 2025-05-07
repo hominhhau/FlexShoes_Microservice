@@ -5,10 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge payment">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/ProfileCreationResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/CHANGELOG.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,8 +88,8 @@
   </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hominhhau/FlexShoes_Microservice&quot;,
-    &quot;accountId&quot;: &quot;9c2eae86-1826-455e-969a-0d5172a8a39a&quot;
+    &quot;url&quot;: &quot;https://github.com/hominhhau/FlexShoes_Microservice.git&quot;,
+    &quot;accountId&quot;: &quot;0cd34143-4f44-420a-b143-bdd0980392a0&quot;
   }
 }</component>
   <component name="JpbToolWindowState">
@@ -99,82 +120,64 @@
     "Application.PaymentServiceApplication.executor": "Run",
     "Application.ProfileServiceApplication.executor": "Run",
     "Maven.eureka-server [clean].executor": "Run",
+    "Maven.profile-service [clean].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.ConfigServerApplication.executor": "Run",
+    "Spring Boot.EurekaServerApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
     "Spring Boot.OrderServiceApplication.executor": "Run",
+    "Spring Boot.PaymentServiceApplication.executor": "Run",
+    "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "feature/config-api-gateway",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/Large Project/fix/FlexShoes_Microservice",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors"
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.NotificationServiceApplication">
-    <configuration name="NotificationServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.notification_service.NotificationServiceApplication" />
-      <module name="notification-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.notification_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="OrderServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.order_service.OrderServiceApplication" />
-      <module name="order-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.order_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PaymentServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.payment_service.PaymentServiceApplication" />
-      <module name="payment-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.payment_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ProfileServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
-      <module name="profile-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="iuh.fit.se.profileservice.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="iuh.fit.se.userservice.dtos" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.OrderServiceApplication">
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.api_gateway.ApiGatewayApplication" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="notification-service" />
-      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.notification_service.NotificationServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.microservice.api_gateway.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -193,33 +196,72 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <configuration name="PaymentServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="payment-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.payment_service.PaymentServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.microservice.payment_service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="iuh.fit.se.profileservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="user-service" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="iuh.fit.se.userservice.UserServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="iuh.fit.se.userservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.NotificationServiceApplication" />
-      <item itemvalue="Application.PaymentServiceApplication" />
-      <item itemvalue="Application.ProfileServiceApplication" />
-      <item itemvalue="Application.OrderServiceApplication" />
-      <item itemvalue="Spring Boot.NotificationServiceApplication" />
+      <item itemvalue="Spring Boot.OrderServiceApplication" />
+      <item itemvalue="Spring Boot.PaymentServiceApplication" />
+      <item itemvalue="Spring Boot.ProfileServiceApplication" />
       <item itemvalue="Spring Boot.UserServiceApplication" />
       <item itemvalue="Spring Boot.ApiGatewayApplication" />
-      <item itemvalue="Spring Boot.OrderServiceApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.NotificationServiceApplication" />
         <item itemvalue="Spring Boot.OrderServiceApplication" />
-        <item itemvalue="Application.OrderServiceApplication" />
-        <item itemvalue="Application.PaymentServiceApplication" />
-        <item itemvalue="Application.ProfileServiceApplication" />
+        <item itemvalue="Spring Boot.PaymentServiceApplication" />
+        <item itemvalue="Spring Boot.ApiGatewayApplication" />
+        <item itemvalue="Spring Boot.ProfileServiceApplication" />
+        <item itemvalue="Spring Boot.UserServiceApplication" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.23654.117" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-IU-243.23654.117" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -232,7 +274,7 @@
       <updated>1745598294382</updated>
     </task>
     <task active="true" id="Default" summary="Default task">
-      <changelist id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="" />
+      <changelist id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge payment" />
       <created>1742453851167</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -268,9 +310,18 @@
       <workItem from="1745589641051" duration="2162000" />
       <workItem from="1745595289029" duration="1263000" />
       <workItem from="1745601603024" duration="649000" />
+      <workItem from="1746506075101" duration="60000" />
+      <workItem from="1746534588724" duration="2408000" />
+      <workItem from="1746537147666" duration="314000" />
+      <workItem from="1746537475226" duration="3000" />
+      <workItem from="1746539524280" duration="1775000" />
+      <workItem from="1746601317421" duration="795000" />
     </task>
     <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="merge order" />

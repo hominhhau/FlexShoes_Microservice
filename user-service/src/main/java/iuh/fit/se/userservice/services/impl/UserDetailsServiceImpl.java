@@ -36,8 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 });
             });
         }
-        return new UserPrincipal(user.getId(), user.getUserName(),
-                user.getEmail(), user.getPassword(), authorities, user.isEnabled()
-        );
+        return new UserPrincipal(user.getId(), user.getUserName(), user.getEmail(),  user.getPassword(), user.getProfileKey(), authorities, user.isEnabled()
+                );
     }
 }
