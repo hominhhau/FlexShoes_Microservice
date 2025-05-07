@@ -107,9 +107,12 @@ public class AuthServiceImpl implements AuthService {
         ProfileCreationRequest profileCreationRequest = profileMapper.mapToProfile(signUpRequest);
         profileCreationRequest.setUserID(result.getId());
 
-        Object obj = profileClient.createProfile(profileCreationRequest);
+        ApiResponse<ProfileCreationResponse> obj = profileClient.createProfile(profileCreationRequest);
         //Log result
         log.info("Created profile: " + obj);
+        user.setProfileKey(obj.getResponse().getProfileKey());
+        userService.saveUser(user);
+
 
 //        log.debug("Sending recipient: {}", result);
 //        log.info("Successfully created user: " + result.getUserName());
@@ -203,6 +206,7 @@ public class AuthServiceImpl implements AuthService {
                     .token(jwt)
                     .refreshToken(refreshToken)
                     .type("Bearer")
+                    .profileKey(userDetails.getProfileKey())
                     .roles(userDetails.getAuthorities())
                     .build();
 

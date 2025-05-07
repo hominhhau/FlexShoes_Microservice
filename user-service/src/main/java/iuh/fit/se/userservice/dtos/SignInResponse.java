@@ -16,5 +16,6 @@ public class SignInResponse {
     private Long id;
     private String username;
     private String email;
+    private Long profileKey;
     private Collection<? extends GrantedAuthority> roles;
 }

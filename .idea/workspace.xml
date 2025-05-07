@@ -4,24 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge payment">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" afterDir="false" />
+    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge customer">
+      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/ProfileCreationResponse.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/models/NumberOfProducts.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/models/NumberOfProducts.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/configuration/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/config/AuthenticationRequestInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/microservice/order_service/config/AuthenticationRequestInterceptor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/CHANGELOG.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/config/VNPayConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/config/VNPayConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/controller/PaymentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/NotificationClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/NotificationClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,12 +87,12 @@
       </RecentBranches>
     </option>
   </component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hominhhau/FlexShoes_Microservice&quot;,
-    &quot;accountId&quot;: &quot;9c2eae86-1826-455e-969a-0d5172a8a39a&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hominhhau/FlexShoes_Microservice.git",
+    "accountId": "fef0bf28-f2fd-4823-827a-964bf661ef84"
   }
-}</component>
+}]]></component>
   <component name="JpbToolWindowState">
     <option name="isToolWindowVisible" value="false" />
   </component>
@@ -112,57 +121,38 @@
     "Application.PaymentServiceApplication.executor": "Run",
     "Application.ProfileServiceApplication.executor": "Run",
     "Maven.eureka-server [clean].executor": "Run",
+    "Maven.profile-service [clean].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
     "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.ConfigServerApplication.executor": "Run",
     "Spring Boot.OrderServiceApplication.executor": "Run",
+    "Spring Boot.PaymentServiceApplication.executor": "Run",
+    "Spring Boot.ProfileServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "release__2",
+    "kotlin-language-version-configured": "true",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors"
+    "nodejs_package_manager_path": "npm",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.NotificationServiceApplication">
-    <configuration name="NotificationServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.notification_service.NotificationServiceApplication" />
-      <module name="notification-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.notification_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="OrderServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.order_service.OrderServiceApplication" />
-      <module name="order-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.order_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="PaymentServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.microservice.payment_service.PaymentServiceApplication" />
-      <module name="payment-service" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.microservice.payment_service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
     <configuration name="ProfileServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
       <module name="profile-service" />
@@ -197,23 +187,73 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PaymentServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="payment-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.payment_service.PaymentServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.microservice.payment_service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="iuh.fit.se.profileservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="user-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="iuh.fit.se.userservice.UserServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="iuh.fit.se.userservice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
-      <item itemvalue="Application.NotificationServiceApplication" />
-      <item itemvalue="Application.PaymentServiceApplication" />
       <item itemvalue="Application.ProfileServiceApplication" />
-      <item itemvalue="Application.OrderServiceApplication" />
       <item itemvalue="Spring Boot.ApiGatewayApplication" />
+      <item itemvalue="Spring Boot.PaymentServiceApplication" />
+      <item itemvalue="Spring Boot.ProfileServiceApplication" />
+      <item itemvalue="Spring Boot.UserServiceApplication" />
       <item itemvalue="Spring Boot.OrderServiceApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.NotificationServiceApplication" />
-        <item itemvalue="Spring Boot.OrderServiceApplication" />
-        <item itemvalue="Application.OrderServiceApplication" />
-        <item itemvalue="Application.PaymentServiceApplication" />
+        <item itemvalue="Spring Boot.UserServiceApplication" />
         <item itemvalue="Application.ProfileServiceApplication" />
+        <item itemvalue="Spring Boot.PaymentServiceApplication" />
+        <item itemvalue="Spring Boot.OrderServiceApplication" />
+        <item itemvalue="Spring Boot.ProfileServiceApplication" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.59" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.59" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -226,7 +266,7 @@
       <updated>1745598294382</updated>
     </task>
     <task active="true" id="Default" summary="Default task">
-      <changelist id="70b0a950-bcc4-4719-892f-7eda81a92e98" name="Changes" comment="" />
+      <changelist id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge customer" />
       <created>1742453851167</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -262,14 +302,27 @@
       <workItem from="1745589641051" duration="2162000" />
       <workItem from="1745595289029" duration="1263000" />
       <workItem from="1745601603024" duration="649000" />
+      <workItem from="1746638558379" duration="150000" />
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="merge customer">
+      <option name="closed" value="true" />
+      <created>1746602723462</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746602723462</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="merge order" />
     <MESSAGE value="merge chat service" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge chat service" />
+    <MESSAGE value="merge customer" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge customer" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
