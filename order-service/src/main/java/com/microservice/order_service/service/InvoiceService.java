@@ -25,7 +25,7 @@ public interface InvoiceService {
 
     InvoiceDto getInvoice(Integer id);
 
-    Boolean updateOrderStatus(Integer invoiceId, String newStatus);
+    boolean updateOrderStatus(Integer invoiceId, String newStatus);
 
     boolean updateInvoice(InvoiceDto invoiceDto);
 

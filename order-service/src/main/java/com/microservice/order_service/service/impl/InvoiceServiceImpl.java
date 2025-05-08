@@ -317,22 +317,32 @@ public class InvoiceServiceImpl implements InvoiceService {
 	}
 
 	@Override
-	public Boolean updateOrderStatus(Integer invoiceId, String newStatus) {
+	public boolean updateOrderStatus(Integer invoiceId, String newStatus) {
 		try {
-			Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-			if (optionalInvoice.isPresent()) {
-				Invoice invoice = optionalInvoice.get();
-				invoice.setOrderStatus(newStatus);
-				invoiceRepository.save(invoice);
-				return true;
+			// Tìm hóa đơn theo ID.  Hàm findById trả về một Optional,
+			// giúp xử lý trường hợp không tìm thấy hóa đơn một cách an toàn.
+			Invoice invoice = invoiceRepository.findById(invoiceId)
+					.orElse(null); // Nếu không tìm thấy, invoice sẽ là null.
+
+			if (invoice == null) {
+				// Nếu không tìm thấy hóa đơn, trả về false để chỉ ra rằng việc cập nhật không thành công.
+				return false;
 			}
-			return false;
+
+			// Cập nhật trạng thái đơn hàng của hóa đơn. Loại bỏ khoảng trắng đầu và cuối.
+			invoice.setOrderStatus(newStatus.trim());
+			// Lưu các thay đổi vào cơ sở dữ liệu.
+			invoiceRepository.save(invoice);
+			// Trả về true để chỉ ra rằng việc cập nhật thành công.
+			return true;
 		} catch (Exception e) {
+			// Xử lý mọi ngoại lệ có thể xảy ra trong quá trình cập nhật.
+			// In ra stack trace để gỡ lỗi (nên ghi log thay vì in ra trong production).
 			e.printStackTrace();
+			// Trả về false nếu có lỗi xảy ra.
 			return false;
 		}
 	}
-
 	@Override
 	public boolean updateInvoice(InvoiceDto invoiceDto) {
 		try {

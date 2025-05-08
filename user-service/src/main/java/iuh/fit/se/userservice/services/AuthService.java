@@ -13,4 +13,5 @@ public interface AuthService {
     ResponseEntity<ApiResponse<?>> signIn(SignInRequest signInRequest);
     ResponseEntity<ApiResponse<?>> refreshToken(TokenRequest tokenRequest);
     ResponseEntity<ApiResponse<?>> introspectToken(TokenRequest tokenRequest);
+    ResponseEntity<ApiResponse<Void>> updatePassword(Long userId, String oldPassword, String newPassword);
 }

@@ -16,6 +16,8 @@ import iuh.fit.se.userservice.services.UserService;
 import iuh.fit.se.userservice.utils.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
     private UserDetailsServiceImpl userDetailsService;
     private ProfileClient profileClient;
     private ProfileMapper profileMapper;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     @Autowired
     public AuthServiceImpl(UserService userService,
                            RoleService roleService,
@@ -347,5 +349,63 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    public ResponseEntity<ApiResponse<Void>> updatePassword(Long userId, String oldPassword, String newPassword) {
+        logger.info("Processing password update request for userId: {}", userId);
 
+        // Kiểm tra null/rỗng cho mật khẩu
+        if (oldPassword == null || oldPassword.isBlank()) {
+            logger.warn("Old password is null or empty for userId: {}", userId);
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse<>("ERROR", "Old password cannot be empty", null));
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            logger.warn("New password is null or empty for userId: {}", userId);
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse<>("ERROR", "New password cannot be empty", null));
+        }
+
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByUserName(username);
+
+        if (user == null) {
+            logger.error("User not found for username: {}", username);
+            return ResponseEntity.status(401)
+                    .body(new ApiResponse<>("ERROR", "User not found", null));
+        }
+
+        if (!user.getId().equals(userId)) {
+            logger.warn("Invalid userId: {} does not match authenticated user: {}", userId, user.getId());
+            return ResponseEntity.status(403)
+                    .body(new ApiResponse<>("ERROR", "Invalid user ID", null));
+        }
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            logger.warn("Incorrect old password for userId: {}", userId);
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse<>("ERROR", "Old password is incorrect", null));
+        }
+
+        // Kiểm tra mật khẩu mới
+        if (newPassword.length() < 8) {
+            logger.warn("New password too short for userId: {}", userId);
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse<>("ERROR", "New password must be at least 8 characters", null));
+        }
+
+        if (!newPassword.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            logger.warn("New password does not meet complexity requirements for userId: {}", userId);
+            return ResponseEntity.status(400)
+                    .body(new ApiResponse<>("ERROR", "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character", null));
+        }
+
+        // Mã hóa và cập nhật mật khẩu mới
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.saveUser(user);
+        logger.info("Password updated successfully for userId: {}", userId);
+
+        return ResponseEntity.ok(new ApiResponse<>("SUCCESS", "Password updated successfully", null));
+    }
 }
