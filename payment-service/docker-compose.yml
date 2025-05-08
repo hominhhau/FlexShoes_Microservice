@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Service MSSQL
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql_container
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Sa@123456
+      - MSSQL_PID=Express
+      - MSSQL_SSL_ENFORCE=false
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+
+  create-db:
+    image: mcr.microsoft.com/mssql-tools:latest
+    container_name: create_db_container
+    depends_on:
+      - mssql
+    entrypoint: /bin/bash -c "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE paymentService;'"
+    networks:
+      - app-network
+
+
+
+  #   Service Spring Boot (user-service)
+  payment-service:
+    restart: always
+    build: .
+    container_name: payment_service
+    depends_on:
+      - create-db
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=paymentService;encrypt=false;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: "sa"
+      SPRING_DATASOURCE_PASSWORD: "Sa@123456"
+
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+
+
+
+networks:
+  app-network:
+    driver: bridge

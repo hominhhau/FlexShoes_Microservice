@@ -1,0 +1,129 @@
+package iuh.fit.se.profileservice.service.impl;
+
+import iuh.fit.se.profileservice.dtos.ApiResponse;
+import iuh.fit.se.profileservice.dtos.CustomerDTO;
+import iuh.fit.se.profileservice.entities.CustomerProfile;
+import iuh.fit.se.profileservice.exceptions.ProfileAlreadyExistsException;
+import iuh.fit.se.profileservice.mapper.CustomerMapper;
+import iuh.fit.se.profileservice.repository.CustomerRepository;
+import iuh.fit.se.profileservice.service.CustomerService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@Slf4j
+public class CustomerServiceImpl implements CustomerService {
+    CustomerRepository customerRepository;
+    CustomerMapper customerMapper;
+
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<?>>  getAllCustomer() {
+        List<CustomerDTO> customers = customerRepository.findAll().stream()
+                .map(item -> customerMapper.mapToCustomerDTO(item))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(
+                ApiResponse.<List<CustomerDTO>>builder()
+                        .status("SUCCESS")
+                        .message("Get all customers successful")
+                        .response(customers)
+                        .build());
+
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> createCustomer(CustomerDTO customerDTO) throws ProfileAlreadyExistsException {
+
+        try {
+
+            CustomerProfile customerProfile = customerMapper.mapToCustomerProfile(customerDTO);
+            log.info("Create customer:", customerProfile.toString());
+            CustomerDTO result = customerMapper.mapToCustomerDTO(customerRepository.save(customerProfile));
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    ApiResponse.<CustomerDTO>builder()
+                            .status("SUCCESS")
+                            .message("Create customer successful")
+                            .response(result)
+                            .build());
+
+        } catch (Exception e) {
+            throw new ProfileAlreadyExistsException("Customer Profile already exists");
+        }
+
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> findByID(Long id) {
+        // TODO Auto-generated method stub
+        CustomerDTO customerDTO =  customerMapper.mapToCustomerDTO(customerRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Customer not found with id : " + id)
+        ));
+        return ResponseEntity.ok(
+                ApiResponse.<CustomerDTO>builder()
+                        .status("SUCCESS")
+                        .message("Found customer with id " + id + " successful")
+                        .response(customerDTO)
+                        .build());
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> updateByID(Long id, CustomerDTO customerDTO) {
+        CustomerProfile customerProfile = customerRepository.findById(id).orElseThrow(
+                ()->  new RuntimeException("Customer with id " + id + " is not found!")
+        );
+        CustomerProfile newCustomer = customerMapper.mapToCustomerProfile(customerDTO);
+        try {
+            newCustomer.setProfileKey(customerProfile.getProfileKey());
+            CustomerDTO result = customerMapper.mapToCustomerDTO(customerRepository.save(newCustomer));
+            return ResponseEntity.ok(
+                    ApiResponse.<CustomerDTO>builder()
+                            .status("SUCCESS")
+                            .message("Update customer with id " + id + " successful")
+                            .response(result)
+                            .build());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean checkProfile(String phone) {
+
+        return customerRepository.existsByPhoneNumber(phone);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<?>> findByuserID(Long userID) {
+        CustomerProfile customerProfile = customerRepository.findByUserID(userID);
+        if (customerProfile == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ApiResponse.builder()
+                            .status("FAILED")
+                            .message("Customer not found with userID: " + userID)
+                            .response(null)
+                            .build()
+            );
+        }
+        CustomerDTO customerDTO = customerMapper.mapToCustomerDTO(customerProfile);
+        return ResponseEntity.ok(
+                ApiResponse.<CustomerDTO>builder()
+                        .status("SUCCESS")
+                        .message("Found customer with userID " + userID + " successful")
+                        .response(customerDTO)
+                        .build());
+    }
+}

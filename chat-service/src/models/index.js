@@ -20,15 +20,15 @@ const customizeConfig = {
   logging: false,
   timezone: "+07:00",
   // chỉ khi dùng (postgres) thì mới cần đến cái dưới đây
-  // dialectOptions:
-  //   process.env.DB_SSL === true
-  //     ? {
-  //         ssl: {
-  //           require: true,
-  //           rejectUnauthorized: false,
-  //         },
-  //       }
-  //     : {},
+  dialectOptions:
+    process.env.DB_SSL === true
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+      : {},
   //==========================================================
 };
 sequelize = new Sequelize(

@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       adminId: DataTypes.INTEGER,
       senderId: DataTypes.INTEGER,
       message: DataTypes.STRING,
+      status: DataTypes.INTEGER,
     },
     {
       sequelize,
