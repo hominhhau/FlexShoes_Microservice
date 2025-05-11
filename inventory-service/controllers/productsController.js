@@ -354,5 +354,33 @@ purchase: async (req, res) => {
   }
 },
 
+deleteProductById: async (req, res) => {
+  try {
+    console.log("Xóa sản phẩm với ID:", req.params.id);
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+
+    // Xóa các ảnh liên quan
+    const imageIds = product.image.map(img => img.imageID);
+    await Image.deleteMany({ _id: { $in: imageIds } });
+
+    // Xóa các bản ghi tồn kho liên quan
+    const inventoryIds = product.inventory.map(inv => inv.numberOfProduct);
+    await NumberOfProducts.deleteMany({ _id: { $in: inventoryIds } });
+
+    // Xóa sản phẩm chính
+    await Product.findByIdAndDelete(productId);
+
+    res.status(200).json({ message: "Xóa sản phẩm thành công" });
+  } catch (error) {
+    console.error("Lỗi khi xóa sản phẩm:", error);
+    res.status(500).json({ message: "Lỗi khi xóa sản phẩm", error: error.message });
+  }
+},
+
 };
 
