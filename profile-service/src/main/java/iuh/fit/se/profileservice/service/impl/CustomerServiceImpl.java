@@ -10,6 +10,7 @@ import iuh.fit.se.profileservice.service.CustomerService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@Slf4j
 public class CustomerServiceImpl implements CustomerService {
     CustomerRepository customerRepository;
     CustomerMapper customerMapper;
@@ -46,12 +48,14 @@ public class CustomerServiceImpl implements CustomerService {
     public ResponseEntity<ApiResponse<?>> createCustomer(CustomerDTO customerDTO) throws ProfileAlreadyExistsException {
 
         try {
+
             CustomerProfile customerProfile = customerMapper.mapToCustomerProfile(customerDTO);
+            log.info("Create customer:", customerProfile.toString());
             CustomerDTO result = customerMapper.mapToCustomerDTO(customerRepository.save(customerProfile));
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     ApiResponse.<CustomerDTO>builder()
                             .status("SUCCESS")
-                            .message("Get all customers successful")
+                            .message("Create customer successful")
                             .response(result)
                             .build());
 

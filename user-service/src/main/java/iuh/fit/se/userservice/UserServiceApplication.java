@@ -31,6 +31,7 @@ import java.util.Set;
 public class UserServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
+        System.out.println("User Service is running...");
     }
 
     private void initData(PasswordEncoder passwordEncoder,

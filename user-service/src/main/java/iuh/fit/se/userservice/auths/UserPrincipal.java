@@ -14,6 +14,7 @@ public class UserPrincipal implements UserDetails {
     private String username;
     private String email;
     private String password;
+    private Long profileKey;
     private Collection<? extends GrantedAuthority> authorities;
     private boolean enabled;
 

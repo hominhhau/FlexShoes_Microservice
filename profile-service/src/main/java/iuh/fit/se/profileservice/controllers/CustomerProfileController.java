@@ -38,7 +38,7 @@ public class CustomerProfileController {
     public ResponseEntity<ApiResponse<?>> getAllCustomers() {
        return customerService.getAllCustomer();
     }
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<?>> update(@PathVariable Long id, @RequestBody @Valid CustomerDTO customerDTO) {
         return customerService.updateByID(id, customerDTO);
 
