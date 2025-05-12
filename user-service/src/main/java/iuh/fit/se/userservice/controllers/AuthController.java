@@ -1,9 +1,6 @@
 package iuh.fit.se.userservice.controllers;
 
-import iuh.fit.se.userservice.dtos.ApiResponse;
-import iuh.fit.se.userservice.dtos.SignInRequest;
-import iuh.fit.se.userservice.dtos.SignUpRequest;
-import iuh.fit.se.userservice.dtos.TokenRequest;
+import iuh.fit.se.userservice.dtos.*;
 import iuh.fit.se.userservice.exceptions.UserAlreadyExistsException;
 import iuh.fit.se.userservice.services.AuthService;
 import jakarta.validation.Valid;
@@ -12,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
 @RestController
@@ -50,6 +44,11 @@ public class AuthController {
         return authService.introspectToken(tokenRequest);
     }
 
-
+    @PostMapping("/{userId}/update-password")
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
+            @PathVariable Long userId,
+            @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+        return authService.updatePassword(userId, passwordUpdateRequest.getOldPassword(), passwordUpdateRequest.getNewPassword());
+    }
 
 }
