@@ -5,32 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge customer">
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/ProfileCreationResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/.env" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/CHANGELOG.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.d.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/dist/index.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/node_modules/openapi-types/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/controllers/CustomerProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/service/impl/CustomerServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/auths/UserPrincipal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/dtos/SignInResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/entities/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/repositories/httpClient/ProfileClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/AuthServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/services/impl/UserDetailsServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,12 +63,12 @@
       </RecentBranches>
     </option>
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/hominhhau/FlexShoes_Microservice.git",
-    "accountId": "fef0bf28-f2fd-4823-827a-964bf661ef84"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hominhhau/FlexShoes_Microservice.git&quot;,
+    &quot;accountId&quot;: &quot;fef0bf28-f2fd-4823-827a-964bf661ef84&quot;
   }
-}]]></component>
+}</component>
   <component name="JpbToolWindowState">
     <option name="isToolWindowVisible" value="false" />
   </component>
@@ -135,6 +111,8 @@
     "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "release__2",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.configurations.included.in.services": "true",
@@ -302,7 +280,8 @@
       <workItem from="1745589641051" duration="2162000" />
       <workItem from="1745595289029" duration="1263000" />
       <workItem from="1745601603024" duration="649000" />
-      <workItem from="1746638558379" duration="150000" />
+      <workItem from="1746638558379" duration="215000" />
+      <workItem from="1747070423647" duration="341000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />
