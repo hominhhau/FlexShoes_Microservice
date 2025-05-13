@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Service MSSQL
+  # Database: MSSQL
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: mssql_container
@@ -12,38 +12,53 @@ services:
       - MSSQL_SSL_ENFORCE=false
     ports:
       - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./docker/init:/init-sql
     networks:
       - app-network
 
+  # Create DB script
   create-db:
-    image: mcr.microsoft.com/mssql-tools:latest
+    image: mcr.microsoft.com/mssql-tools
     container_name: create_db_container
     depends_on:
       - mssql
     entrypoint: /bin/bash -c "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE OrderService;'"
+    volumes:
+      - ./docker/init:/init-sql
     networks:
       - app-network
 
+  # Eureka Server
+  eureka-server:
+    image: your-eureka-image-name  # Hoặc dùng build: ./eureka-server nếu có Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
 
-
-  #   Service Spring Boot (user-service)
+  # Order Service
   order-service:
     restart: always
     build: .
     container_name: order_service
     depends_on:
       - create-db
+      - eureka-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=OrderService;encrypt=false;trustServerCertificate=true
       SPRING_DATASOURCE_USERNAME: "sa"
       SPRING_DATASOURCE_PASSWORD: "Sa@123456"
-
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     ports:
-      - "8080:8080"
+      - "8083:8083"
     networks:
       - app-network
 
-
+volumes:
+  mssql_data:
 
 networks:
   app-network:
