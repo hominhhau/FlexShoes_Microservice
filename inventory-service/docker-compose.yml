@@ -1,4 +1,3 @@
-
 services:
   inventory-service:
     build: .
@@ -8,7 +7,7 @@ services:
       - mongo
     environment:
       - PORT=5000
-      - MONGO_URI=mongodb://mongo:27017/inventoryDB
+      - MONGO_URI=mongodb+srv://FlexShoes:PasswordFlexShoes@cluster0.jxtoglw.mongodb.net/inventoryDB?retryWrites=true&w=majority
     volumes:
       - .:/app
       - /app/node_modules
