@@ -10,7 +10,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -48,6 +50,40 @@ public class InvoiceController {
 	@PutMapping("/updateInvoice")
 	public MyAPIResponse<Boolean> updateInvoice( @Valid @RequestBody InvoiceDto invoiceDto) {
 		return MyAPIResponse.<Boolean>builder().result(invoiceService.updateInvoice(invoiceDto)).build();
+	}
+
+	@PutMapping("/update/{id}/status")
+	public ResponseEntity<MyAPIResponse<Void>> updateOrderStatus(
+			@PathVariable Integer id, @RequestBody Map<String, String> request) {
+		// Lấy trạng thái đơn hàng từ request body.  Sử dụng getOrDefault để
+		// cung cấp giá trị mặc định là "" nếu "orderStatus" không có trong request.
+		String orderStatus = request.getOrDefault("orderStatus", "").trim();
+		//Kiểm tra xem trạng thái đơn hàng có rỗng không
+		if (orderStatus.isEmpty()) {
+			// Nếu trạng thái đơn hàng rỗng, trả về phản hồi lỗi Bad Request (400).
+			return ResponseEntity.badRequest().body(
+					MyAPIResponse.<Void>builder()
+							.message("Trạng thái đơn hàng không được rỗng")
+							.build()
+			);
+		}
+
+		// Gọi service để cập nhật trạng thái đơn hàng.
+		Boolean isUpdated = invoiceService.updateOrderStatus(id, orderStatus);
+		if (Boolean.TRUE.equals(isUpdated)) {
+			// Nếu cập nhật thành công, trả về phản hồi OK (200) với body rỗng.
+			return ResponseEntity.ok(
+					MyAPIResponse.<Void>builder()
+							.build()
+			);
+		}
+		// Nếu cập nhật không thành công (ví dụ: không tìm thấy hóa đơn),
+		// trả về phản hồi Bad Request (400) với thông báo lỗi.
+		return ResponseEntity.badRequest().body(
+				MyAPIResponse.<Void>builder()
+						.message("Không thể cập nhật trạng thái hoặc không tìm thấy hóa đơn")
+						.build()
+		);
 	}
 
 	// Trả về tổng số đơn đặt hàng

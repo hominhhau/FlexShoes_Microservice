@@ -1,23 +1,140 @@
-version: '3.8'
 
 services:
+  eureka-server:
+    image: eureka-server
+    container_name: eureka-server
+    build:
+      context: ./eureka-server  # Chỉ định thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eureka-server
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  config-server:
+    image: config-server
+    container_name: config-server
+    build:
+      context: ./config-server  # Chỉ định thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_APPLICATION_NAME=config-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8088/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=notification-service
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   mariadb:
     image: mariadb:10.6
     container_name: mariadb_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: main_db
-
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: spring_security_jwt
     ports:
       - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
     networks:
-      - tienguyendev
+      - my-network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       retries: 5
       start_period: 20s
+
+  notification-service:
+    image: notification-service
+    container_name: notification-service
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/notification-service?authSource=admin
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/notification/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    build:
+      context: ./api-gateway  # Chỉ định thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      profile-service:
+        condition: service_started
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   user-service:
     build:
@@ -25,19 +142,34 @@ services:
       dockerfile: Dockerfile
     container_name: user_service
     depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
       profile-service:
         condition: service_started
-      mariadb :
-        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/main_db
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 123456
-      URL_USER_SERVICE: http://profile-service:8081/profile
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - URL_NOTIFICATION_SERVICE=http://notification-service:8082/notification
+      - URL_USER_SERVICE:http://profile-service:8081/profile
     ports:
       - "8080:8080"
     networks:
-      - tienguyendev
+      - my-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
 
   profile-service:
     build:
@@ -47,16 +179,31 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/main_db
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 123456
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+
     ports:
       - "8081:8081"
     networks:
-      - tienguyendev
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  mongodb-data:
+  mariadb-data:
 
 networks:
-  tienguyendev:
+  my-network:
     driver: bridge

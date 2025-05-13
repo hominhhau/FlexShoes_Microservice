@@ -10,9 +10,10 @@ import feign.FeignException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContextException;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.List;
 
@@ -21,9 +22,25 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailService {
 
+    @Autowired
+    private Environment env;
+
     EmailClient emailClient;
 
+
+
+    public String getConfigImport() {
+        return env.getProperty("SENDINBLUE_API_KEY");
+    }
+
     public EmailResponse sendEmail(SendEmailRequest request) {
+
+        String apiKey = getConfigImport();
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("SENDINBLUE_API_KEY is not configured");
+        }
+
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Sender.builder()
                         .name("Flex Shoes")
@@ -34,8 +51,8 @@ public class EmailService {
                 .htmlContent(request.getHtmlContent())
                 .build();
         try {
-            Dotenv dotenv = Dotenv.load();
-            String apiKey = dotenv.get("SENDINBLUE_API_KEY");
+
+
             return emailClient.sendEmail(apiKey, emailRequest);
         } catch (FeignException e){
             throw new ApplicationContextException("Failed to send email", e);
