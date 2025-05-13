@@ -1,6 +1,7 @@
 # Giai đoạn build
 FROM maven:3.8-openjdk-17-slim AS build
 WORKDIR /app
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy file cấu hình Maven trước để tối ưu cache
 COPY mvnw .
@@ -23,7 +24,7 @@ WORKDIR /app
 # Copy file JAR từ giai đoạn build sang
 COPY --from=build /app/target/*.jar app.jar
 
-# Mở cổng 8080
+# Mở cổng 8081
 EXPOSE 8081
 
 # Chạy ứng dụng Spring Boot

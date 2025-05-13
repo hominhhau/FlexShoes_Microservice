@@ -19,4 +19,5 @@ COPY . .
 EXPOSE 5000
 
 # Khởi động service
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
+

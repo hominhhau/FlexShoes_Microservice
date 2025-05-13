@@ -1,6 +1,7 @@
 package com.microservice.api_gateway.configuration;
 
 import com.microservice.api_gateway.repository.UsersClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -16,11 +17,15 @@ import java.util.List;
 
 @Configuration
 public class WebClientConfiguration {
+
+    @Value("${key.baseUrl}")
+    private String baseUrl;
+
     // Tạo bean cho WebClient
     @Bean
     WebClient webClient(){
         return WebClient.builder()
-                .baseUrl("http://localhost:8080")  // Cấu hình baseUrl
+                .baseUrl(baseUrl)  // Cấu hình baseUrl
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)  // Cấu hình mặc định header
                 .build();
     }

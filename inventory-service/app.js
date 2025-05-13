@@ -35,7 +35,9 @@ app.use('/inventory', numberOfProductsRoutes);
 app.use('/inventory', productTypes);
 app.use('/inventory', listingProductRoutes);
 app.use('/inventory', chatGPTRoutes);
-
+app.get('/actuator/health', (req, res) => {
+    res.status(200).json({ status: 'UP' });
+});
 // ✅ CORS config to allow credentials from localhost:3000
 app.use(cors({
     origin: 'http://localhost:3000',
@@ -55,7 +57,7 @@ connectDB();
 const { Eureka } = require('eureka-js-client');
 
 function registerWithEureka(port) {
-    const hostName = "localhost";
+    const hostName = "inventory-service";
     const ipAddr = '127.0.0.1';
 
     const client = new Eureka({
@@ -71,10 +73,10 @@ function registerWithEureka(port) {
             dataCenterInfo: {
                 '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
                 name: 'MyOwn'
-            }
+            },
         },
         eureka: {
-            host: 'localhost',
+            host: 'eureka-server',
             port: 8761,
             servicePath: '/eureka/apps/',
             maxRetries: 3,
