@@ -1,4 +1,4 @@
-FROM maven:3.8-openjdk-17-slim as build
+FROM maven:3.8-openjdk-17-slim AS build
 WORKDIR /app
 COPY mvnw .
 COPY .mvn .mvn

@@ -67,6 +67,39 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private String apiPrefix;
 
     // This filter is executed for every request
+//    @Override
+//    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        log.info("AuthenticationFilter - " + exchange.getRequest().getPath());
+//
+//        if (isPublicEndpoint(exchange.getRequest())) {
+//            log.info("Public endpoint, skipping authentication");
+//            return chain.filter(exchange);
+//        }
+//
+//        // Get the token from the request
+//        List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
+//        if (CollectionUtils.isEmpty(authHeader)) {
+//            log.info("Authorization header is missing");
+//            return unauthenticated(exchange.getResponse());
+//        }
+//
+//        // Get the token from the header and remove the "Bearer " prefix
+//        String token = authHeader.get(0).substring(7);
+//        log.info("Token: " + token);
+//
+//        log.info("Introspecting token");
+//        // Call the users service to introspect the token
+//        return usersService.introspect(token).flatMap(introspectResponse -> {
+//            if (introspectResponse.getResponse().isValid()) {
+//                log.info("Token is valid");
+//                return chain.filter(exchange);
+//            }
+//            else {
+//                log.info("Token is invalid");
+//                return unauthenticated(exchange.getResponse());
+//            }
+//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+//    }
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("AuthenticationFilter - " + exchange.getRequest().getPath());
@@ -76,30 +109,33 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        // Get the token from the request
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
         if (CollectionUtils.isEmpty(authHeader)) {
             log.info("Authorization header is missing");
             return unauthenticated(exchange.getResponse());
         }
 
-        // Get the token from the header and remove the "Bearer " prefix
         String token = authHeader.get(0).substring(7);
         log.info("Token: " + token);
 
-        log.info("Introspecting token");
-        // Call the users service to introspect the token
         return usersService.introspect(token).flatMap(introspectResponse -> {
             if (introspectResponse.getResponse().isValid()) {
                 log.info("Token is valid");
-                return chain.filter(exchange);
-            }
-            else {
+
+                // 🔥 Clone request và forward lại Authorization header
+                ServerHttpRequest mutatedRequest = exchange.getRequest()
+                        .mutate()
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .build();
+
+                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+            } else {
                 log.info("Token is invalid");
                 return unauthenticated(exchange.getResponse());
             }
         }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
+
 
     // This method is called when the token is invalid
     @Override
