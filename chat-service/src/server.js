@@ -32,9 +32,48 @@ app.post("/updateMessageStatus", chatController.updateMessageStatus);
 // chatbot AI chatGPT
 app.post('/chatgpt', ChatGPTController.chatGPTResponse);
 
+const { Eureka } = require('eureka-js-client');
+
+function registerWithEureka(port) {
+  const hostName = "chat-service";
+  const ipAddr = '127.0.0.1';
+
+  const client = new Eureka({
+    instance: {
+      app: 'chat-service',
+      hostName,
+      ipAddr,
+      port: {
+        '$': port,
+        '@enabled': true
+      },
+      vipAddress: 'chat-service',
+      dataCenterInfo: {
+        '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
+        name: 'MyOwn'
+      },
+    },
+    eureka: {
+      host: 'eureka-server',
+      port: 8761,
+      servicePath: '/eureka/apps/',
+      maxRetries: 3,
+      requestRetryDelay: 5000
+    }
+  });
+
+  client.start(error => {
+    if (error) {
+      console.error('❌ Lỗi khi đăng ký Eureka:', error);
+    } else {
+      console.log('🎉 Đã đăng ký service với Eureka!');
+    }
+  });
+}
 
 // Bắt đầu lắng nghe trên một cổng
 const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
+  registerWithEureka(PORT); // Đăng ký với Eureka tại đây
   console.log(`Server is running on port ${PORT}`);
 });
