@@ -389,4 +389,22 @@ module.exports = {
         .json({ message: "Lỗi khi xóa sản phẩm", error: error.message });
     }
   },
+  searchProduct: async (req, res) => {
+    try {
+      const { name } = req.query;
+      console.log("Tên sản phẩm tìm kiếm:", name);
+
+      const products = await Product.find({
+        productName: { $regex: name, $options: "i" },
+      })
+          .populate("image.imageID")
+          .populate("braType", "brandTypeName description")
+          .populate("proType", "productTypeName description");
+
+      res.status(200).json(products);
+    } catch (error) {
+      console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+      res.status(500).json({ message: "Lỗi khi tìm kiếm sản phẩm" });
+    }
+  },
 };

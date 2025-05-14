@@ -59,6 +59,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/inventory/update",
             "/payment/create_payment",
             "/payment/payment-return",
+            "/inventory/searchProduct",
 
     };
 

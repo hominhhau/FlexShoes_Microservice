@@ -183,8 +183,12 @@ services:
       - SPRING_DATASOURCE_PASSWORD=Sa@123456
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - TZ=Asia/Ho_Chi_Minh
     networks:
       - my-network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     restart: always
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
