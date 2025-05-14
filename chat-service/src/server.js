@@ -74,5 +74,6 @@ function registerWithEureka(port) {
 const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
   registerWithEureka(PORT); // Đăng ký với Eureka tại đây
+  registerWithEureka(PORT); // Đăng ký với Eureka tại đây
   console.log(`Server is running on port ${PORT}`);
 });

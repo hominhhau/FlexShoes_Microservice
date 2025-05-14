@@ -1,8 +1,8 @@
 # Giai đoạn build
 FROM maven:3.8-openjdk-17-slim AS build
 WORKDIR /app
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Copy file cấu hình Maven trước để tối ưu cache
 COPY mvnw .
 COPY .mvn .mvn
@@ -20,6 +20,14 @@ RUN mvn clean package -DskipTests
 # Giai đoạn chạy ứng dụng
 FROM openjdk:17-jdk-slim
 WORKDIR /app
+
+
+
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
+    echo "Asia/Ho_Chi_Minh" > /etc/timezone && \
+    apt-get clean
+
 
 # Copy file JAR từ giai đoạn build sang
 COPY --from=build /app/target/*.jar app.jar
