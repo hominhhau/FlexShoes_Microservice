@@ -41,12 +41,14 @@ function registerWithEureka(port) {
     instance: {
       app: "chat-service",
       hostName: "chat-service",
-     ipAddr: 'chat-service',
+      ipAddr: "127.0.0.1",
       port: {
         enabled: true,
         $: 8089,
       },
       vipAddress: "chat-service",
+      statusPageUrl: "http://chat-service:8089/chat",
+      healthCheckUrl: "http://chat-service:8089/chat",
       dataCenterInfo: {
         "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
         name: "MyOwn",
@@ -73,7 +75,6 @@ function registerWithEureka(port) {
 // Bắt đầu lắng nghe trên một cổng
 const PORT = process.env.PORT || 8089;
 app.listen(PORT, () => {
-  registerWithEureka(PORT); // Đăng ký với Eureka tại đây
   registerWithEureka(PORT); // Đăng ký với Eureka tại đây
   console.log(`Server is running on port ${PORT}`);
 });

@@ -89,8 +89,8 @@ services:
     build:
       context: ./chat-service
       dockerfile: Dockerfile
-    container_name: chat_container
-    restart: always
+    ports:
+      - "8089:8089"
     depends_on:
       # - postgresDB
       eureka-server:
@@ -99,17 +99,20 @@ services:
         condition: service_healthy
       postgresDB:
         condition: service_healthy
+    container_name: chat_container
+    restart: always
     environment:
       - DB_PORT=5432
       - DB_HOST=postgresDB
       # - DB_HOST=host.docker.internal
+      - SPRING_APPLICATION_NAME=chat-service
+      - EUREKA_INSTANCE_HOSTNAME=chat-server
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    # env_file:
-    #   - ./chat-service/.env
-    ports:
-      - "8089:8089"
+    env_file:
+      - ./chat-service/.env
     volumes:
       - ./chat-service:/app
+      - /app/node_modules
     networks:
         - my-network
     healthcheck:
@@ -153,9 +156,7 @@ services:
       - my-network
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/1433' || exit 1"]
-      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/1433' || exit 1"]
       interval: 10s
-      timeout: 10s
       timeout: 10s
       retries: 5
       start_period: 20s
@@ -405,7 +406,6 @@ volumes:
   mongodb-data:
   mariadb-data:
   mssql-data:
-  postgres_data:
   postgres_data:
 
 networks:
