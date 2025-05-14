@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="docker" />
+    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="docker">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -350,7 +353,7 @@
       <workItem from="1747204246466" duration="5264000" />
       <workItem from="1747210573875" duration="7492000" />
       <workItem from="1747220993473" duration="12210000" />
-      <workItem from="1747239657296" duration="6727000" />
+      <workItem from="1747239657296" duration="7571000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />
