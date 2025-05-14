@@ -38,8 +38,6 @@ pipeline {
                     sh 'cp inventory-service/.env.example inventory-service/.env || true'
                     withCredentials([
                         // Biến cho .env (notification-service)
-                        string(credentialsId: 'db-user', variable: 'DB_USER'),
-                        string(credentialsId: 'db-password', variable: 'DB_PASSWORD'),
                         string(credentialsId: 'sendinblue-api-key', variable: 'SENDINBLUE_API_KEY'),
                         // Biến cho chat-service
                         string(credentialsId: 'chat-port', variable: 'CHAT_PORT'),
@@ -62,8 +60,6 @@ pipeline {
                         sh '''
                             # Cập nhật .env (notification-service)
                             sed -i "s|SENDINBLUE_API_KEY=placeholder|SENDINBLUE_API_KEY=$SENDINBLUE_API_KEY|" .env || true
-                            sed -i "s|DB_USER=placeholder|DB_USER=$DB_USER|" .env || true
-                            sed -i "s|DB_PASSWORD=placeholder|DB_PASSWORD=$DB_PASSWORD|" .env || true
 
                             # Cập nhật chat-service/.env
                             sed -i "s|PORT=placeholder|PORT=$CHAT_PORT|" chat-service/.env || true
