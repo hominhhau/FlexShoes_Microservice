@@ -246,6 +246,7 @@ services:
 
   inventory-service:
     image: ctmyname/inventory-service:latest  # Thêm ctmyname/ và :latest
+    container_name: inventory-service
     build:
       context: ./inventory-service
       dockerfile: Dockerfile
@@ -267,10 +268,15 @@ services:
     env_file:
       - ./inventory-service/.env
     volumes:
-      - ./inventory-service:/app
+      - ./inventory-service:/InventoryDB
     restart: always
     networks:
       - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   notification-service:
     image: ctmyname/notification-service:latest  # Thêm ctmyname/ và :latest
