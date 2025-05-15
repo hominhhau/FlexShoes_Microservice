@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const NumberOfProducts = require("../models/NumberOfProducts");
 const Image = require("../models/Image");
-const { uploadFile } = require("../Utils/file.service");
+const { uploadFile } = require("../utils/file.service");
 const Color = require("../models/Color");
 const Size = require("../models/Size");
 
