@@ -17,9 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,16 +29,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 	private final ProductServiceClient productServiceClient;
 	private final CustomerServiceClient customerServiceClient;
 	private final InvoiceMapper invoiceMapper;
-
-//	@Override
-//	public ProductDto getProductInfo(String productId) {
-//		try {
-//			System.out.println("SP" + productServiceClient.getProductById(productId));
-//			return productServiceClient.getProductById(productId);
-//        } catch (Exception e) {
-//			throw new RuntimeException("Không thể lấy thông tin sản phẩm từ service: " + e.getMessage());
-//		}
-//	}
 
 	@Override
 	public ProductDto getProductInfo(String productId) {
@@ -64,6 +52,10 @@ public class InvoiceServiceImpl implements InvoiceService {
 			throw new RuntimeException("Không thể lấy thông tin khách hàng từ service: " + e.getMessage());
 		}
 	}
+//	public CustomerDto getCustomerInfo(Long customerId) {
+//		ResponseEntity<ApiResponse<CustomerDto>> response = customerServiceClient.getCustomerById(customerId);
+//		return response.getBody() != null ? response.getBody().getResponse() : null;
+//	}
 	@Override
 	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
 		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
@@ -143,114 +135,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 		return savedInvoiceDto;
 	}
-//	@Override
-//	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
-//		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
-//		CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
-//		System.out.println(customer);
-//		if (customer == null) {
-//			throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
-//		}
-//
-//		// Chuyển đổi DTO thành entity
-//		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-//		invoice.setInvoiceId(null); // Đảm bảo tạo mới
-//		invoice.setCustomerId(customer.getUserID());
-//
-//		List<InvoiceDetail> details = new ArrayList<>();
-//
-//		// Kiểm tra danh sách chi tiết hóa đơn
-//		if (invoiceDto.getInvoiceDetails() != null) {
-//			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
-//				// Gọi ProductService để lấy thông tin sản phẩm
-//				ProductDto product = getProductInfo(detailDto.getProductId());
-//				System.out.println("Product: " + product);
-//				if (product == null) {
-//					throw new RuntimeException("Sản phẩm ID " + detailDto.getProductId() + " không tồn tại!");
-//				}
-//
-//				// Tạo chi tiết hóa đơn
-//
-//				InvoiceDetail detail = new InvoiceDetail();
-//
-//
-//
-//				detail.setProductId(detailDto.getProductId());
-//				detail.setQuantity(detailDto.getQuantity());
-//				detail.setInvoice(invoice); // Gán invoice vào detail
-//
-//				details.add(detail);
-//			}
-//		}
-//
-//		invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
-//
-//		// Lưu hóa đơn, Hibernate sẽ lưu luôn các chi tiết hóa đơn do cascade
-//		Invoice savedInvoice = invoiceRepository.save(invoice);
-//
-//		// Trả về DTO kèm theo thông tin khách hàng
-//		return invoiceMapper.toDTO(savedInvoice, customer);
-//	}
-//	public InvoiceDto saveInvoice(InvoiceDto invoiceDto) {
-//		// Lấy thông tin khách hàng (nếu service không chạy thì trả về data mẫu)
-//		CustomerDto customer = getCustomerInfo(invoiceDto.getCustomerId());
-//		System.out.println("Thông tin khách hàng: " + customer);
-//		if (customer == null) {
-//			throw new RuntimeException("Không tìm thấy khách hàng với ID: " + invoiceDto.getCustomerId());
-//		}
-//
-//		// Chuyển đổi DTO thành entity
-//		Invoice invoice = invoiceMapper.toEntity(invoiceDto);
-//		invoice.setInvoiceId(null); // Đảm bảo tạo mới
-//		invoice.setCustomerId(customer.getUserID());
-//
-//		List<InvoiceDetail> details = new ArrayList<>();
-//
-//		// Kiểm tra danh sách chi tiết hóa đơn
-//		if (invoiceDto.getInvoiceDetails() != null) {
-//			for (InvoiceDetailDto detailDto : invoiceDto.getInvoiceDetails()) {
-//				// **Kiểm tra giá trị productId ngay lập tức**
-//				System.out.println("InvoiceDetailDto productId nhận được: " + detailDto.getProductId());
-//
-//				// Gọi ProductService để lấy thông tin sản phẩm
-//				String productId = detailDto.getProductId();
-//				ProductDto product = null;
-//				if (productId != null && !productId.isEmpty()) {
-//					product = getProductInfo(productId);
-//					System.out.println("Thông tin sản phẩm: " + product);
-//					if (product == null) {
-//						throw new RuntimeException("Sản phẩm ID " + productId + " không tồn tại!");
-//					}
-//                    detailDto.setProduct(product);
-//                    System.out.println("product khi taoh" + product);
-//				} else {
-//					System.err.println("Cảnh báo: productId trong InvoiceDetailDto là null hoặc rỗng.");
-//					// **Tùy thuộc vào yêu cầu nghiệp vụ, bạn có thể xử lý khác ở đây:**
-//					// - Bỏ qua chi tiết hóa đơn này
-//					// - Gán một giá trị mặc định (nếu có logic cho nó)
-//					// - Tiếp tục và có thể gây ra lỗi ở bước sau
-//					// Trong ví dụ này, chúng ta sẽ không tạo InvoiceDetail nếu productId là null hoặc rỗng.
-//					continue;
-//				}
-//
-//				// Tạo chi tiết hóa đơn
-//				InvoiceDetail detail = new InvoiceDetail();
-//				detail.setProductId(productId);
-//				detail.setQuantity(detailDto.getQuantity());
-//				detail.setInvoice(invoice);
-//
-//				details.add(detail);
-//			}
-//		}
-//
-//		invoice.setInvoiceDetails(details); // Gán danh sách chi tiết hóa đơn vào invoice
-//
-//		// Lưu hóa đơn, Hibernate sẽ lưu luôn các chi tiết hóa đơn do cascade
-//		Invoice savedInvoice = invoiceRepository.save(invoice);
-//
-//		// Trả về DTO kèm theo thông tin khách hàng
-//		return invoiceMapper.toDTO(savedInvoice, customer);
-//	}
 
 
 	@Override
@@ -290,6 +174,53 @@ public class InvoiceServiceImpl implements InvoiceService {
 				})
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public List<Map<String, Object>> getOrderCountByMonthsInYear(int year) {
+		List<Object[]> results = invoiceRepository.countOrdersByMonthInYear(year);
+		List<Map<String, Object>> monthlyData = new ArrayList<>();
+
+		// Khởi tạo dữ liệu cho tất cả các tháng (1-12) với giá trị mặc định là 0
+		for (int month = 1; month <= 12; month++) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("month", month);
+			data.put("count", 0L);
+			monthlyData.add(data);
+		}
+
+		// Cập nhật dữ liệu từ kết quả truy vấn
+		for (Object[] result : results) {
+			Integer month = (Integer) result[0];
+			Long count = (Long) result[1];
+			monthlyData.get(month - 1).put("count", count);
+		}
+
+		return monthlyData;
+	}
+
+	@Override
+	public List<Map<String, Object>> getRevenueByMonthsInYear(int year) {
+		List<Object[]> results = invoiceRepository.sumRevenueByMonthInYear(year);
+		List<Map<String, Object>> monthlyData = new ArrayList<>();
+
+		// Khởi tạo dữ liệu cho tất cả các tháng (1-12) với giá trị mặc định là 0
+		for (int month = 1; month <= 12; month++) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("month", month);
+			data.put("revenue", 0.0);
+			monthlyData.add(data);
+		}
+
+		// Cập nhật dữ liệu từ kết quả truy vấn
+		for (Object[] result : results) {
+			Integer month = (Integer) result[0];
+			Double revenue = (Double) result[1];
+			monthlyData.get(month - 1).put("revenue", revenue != null ? revenue : 0.0);
+		}
+
+		return monthlyData;
+	}
+
 	@Override
 	public List<InvoiceDto> getAllInvoice() {
 		return invoiceRepository.findAll().stream()
@@ -381,11 +312,33 @@ public class InvoiceServiceImpl implements InvoiceService {
 		}
 	}
 
+//	@Override
+//	public List<InvoiceDto> getRecentInvoices() {
+//		return invoiceRepository.findAll(Sort.by(Sort.Direction.DESC, "issueDate"))
+//				.stream()
+//				.map(invoiceMapper::toDTO)
+//				.collect(Collectors.toList());
+//	}
+
 	@Override
 	public List<InvoiceDto> getRecentInvoices() {
 		return invoiceRepository.findAll(Sort.by(Sort.Direction.DESC, "issueDate"))
 				.stream()
-				.map(invoiceMapper::toDTO)
+				.map(invoice -> {
+					InvoiceDto invoiceDto = invoiceMapper.toDTO(invoice);
+					// Lấy thông tin khách hàng
+					ResponseEntity<ApiResponse<CustomerDto>> customerResponse =
+							customerServiceClient.getCustomerById(invoice.getCustomerId());
+					if (customerResponse.getBody() != null && customerResponse.getBody().getResponse() != null) {
+						CustomerDto customer = customerResponse.getBody().getResponse();
+						invoiceDto.setCustomer(customer);
+						// Tạo customerName từ firstName và lastName
+						String customerName = (customer.getFirstName() != null ? customer.getFirstName() : "") + " " +
+								(customer.getLastName() != null ? customer.getLastName() : "");
+						invoiceDto.setCustomerName(customerName.trim());
+					}
+					return invoiceDto;
+				})
 				.collect(Collectors.toList());
 	}
 
@@ -417,24 +370,24 @@ public class InvoiceServiceImpl implements InvoiceService {
 		return null; // Trả về null nếu không tìm thấy
 	}
 
-	@Override
-	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
-		Long customerId = null;
-
-		// Nếu có tên khách hàng, tìm customerId trong danh sách cache
-		if (customerName != null && !customerName.trim().isEmpty()) {
-			customerId = getCustomerIdByName(customerName);
-			if (customerId == null) {
-				return List.of(); // Không tìm thấy khách hàng => Trả về danh sách rỗng
-			}
-		}
-
-		// Tìm hóa đơn theo customerId tìm được
-		return invoiceRepository.searchInvoices(id, customerId, orderStatus)
-				.stream()
-				.map(invoiceMapper::toDTO)
-				.toList();
-	}
+//	@Override
+//	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
+//		Long customerId = null;
+//
+//		// Nếu có tên khách hàng, tìm customerId trong danh sách cache
+//		if (customerName != null && !customerName.trim().isEmpty()) {
+//			customerId = getCustomerIdByName(customerName);
+//			if (customerId == null) {
+//				return List.of(); // Không tìm thấy khách hàng => Trả về danh sách rỗng
+//			}
+//		}
+//
+//		// Tìm hóa đơn theo customerId tìm được
+//		return invoiceRepository.searchInvoices(id, customerId, orderStatus)
+//				.stream()
+//				.map(invoiceMapper::toDTO)
+//				.toList();
+//	}
 
 
 	@Override
@@ -453,5 +406,64 @@ public class InvoiceServiceImpl implements InvoiceService {
 			}
 		}
 		return invoiceMapper.toDTO(savedInvoice);
+	}
+
+	@Override
+	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
+		// Lấy danh sách hóa đơn từ repository
+		List<Invoice> invoices = invoiceRepository.searchInvoices(id, null, orderStatus);
+
+		// Lọc theo customerName nếu có
+		if (customerName != null && !customerName.trim().isEmpty()) {
+			List<Invoice> filteredInvoices = new ArrayList<>();
+			for (Invoice invoice : invoices) {
+				try {
+					ResponseEntity<ApiResponse<CustomerDto>> customerResponse =
+							customerServiceClient.getCustomerById(invoice.getCustomerId());
+					if (customerResponse.getBody() != null && customerResponse.getBody().getResponse() != null) {
+						CustomerDto customer = customerResponse.getBody().getResponse();
+						String fullName = (customer.getFirstName() != null ? customer.getFirstName() : "") + " " +
+								(customer.getLastName() != null ? customer.getLastName() : "").trim();
+						if (fullName.toLowerCase().contains(customerName.toLowerCase())) {
+							filteredInvoices.add(invoice);
+						}
+					}
+				} catch (Exception e) {
+					System.err.println("Lỗi khi gọi customerServiceClient cho hóa đơn " + invoice.getInvoiceId() + ": " + e.getMessage());
+				}
+			}
+			invoices = filteredInvoices;
+		}
+
+		// Chuyển đổi sang InvoiceDto
+		return invoices.stream()
+				.map(invoice -> {
+					CustomerDto customerDto = getCustomerInfo(invoice.getCustomerId());
+					InvoiceDto invoiceDto = invoiceMapper.toDTO(invoice, customerDto);
+					// Gán customerName thủ công để đảm bảo không null
+					if (customerDto != null) {
+						String fullName = (customerDto.getFirstName() != null ? customerDto.getFirstName() : "") + " " +
+								(customerDto.getLastName() != null ? customerDto.getLastName() : "").trim();
+						invoiceDto.setCustomerName(fullName.isEmpty() ? "Khách hàng không xác định" : fullName);
+					} else {
+						invoiceDto.setCustomerName("Khách hàng không xác định");
+					}
+					// Gán invoiceDetails
+					List<InvoiceDetailDto> detailDtos = invoice.getInvoiceDetails().stream()
+							.map(detail -> {
+								InvoiceDetailDto detailDto = new InvoiceDetailDto();
+								detailDto.setDetailId(detail.getDetailId());
+								detailDto.setInvoiceId(invoice.getInvoiceId());
+								detailDto.setProductId(detail.getProductId());
+								detailDto.setQuantity(detail.getQuantity());
+								ProductDto productDto = getProductInfo(detail.getProductId());
+								detailDto.setProduct(productDto);
+								return detailDto;
+							})
+							.collect(Collectors.toList());
+					invoiceDto.setInvoiceDetails(detailDtos);
+					return invoiceDto;
+				})
+				.collect(Collectors.toList());
 	}
 }

@@ -32,4 +32,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
             @Param("customerId") Long customerId,
             @Param("orderStatus") String orderStatus);
     List<Invoice> findByCustomerId(Long customerId);
+
+    @Query("SELECT MONTH(i.issueDate), COUNT(i) FROM Invoice i WHERE YEAR(i.issueDate) = :year GROUP BY MONTH(i.issueDate)")
+    List<Object[]> countOrdersByMonthInYear(@Param("year") int year);
+
+    @Query("SELECT MONTH(i.issueDate), SUM(i.total) FROM Invoice i WHERE YEAR(i.issueDate) = :year GROUP BY MONTH(i.issueDate)")
+    List<Object[]> sumRevenueByMonthInYear(@Param("year") int year);
 }

@@ -7,6 +7,7 @@ import com.microservice.order_service.dto.InvoiceDto;
 import com.microservice.order_service.dto.ProductDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InvoiceService {
     InvoiceDto createInvoiceFormOrder(InvoiceDto invoiceDto);
@@ -34,4 +35,9 @@ public interface InvoiceService {
     ProductDto getProductInfo(String productId);
     CustomerDto getCustomerInfo(Long customerId);
     List<InvoiceDto> getInvoicesByCustomerId(Long customerId);
+
+
+
+    List<Map<String, Object>> getOrderCountByMonthsInYear(int year);
+    List<Map<String, Object>> getRevenueByMonthsInYear(int year);
 }
