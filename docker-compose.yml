@@ -107,8 +107,8 @@ services:
       - ./chat-service/.env
     ports:
       - "8089:8089"
-    volumes:
-      - ./chat-service:/app
+#    volumes:
+#      - ./chat-service:/app
     networks:
       - my-network
     healthcheck:
@@ -267,8 +267,8 @@ services:
       - MONGO_URI=mongodb+srv://FlexShoes:PasswordFlexShoes@cluster0.jxtoglw.mongodb.net/inventoryDB?retryWrites=true&w=majority
     env_file:
       - ./inventory-service/.env
-    volumes:
-      - ./inventory-service:/InventoryDB
+#    volumes:
+#      - ./inventory-service:/app
     restart: always
     networks:
       - my-network

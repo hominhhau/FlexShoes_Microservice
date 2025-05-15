@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Thiết lập thư mục làm việc trong container
-WORKDIR /InventoryDB
+WORKDIR /app
 
 # Sao chép file package.json và package-lock.json để tối ưu caching
 COPY package*.json ./
