@@ -158,9 +158,9 @@ pipeline {
                 sh '''
                     for i in {1..30}; do
                         if docker-compose ps inventory-service | grep -q "Up"; then
-                            docker-compose exec -T inventory-service ls -l /app || true
-                            docker-compose exec -T inventory-service cat /app/package.json || true
-                            docker-compose exec -T inventory-service ls -l /app/app.js || true
+                            docker-compose exec -T inventory-service ls -l /InventoryDB || true
+                            docker-compose exec -T inventory-service cat /InventoryDB/package.json || true
+                            docker-compose exec -T inventory-service ls -l /InventoryDB/app.js || true
                             exit 0
                         fi
                         echo "Waiting for inventory-service to be up..."
