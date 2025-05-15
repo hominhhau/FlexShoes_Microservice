@@ -89,7 +89,7 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh 'docker-compose build --no-cache'
                 }
             }
         }
@@ -110,13 +110,41 @@ pipeline {
                 }
             }
         }
+        stage('Verify Workspace and Files') {
+            steps {
+                sh 'pwd'
+                sh 'ls -l'
+                sh 'ls -l chat-service || true'
+                sh 'ls -l inventory-service || true'
+                sh 'test -f chat-service/package.json || { echo "chat-service/package.json missing"; exit 1; }'
+                sh 'test -f chat-service/src/server.js || { echo "chat-service/src/server.js missing"; exit 1; }'
+                sh 'test -f inventory-service/package.json || { echo "inventory-service/package.json missing"; exit 1; }'
+                sh 'test -f inventory-service/app.js || { echo "inventory-service/app.js missing"; exit 1; }'
+            }
+        }
+
         stage('Debug Workspace Chat') {
             steps {
                 sh 'ls -l'
                 sh 'ls -l chat-service'
                 sh 'cat chat-service/package.json || true'
-                sh 'docker-compose exec -T chat-service ls -l /app || true'
-                sh 'docker-compose exec -T chat-service cat /app/package.json || true'
+                sh 'ls -l chat-service/src/server.js || true'
+                sh 'docker-compose up -d chat-service || true'
+                sh '''
+                    for i in {1..30}; do
+                        if docker-compose ps chat-service | grep -q "Up"; then
+                            docker-compose exec -T chat-service ls -l /app || true
+                            docker-compose exec -T chat-service cat /app/package.json || true
+                            docker-compose exec -T chat-service ls -l /app/src/server.js || true
+                            exit 0
+                        fi
+                        echo "Waiting for chat-service to be up..."
+                        sleep 2
+                    done
+                    echo "chat-service did not start in time"
+                    docker-compose logs chat-service
+                    exit 1
+                '''
             }
         }
 
@@ -125,8 +153,23 @@ pipeline {
                 sh 'ls -l'
                 sh 'ls -l inventory-service'
                 sh 'cat inventory-service/package.json || true'
-                sh 'docker-compose exec -T inventory-service ls -l /app || true'
-                sh 'docker-compose exec -T inventory-service cat /app/package.json || true'
+                sh 'ls -l inventory-service/app.js || true'
+                sh 'docker-compose up -d inventory-service || true'
+                sh '''
+                    for i in {1..30}; do
+                        if docker-compose ps inventory-service | grep -q "Up"; then
+                            docker-compose exec -T inventory-service ls -l /app || true
+                            docker-compose exec -T inventory-service cat /app/package.json || true
+                            docker-compose exec -T inventory-service ls -l /app/app.js || true
+                            exit 0
+                        fi
+                        echo "Waiting for inventory-service to be up..."
+                        sleep 2
+                    done
+                    echo "inventory-service did not start in time"
+                    docker-compose logs inventory-service
+                    exit 1
+                '''
             }
         }
 

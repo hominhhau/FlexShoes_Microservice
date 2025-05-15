@@ -75,19 +75,33 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   chat-service:
     image: ctmyname/chat-service:latest  # Thêm ctmyname/ và :latest
     build:
       context: ./chat-service
       dockerfile: Dockerfile
-    container_name: my_node_app
+    container_name: chat-service
     restart: always
     depends_on:
-      - postgresDB
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      postgresDB:
+        condition: service_healthy
     environment:
       - DB_PORT=5432
       - DB_HOST=postgresDB
+      - SPRING_APPLICATION_NAME=chat-service
+      - EUREKA_INSTANCE_HOSTNAME=chat-server
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     env_file:
       - ./chat-service/.env
@@ -95,7 +109,13 @@ services:
       - "8089:8089"
     volumes:
       - ./chat-service:/app
-    working_dir: /app
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8089/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   mariadb:
     image: mariadb:10.6  # Image chính thức, không cần sửa
