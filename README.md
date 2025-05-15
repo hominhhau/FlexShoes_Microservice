@@ -47,6 +47,7 @@ docker-compose down -v
 docker-compose up -d
 
 ### Jenkins
+docker run -d -p 8090:8080 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home --name jenkins jenkins/jenkins:lts
 
 ### Jenkins pass
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword

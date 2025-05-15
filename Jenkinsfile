@@ -110,6 +110,26 @@ pipeline {
                 }
             }
         }
+        stage('Debug Workspace Chat') {
+            steps {
+                sh 'ls -l'
+                sh 'ls -l chat-service'
+                sh 'cat chat-service/package.json || true'
+                sh 'docker-compose exec -T chat-service ls -l /app || true'
+                sh 'docker-compose exec -T chat-service cat /app/package.json || true'
+            }
+        }
+
+        stage('Debug Workspace Inventory') {
+            steps {
+                sh 'ls -l'
+                sh 'ls -l inventory-service'
+                sh 'cat inventory-service/package.json || true'
+                sh 'docker-compose exec -T inventory-service ls -l /app || true'
+                sh 'docker-compose exec -T inventory-service cat /app/package.json || true'
+            }
+        }
+
     }
     post {
         always {

@@ -94,7 +94,7 @@ services:
     ports:
       - "8089:8089"
     volumes:
-      - .:/app
+      - ./chat-service:/app
     working_dir: /app
 
   mariadb:
@@ -248,7 +248,6 @@ services:
       - ./inventory-service/.env
     volumes:
       - ./inventory-service:/app
-      - /app/node_modules
     restart: always
     networks:
       - my-network
