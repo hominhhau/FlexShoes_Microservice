@@ -8,6 +8,7 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
+RUN chmod +x ./mvnw
 # Tải dependencies để tối ưu tốc độ build
 RUN ./mvnw dependency:go-offline
 
@@ -20,6 +21,7 @@ RUN mvn clean package -DskipTests
 # Giai đoạn chạy ứng dụng
 FROM openjdk:17-jdk-slim
 WORKDIR /app
+
 
 
 RUN apt-get update && apt-get install -y tzdata && \
