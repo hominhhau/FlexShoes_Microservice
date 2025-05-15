@@ -22,7 +22,6 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 
-RUN chmod +x ./mvnw
 RUN apt-get update && apt-get install -y tzdata && \
     ln -snf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
     echo "Asia/Ho_Chi_Minh" > /etc/timezone && \
