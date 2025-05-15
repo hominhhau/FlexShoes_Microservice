@@ -51,3 +51,5 @@ docker run -d -p 8090:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home --na
 
 ### Jenkins pass
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+docker exec -it jenkins bash
