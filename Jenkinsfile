@@ -106,18 +106,42 @@ pipeline {
                 }
             }
         }
+
+        stage('Validate Kubeconfig') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        echo "Kiểm tra cấu trúc file kubeconfig:"
+                        grep -E "apiVersion:|clusters:|contexts:|users:" ${KUBECONFIG_FILE} || {
+                            echo "File kubeconfig không hợp lệ"
+                            exit 1
+                        }
+
+                        echo "\nKiểm tra thông tin cluster:"
+                        grep -A 3 "cluster:" ${KUBECONFIG_FILE}
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
-                        // Đọc nội dung file kubeconfig và sửa đường dẫn
-                        String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\vitin\\\\.minikube', '/home/jenkins/.minikube')
-                        writeFile file: 'kubeconfig', text: kubeconfigContent
-
-                        // Thực thi lệnh kubectl
+                        // Sử dụng trực tiếp file kubeconfig
                         sh '''
-                            export KUBECONFIG=$(pwd)/kubeconfig
+                            # Đặt đúng đường dẫn KUBECONFIG
+                            export KUBECONFIG=${KUBECONFIG_FILE}
+
+                            # Kiểm tra kết nối trước
+                            kubectl cluster-info || {
+                                echo "Lỗi kết nối tới Kubernetes cluster"
+                                echo "Kiểm tra lại nội dung file kubeconfig:"
+                                head -n 20 ${KUBECONFIG_FILE}
+                                exit 1
+                            }
+
+                            # Triển khai ứng dụng
                             kubectl create namespace flexshoes || true
                             kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
                         '''
