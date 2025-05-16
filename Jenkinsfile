@@ -11,6 +11,11 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        if ! command -v docker-compose &> /dev/null; then
+                                        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                                        chmod +x /usr/local/bin/docker-compose
+                        fi
+                        docker-compose --version
                         mkdir -p /var/jenkins_home/bin
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
