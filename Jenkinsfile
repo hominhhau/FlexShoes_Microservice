@@ -107,26 +107,36 @@ pipeline {
             }
         }
         stage('Deploy to Kubernetes') {
-          steps {
-            withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
-              sh '''
-                export KUBECONFIG=$KUBECONFIG_FILE
-                kubectl create namespace flexshoes || true
-                kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
-              '''
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        // Đọc nội dung file kubeconfig và sửa đường dẫn
+                        String kubeconfigContent = readFile(KUBECONFIG_FILE)
+                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\vitin\\\\.minikube', '/home/jenkins/.minikube')
+                        writeFile file: 'kubeconfig', text: kubeconfigContent
+
+                        // Thực thi lệnh kubectl
+                        sh '''
+                            export KUBECONFIG=$(pwd)/kubeconfig
+                            kubectl create namespace flexshoes || true
+                            kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
+                        '''
+                    }
+                }
             }
-          }
         }
 
         stage('Verify Deployment') {
             steps {
                 script {
-                    sh '''
-                        export KUBECONFIG=$(pwd)/kubeconfig
-                        kubectl get pods -n flexshoes -o wide
-                        kubectl get services -n flexshoes
-                        kubectl get ingress -n flexshoes
-                    '''
+                    withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                        sh '''
+                            export KUBECONFIG=${KUBECONFIG_FILE}
+                            kubectl get pods -n flexshoes -o wide
+                            kubectl get services -n flexshoes
+                            kubectl get ingress -n flexshoes
+                        '''
+                    }
                 }
             }
         }
