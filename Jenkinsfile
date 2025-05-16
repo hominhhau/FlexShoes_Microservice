@@ -6,6 +6,7 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         KUBE_CONFIG = credentials('kubeconfig-credentials')
         PATH = "/var/jenkins_home/bin:$PATH"
+        DOCKER_HOST = 'tcp://dind:2375'
     }
     stages {
         stage('Setup Tools') {
@@ -24,6 +25,7 @@ pipeline {
                             mv kubectl /var/jenkins_home/bin/
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
+                        docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
                     '''
                 }
             }
@@ -117,15 +119,30 @@ pipeline {
         stage('Verify Kubernetes Connection') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
-                    sh '''
-                        export KUBECONFIG=${KUBECONFIG_FILE}
-                        kubectl cluster-info || {
-                            echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                            head -n 30 ${KUBECONFIG_FILE}
-                            exit 1
-                        }
-                        kubectl get nodes
-                    '''
+                    script {
+                        String kubeconfigContent = readFile(KUBECONFIG_FILE)
+                        // Thay thế đường dẫn Windows bằng đường dẫn trong container
+                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
+                        kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+                        writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        sh '''
+                            mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
+                            if [ -f /var/jenkins_home/minikube-certs/client.crt ]; then
+                                cp /var/jenkins_home/minikube-certs/client.crt /var/jenkins_home/minikube-certs/profiles/minikube/client.crt
+                                cp /var/jenkins_home/minikube-certs/client.key /var/jenkins_home/minikube-certs/profiles/minikube/client.key
+                                cp /var/jenkins_home/minikube-certs/ca.crt /var/jenkins_home/minikube-certs/ca.crt
+                            else
+                                echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
+                            fi
+                            export KUBECONFIG=$(pwd)/kubeconfig-modified
+                            kubectl cluster-info || {
+                                echo "ERROR: Không thể kết nối tới Kubernetes cluster"
+                                head -n 30 ${KUBECONFIG_FILE}
+                                exit 1
+                            }
+                            kubectl get nodes
+                        '''
+                    }
                 }
             }
         }
@@ -134,10 +151,18 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/minikube')
+                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
                         kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
                         writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         sh '''
+                            mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
+                            if [ -f /var/jenkins_home/minikube-certs/client.crt ]; then
+                                cp /var/jenkins_home/minikube-certs/client.crt /var/jenkins_home/minikube-certs/profiles/minikube/client.crt
+                                cp /var/jenkins_home/minikube-certs/client.key /var/jenkins_home/minikube-certs/profiles/minikube/client.key
+                                cp /var/jenkins_home/minikube-certs/ca.crt /var/jenkins_home/minikube-certs/ca.crt
+                            else
+                                echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
+                            fi
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info
                             kubectl create namespace flexshoes || true
@@ -152,7 +177,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
-                        export KUBECONFIG=${KUBECONFIG_FILE}
+                        export KUBECONFIG=$(pwd)/kubeconfig-modified
                         kubectl get pods -n flexshoes -o wide
                         kubectl get services -n flexshoes
                         kubectl get ingress -n flexshoes
@@ -164,8 +189,8 @@ pipeline {
     post {
         always {
             sh '''
-                export KUBECONFIG=$(pwd)/kubeconfig
-                for pod in $(kubectl get pods -n flexshoes -o name); do
+                export KUBECONFIG=$(pwd)/kubeconfig-modified
+                for pod in $(kubectl get pods -n flexshoes -o name 2>/dev/null || echo ""); do
                     kubectl logs -n flexshoes $pod --tail=100 || true
                 done
             '''
@@ -173,7 +198,7 @@ pipeline {
         failure {
             echo 'Triển khai Kubernetes thất bại!'
             sh '''
-                export KUBECONFIG=$(pwd)/kubeconfig
+                export KUBECONFIG=$(pwd)/kubeconfig-modified
                 kubectl describe pods -n flexshoes || true
             '''
         }

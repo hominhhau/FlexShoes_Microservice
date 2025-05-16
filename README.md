@@ -57,3 +57,19 @@ docker exec -it jenkins bash
 
 
 kubectl apply -f jenkins-rbac.yaml
+
+```
+
+### Docker permission
+
+getent group docker
+
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock alpine
+
+chgrp 103 /var/run/docker.sock
+chmod g+rw /var/run/docker.sock
+
+ls -l /var/run/docker.sock
+
+docker exec -it jenkins bash
+docker ps
