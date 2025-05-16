@@ -125,11 +125,11 @@ pipeline {
                         // Ưu tiên kubeconfig nhúng dữ liệu
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
                             echo "Using embedded kubeconfig data"
-                            kubeconfigContent = kubeconfigContent.replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
+                            kubeconfigContent = kubeconfigContent.replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
                             echo "Using file-based kubeconfig, replacing paths and server"
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
@@ -140,6 +140,12 @@ pipeline {
                                     echo "Cannot connect to Minikube at $MINIKUBE_IP:51166"
                                     exit 1
                                 }
+                            }
+                            echo "Validating kubeconfig server URL"
+                            grep "server: https://host.docker.internal:51166" kubeconfig-modified || {
+                                echo "Invalid server URL in kubeconfig-modified"
+                                cat kubeconfig-modified
+                                exit 1
                             }
                             echo "Checking certificate files"
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
@@ -171,11 +177,11 @@ pipeline {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
                             echo "Using embedded kubeconfig data"
-                            kubeconfigContent = kubeconfigContent.replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
+                            kubeconfigContent = kubeconfigContent.replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
                             echo "Using file-based kubeconfig, replacing paths and server"
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
