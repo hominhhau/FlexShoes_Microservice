@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # Thiết lập thư mục làm việc trong container
-WORKDIR /app
+WORKDIR /ChatDB
 
 # Sao chép file package.json và package-lock.json vào container
 COPY package*.json ./

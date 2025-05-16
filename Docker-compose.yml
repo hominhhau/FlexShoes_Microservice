@@ -111,8 +111,8 @@ services:
     env_file:
       - ./chat-service/.env
     volumes:
-      - ./chat-service:/app
-      - /app/node_modules
+      - ./chat-service:/ChatDB
+      # - /app/node_modules
     networks:
         - my-network
     healthcheck:
@@ -411,3 +411,5 @@ volumes:
 networks:
   my-network:
     driver: bridge
+
+# docker compose up --build
