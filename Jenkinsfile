@@ -120,16 +120,19 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        // Thay thế đường dẫn Windows bằng đường dẫn trong container
-                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
-                        kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
-                        writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        // Kiểm tra nếu kubeconfig đã nhúng dữ liệu chứng chỉ
+                        if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
+                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        } else {
+                            // Thay thế đường dẫn Windows bằng đường dẫn trong container
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
+                            kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        }
                         sh '''
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
-                            if [ -f /var/jenkins_home/minikube-certs/client.crt ]; then
-                                cp /var/jenkins_home/minikube-certs/client.crt /var/jenkins_home/minikube-certs/profiles/minikube/client.crt
-                                cp /var/jenkins_home/minikube-certs/client.key /var/jenkins_home/minikube-certs/profiles/minikube/client.key
-                                cp /var/jenkins_home/minikube-certs/ca.crt /var/jenkins_home/minikube-certs/ca.crt
+                            if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
+                                echo "Certificates found, proceeding with file-based kubeconfig"
                             else
                                 echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
                             fi
@@ -150,15 +153,17 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
-                        kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
-                        writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
+                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        } else {
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
+                            kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                        }
                         sh '''
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
-                            if [ -f /var/jenkins_home/minikube-certs/client.crt ]; then
-                                cp /var/jenkins_home/minikube-certs/client.crt /var/jenkins_home/minikube-certs/profiles/minikube/client.crt
-                                cp /var/jenkins_home/minikube-certs/client.key /var/jenkins_home/minikube-certs/profiles/minikube/client.key
-                                cp /var/jenkins_home/minikube-certs/ca.crt /var/jenkins_home/minikube-certs/ca.crt
+                            if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
+                                echo "Certificates found, proceeding with file-based kubeconfig"
                             else
                                 echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
                             fi
