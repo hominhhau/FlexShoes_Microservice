@@ -141,18 +141,16 @@ pipeline {
                 done
             '''
         }
-
-       success {
+        success {
             echo 'Triển khai Kubernetes thành công!'
-       }
-
-       failure {
-           echo 'Triển khai Kubernetes thất bại!'
-           sh '''
+        }
+        failure {
+            echo 'Triển khai Kubernetes thất bại!'
+            sh '''
                 export KUBECONFIG=$(pwd)/kubeconfig
                 kubectl describe pods -n flexshoes || true
-           '''
-       }
+            '''
+        }
     }
 
 }
