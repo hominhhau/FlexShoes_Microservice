@@ -10,7 +10,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         KUBE_CONFIG = credentials('kubeconfig-credentials')
-        PATH = "${env.PATH}:/var/jenkins_home/bin"
+        PATH = "/var/jenkins_home/bin:$PATH"
     }
     stages {
         stage('Setup Tools') {
