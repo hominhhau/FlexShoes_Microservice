@@ -124,24 +124,47 @@ pipeline {
             }
         }
 
+        stage('Verify Kubernetes Connection') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        export KUBECONFIG=${KUBECONFIG_FILE}
+                        if ! kubectl cluster-info; then
+                            echo "ERROR: Không thể kết nối tới Kubernetes cluster"
+                            echo "Chi tiết file kubeconfig:"
+                            head -n 30 ${KUBECONFIG_FILE}
+                            exit 1
+                        fi
+                        kubectl get nodes
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
-                        // Sử dụng trực tiếp file kubeconfig
+                        // Đọc và sửa file kubeconfig
+                        String kubeconfigContent = readFile(KUBECONFIG_FILE)
+
+                        // Thay thế đường dẫn Windows thành Linux
+                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\vitin\\\\.minikube', '/minikube')
+                        kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+
+                        // Lưu file đã sửa
+                        writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+
+                        // Copy certificates vào container (nếu có thể)
                         sh '''
-                            # Đặt đúng đường dẫn KUBECONFIG
-                            export KUBECONFIG=${KUBECONFIG_FILE}
+                            mkdir -p /minikube/profiles/minikube
+                            # Giả sử bạn đã upload các file certificate lên Jenkins
+                            cp /var/jenkins_home/minikube-certs/client.crt /minikube/profiles/minikube/
+                            cp /var/jenkins_home/minikube-certs/client.key /minikube/profiles/minikube/
+                            cp /var/jenkins_home/minikube-certs/ca.crt /minikube/
 
-                            # Kiểm tra kết nối trước
-                            kubectl cluster-info || {
-                                echo "Lỗi kết nối tới Kubernetes cluster"
-                                echo "Kiểm tra lại nội dung file kubeconfig:"
-                                head -n 20 ${KUBECONFIG_FILE}
-                                exit 1
-                            }
-
-                            # Triển khai ứng dụng
+                            export KUBECONFIG=$(pwd)/kubeconfig-modified
+                            kubectl cluster-info
                             kubectl create namespace flexshoes || true
                             kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
                         '''
