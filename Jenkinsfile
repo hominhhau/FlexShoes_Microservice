@@ -177,8 +177,12 @@ pipeline {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
                             echo "Using embedded kubeconfig data"
-                            kubeconfigContent = kubeconfigContent.replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
+                            kubeconfigContent = kubeconfigContent.replaceAll('https:\\/\\/[^\\s"]+', 'https://host.docker.internal:51166')
+
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
+                            if (!kubeconfigContent.contains('https://host.docker.internal:51166')) {
+                                error "Kubeconfig server URL malformed: ${kubeconfigContent.find(/server:.*/)}"
+                            }
                         } else {
                             echo "Using file-based kubeconfig, replacing paths and server"
                             kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
