@@ -18,11 +18,11 @@ public interface InvoiceService {
 
     List<InvoiceDto> getRecentInvoices();
 
-    long getTotalOrderCount();
+    long getTotalOrderCount(Map<String, String> params);
 
-    long getTotalShippingOrders();
+    long getTotalShippingOrders(Map<String, String> params);
 
-    double getTotalAmount();
+    double getTotalAmount(Map<String, String> params);
 
     InvoiceDto getInvoice(Integer id);
 
@@ -38,6 +38,12 @@ public interface InvoiceService {
 
 
 
-    List<Map<String, Object>> getOrderCountByMonthsInYear(int year);
-    List<Map<String, Object>> getRevenueByMonthsInYear(int year);
+    List<Map<String, Object>> getOrderCountByMonthsInYear(int year, Map<String, String> params);
+    List<Map<String, Object>> getRevenueByMonthsInYear(int year, Map<String, String> params);
+    List<Map<String, Object>> getOrderCountByYears(Map<String, String> params);
+    List<Map<String, Object>> getRevenueByYears(Map<String, String> params);
+
+
+    List<Map<String, Object>> getOrderCountByDays(Map<String, String> params);
+    List<Map<String, Object>> getRevenueByDays(Map<String, String> params);
 }
