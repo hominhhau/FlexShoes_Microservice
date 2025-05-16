@@ -130,24 +130,22 @@ pipeline {
                 }
             }
         }
-
     }
-        post {
-            always {
-                sh '''
-                    export KUBECONFIG=$(pwd)/kubeconfig
-                    for pod in $(kubectl get pods -n flexshoes -o name); do
-                        kubectl logs -n flexshoes $pod --tail=100 || true
-                    done
-                '''
-            }
-            failure {
-                echo 'Triển khai Kubernetes thất bại!'
-                sh '''
-                    export KUBECONFIG=$(pwd)/kubeconfig
-                    kubectl describe pods -n flexshoes || true
-                '''
-            }
+    post {
+        always {
+            sh '''
+                export KUBECONFIG=$(pwd)/kubeconfig
+                for pod in $(kubectl get pods -n flexshoes -o name); do
+                    kubectl logs -n flexshoes $pod --tail=100 || true
+                done
+            '''
         }
-
+        failure {
+            echo 'Triển khai Kubernetes thất bại!'
+            sh '''
+                export KUBECONFIG=$(pwd)/kubeconfig
+                kubectl describe pods -n flexshoes || true
+            '''
+        }
+    }
 }
