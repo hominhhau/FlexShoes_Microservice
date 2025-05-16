@@ -6,7 +6,6 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         KUBE_CONFIG = credentials('kubeconfig-credentials')
         PATH = "/var/jenkins_home/bin:$PATH"
-        DOCKER_HOST = 'tcp://dind:2375'
     }
     stages {
         stage('Setup Tools') {
