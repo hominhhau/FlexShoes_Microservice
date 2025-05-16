@@ -17,13 +17,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        # Cài Docker nếu chưa có
-                        if ! command -v docker &> /dev/null; then
-                            curl -fsSL https://get.docker.com -o get-docker.sh
-                            sh get-docker.sh
-                            usermod -aG docker jenkins
-                        fi
-                        docker version || { echo "Cài đặt Docker thất bại"; exit 1; }
                         # Cài docker-compose
                         mkdir -p /var/jenkins_home/bin
                         if ! command -v docker-compose &> /dev/null; then
@@ -143,22 +136,26 @@ pipeline {
     }
     post {
         always {
-            sh '''
-                export KUBECONFIG=$KUBE_CONFIG
-                for pod in $(kubectl get pods -n flexshoes -o name); do
-                    kubectl logs -n flexshoes $pod --tail=100 || true
-                done
-            '''
+            node {
+                sh '''
+                    export KUBECONFIG=$KUBE_CONFIG
+                    for pod in $(kubectl get pods -n flexshoes -o name); do
+                        kubectl logs -n flexshoes $pod --tail=100 || true
+                    done
+                '''
+            }
         }
         success {
             echo 'Triển khai Kubernetes thành công!'
         }
         failure {
-            echo 'Triển khai Kubernetes thất bại!'
-            sh '''
-                export KUBECONFIG=$KUBE_CONFIG
-                kubectl describe pods -n flexshoes || true
-            '''
+            node {
+                echo 'Triển khai Kubernetes thất bại!'
+                sh '''
+                    export KUBECONFIG=$KUBE_CONFIG
+                    kubectl describe pods -n flexshoes || true
+                '''
+            }
         }
     }
 }
