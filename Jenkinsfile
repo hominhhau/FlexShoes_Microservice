@@ -6,6 +6,7 @@ pipeline {
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         KUBE_CONFIG = credentials('kubeconfig-credentials')
         PATH = "/var/jenkins_home/bin:$PATH"
+        MINIKUBE_IP = '192.168.49.2'
     }
     stages {
         stage('Setup Tools') {
@@ -106,11 +107,12 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
-                        grep -E "apiVersion:|clusters:|contexts:|users:" ${KUBECONFIG_FILE} || {
+                        echo "Validating kubeconfig content"
+                        grep -E "apiVersion:|clusters:|contexts:|users:" $KUBECONFIG_FILE || {
                             echo "File kubeconfig không hợp lệ"
                             exit 1
                         }
-                        grep -A 3 "cluster:" ${KUBECONFIG_FILE}
+                        grep -A 3 "cluster:" $KUBECONFIG_FILE
                     '''
                 }
             }
@@ -123,13 +125,23 @@ pipeline {
                         // Ưu tiên kubeconfig nhúng dữ liệu
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
                             echo "Using embedded kubeconfig data"
+                            kubeconfigContent = kubeconfigContent.replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
-                            echo "Using file-based kubeconfig, replacing Windows paths"
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\', '/')
+                            echo "Using file-based kubeconfig, replacing paths and server"
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
+                            echo "Checking network connectivity to Minikube"
+                            curl -k --connect-timeout 5 https://host.docker.internal:51166 || {
+                                echo "Cannot connect to Minikube at host.docker.internal:51166, trying MINIKUBE_IP"
+                                curl -k --connect-timeout 5 https://$MINIKUBE_IP:51166 || {
+                                    echo "Cannot connect to Minikube at $MINIKUBE_IP:51166"
+                                    exit 1
+                                }
+                            }
+                            echo "Checking certificate files"
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
                             if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
                                 echo "Certificates found at expected paths:"
@@ -137,11 +149,13 @@ pipeline {
                             else
                                 echo "Warning: Minikube certificates not found, relying on embedded kubeconfig data"
                             fi
+                            echo "Kubeconfig content:"
                             cat kubeconfig-modified
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info || {
                                 echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                                cat kubeconfig-modified
+                                cat $(pwd)/kubeconfig-modified
+                                ls -l /var/jenkins_home/minikube-certs /var/jenkins_home/minikube-certs/profiles/minikube || echo "Certificate directory not found"
                                 exit 1
                             }
                             kubectl get nodes
@@ -157,13 +171,15 @@ pipeline {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
                             echo "Using embedded kubeconfig data"
+                            kubeconfigContent = kubeconfigContent.replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
-                            echo "Using file-based kubeconfig, replacing Windows paths"
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\', '/')
+                            echo "Using file-based kubeconfig, replacing paths and server"
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('127.0.0.1', 'host.docker.internal').replaceAll('192.168.49.2', 'host.docker.internal')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
+                            echo "Checking certificate files"
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
                             if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
                                 echo "Certificates found at expected paths:"
@@ -171,6 +187,8 @@ pipeline {
                             else
                                 echo "Warning: Minikube certificates not found, relying on embedded kubeconfig data"
                             fi
+                            echo "Kubeconfig content:"
+                            cat kubeconfig-modified
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info
                             kubectl create namespace flexshoes || true
