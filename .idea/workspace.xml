@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge order">
-      <change beforePath="$PROJECT_DIR$/inventory-service/Utils/file.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/utils/file.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/k8s/flexshoes-all.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/k8s/jenkins-rbac.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kubernetes-manifests" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +123,7 @@
     &quot;Spring Boot.PaymentServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.ProfileServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;release__3&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;release__4&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -353,6 +357,9 @@
       <workItem from="1747204246466" duration="5264000" />
       <workItem from="1747210573875" duration="7492000" />
       <workItem from="1747220993473" duration="3794000" />
+      <workItem from="1747331545629" duration="1420000" />
+      <workItem from="1747341024565" duration="590000" />
+      <workItem from="1747380110756" duration="1632000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />

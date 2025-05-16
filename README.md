@@ -53,3 +53,7 @@ docker run -d -p 8090:8080 -p 50000:50000 -v /var/run/docker.sock:/var/run/docke
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 
 docker exec -it jenkins bash
+
+
+
+kubectl apply -f jenkins-rbac.yaml

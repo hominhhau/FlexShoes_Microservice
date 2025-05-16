@@ -4,30 +4,27 @@ pipeline {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        PATH = "/var/jenkins_home/bin:$PATH"  // Thêm thư mục vào PATH
+        KUBE_CONFIG = credentials('kubeconfig-credentials')
     }
     stages {
         stage('Setup Tools') {
             steps {
                 script {
-                    // Cài đặt Docker Compose vào thư mục user có quyền ghi
                     sh '''
-                        # Tạo thư mục bin trong /var/jenkins_home nếu chưa có
                         mkdir -p /var/jenkins_home/bin
-
-                        # Kiểm tra xem docker-compose đã tồn tại chưa
-                        if ! command -v docker-compose &> /dev/null; then
-                            curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
-                            chmod +x /var/jenkins_home/bin/docker-compose
+                        if ! command -v kubectl &> /dev/null; then
+                            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                            chmod +x kubectl
+                            mv kubectl /var/jenkins_home/bin/
                         fi
-                        docker-compose --version || echo "Docker Compose installation may have failed, proceeding anyway"
+                        kubectl version --client || echo "kubectl installation may have failed"
                     '''
                 }
             }
         }
         stage('Checkout') {
             steps {
-                git branch: 'release_3', url: 'https://github.com/hominhhau/FlexShoes_Microservice.git'
+                git branch: 'release_4', url: 'https://github.com/hominhhau/FlexShoes_Microservice.git'
             }
         }
         stage('Prepare Environment') {
@@ -37,9 +34,7 @@ pipeline {
                     sh 'cp chat-service/.env.example chat-service/.env || true'
                     sh 'cp inventory-service/.env.example inventory-service/.env || true'
                     withCredentials([
-                        // Biến cho .env (notification-service)
                         string(credentialsId: 'sendinblue-api-key', variable: 'SENDINBLUE_API_KEY'),
-                        // Biến cho chat-service
                         string(credentialsId: 'chat-port', variable: 'CHAT_PORT'),
                         string(credentialsId: 'react-url', variable: 'REACT_URL'),
                         string(credentialsId: 'db-ssl', variable: 'DB_SSL'),
@@ -50,7 +45,6 @@ pipeline {
                         string(credentialsId: 'db-port', variable: 'DB_PORT'),
                         string(credentialsId: 'db-dialect', variable: 'DB_DIALECT'),
                         string(credentialsId: 'openai-api-key', variable: 'OPENAI_API_KEY'),
-                        // Biến cho inventory-service
                         string(credentialsId: 'mongo-uri', variable: 'MONGO_URI'),
                         string(credentialsId: 'access-key-id', variable: 'ACCESSKEYID'),
                         string(credentialsId: 'secret-access-key', variable: 'SECRETACCESSKEY'),
@@ -58,10 +52,7 @@ pipeline {
                         string(credentialsId: 'bucket-name', variable: 'BUCKET_NAME')
                     ]) {
                         sh '''
-                            # Cập nhật .env (notification-service)
                             sed -i "s|SENDINBLUE_API_KEY=placeholder|SENDINBLUE_API_KEY=$SENDINBLUE_API_KEY|" .env || true
-
-                            # Cập nhật chat-service/.env
                             sed -i "s|PORT=placeholder|PORT=$CHAT_PORT|" chat-service/.env || true
                             sed -i "s|REACT_URL=placeholder|REACT_URL=$REACT_URL|" chat-service/.env || true
                             sed -i "s|DB_SSL=placeholder|DB_SSL=$DB_SSL|" chat-service/.env || true
@@ -72,8 +63,6 @@ pipeline {
                             sed -i "s|DB_PORT=placeholder|DB_PORT=$DB_PORT|" chat-service/.env || true
                             sed -i "s|DB_DIALECT=placeholder|DB_DIALECT=$DB_DIALECT|" chat-service/.env || true
                             sed -i "s|OPENAI_API_KEY=placeholder|OPENAI_API_KEY=$OPENAI_API_KEY|" chat-service/.env || true
-
-                            # Cập nhật inventory-service/.env
                             sed -i "s|PORT=8085|PORT=8085|" inventory-service/.env || true
                             sed -i "s|MONGO_URI=placeholder|MONGO_URI=$MONGO_URI|" inventory-service/.env || true
                             sed -i "s|ACCESSKEYID=placeholder|ACCESSKEYID=$ACCESSKEYID|" inventory-service/.env || true
@@ -102,87 +91,46 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    sh '''
+                        export KUBECONFIG=$KUBE_CONFIG
+                        kubectl create namespace flexshoes || true
+                        kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
+                    '''
                 }
             }
         }
-        stage('Verify Workspace and Files') {
+        stage('Verify Deployment') {
             steps {
-                sh 'pwd'
-                sh 'ls -l'
-                sh 'ls -l chat-service || true'
-                sh 'ls -l inventory-service || true'
-                sh 'test -f chat-service/package.json || { echo "chat-service/package.json missing"; exit 1; }'
-                sh 'test -f chat-service/src/server.js || { echo "chat-service/src/server.js missing"; exit 1; }'
-                sh 'test -f inventory-service/package.json || { echo "inventory-service/package.json missing"; exit 1; }'
-                sh 'test -f inventory-service/app.js || { echo "inventory-service/app.js missing"; exit 1; }'
+                script {
+                    sh '''
+                        export KUBECONFIG=$KUBE_CONFIG
+                        kubectl get pods -n flexshoes -o wide
+                        kubectl get services -n flexshoes
+                        kubectl get ingress -n flexshoes
+                    '''
+                }
             }
         }
-
-        stage('Debug Workspace Chat') {
-            steps {
-                sh 'ls -l'
-                sh 'ls -l chat-service'
-                sh 'cat chat-service/package.json || true'
-                sh 'ls -l chat-service/src/server.js || true'
-                sh 'docker-compose up -d chat-service || true'
-                sh '''
-                    for i in {1..30}; do
-                        if docker-compose ps chat-service | grep -q "Up"; then
-                            docker-compose exec -T chat-service ls -l /app || true
-                            docker-compose exec -T chat-service cat /app/package.json || true
-                            docker-compose exec -T chat-service ls -l /app/src/server.js || true
-                            exit 0
-                        fi
-                        echo "Waiting for chat-service to be up..."
-                        sleep 2
-                    done
-                    echo "chat-service did not start in time"
-                    docker-compose logs chat-service
-                    exit 1
-                '''
-            }
-        }
-
-        stage('Debug Workspace Inventory') {
-            steps {
-                sh 'ls -l'
-                sh 'ls -l inventory-service'
-                sh 'cat inventory-service/package.json || true'
-                sh 'ls -l inventory-service/app.js || true'
-                sh 'docker-compose up -d inventory-service || true'
-                sh '''
-                    for i in {1..30}; do
-                        if docker-compose ps inventory-service | grep -q "Up"; then
-                            docker-compose exec -T inventory-service ls -l /app || true
-                            docker-compose exec -T inventory-service cat /app/package.json || true
-                            docker-compose exec -T inventory-service ls -l /app/app.js || true
-                            exit 0
-                        fi
-                        echo "Waiting for inventory-service to be up..."
-                        sleep 2
-                    done
-                    echo "inventory-service did not start in time"
-                    docker-compose logs inventory-service
-                    exit 1
-                '''
-            }
-        }
-
     }
     post {
         always {
-            sh 'docker-compose logs || true'
+            sh '''
+                export KUBECONFIG=$KUBE_CONFIG
+                kubectl logs -n flexshoes --all-pods --tail=100 || true
+            '''
         }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Kubernetes deployment completed successfully!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Kubernetes deployment failed!'
+            sh '''
+                export KUBECONFIG=$KUBE_CONFIG
+                kubectl describe pods -n flexshoes || true
+            '''
         }
     }
 }
