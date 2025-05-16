@@ -136,26 +136,26 @@ pipeline {
     }
     post {
         always {
-            node {
+
                 sh '''
                     export KUBECONFIG=$KUBE_CONFIG
                     for pod in $(kubectl get pods -n flexshoes -o name); do
                         kubectl logs -n flexshoes $pod --tail=100 || true
                     done
                 '''
-            }
+
         }
         success {
             echo 'Triển khai Kubernetes thành công!'
         }
         failure {
-            node {
+
                 echo 'Triển khai Kubernetes thất bại!'
                 sh '''
                     export KUBECONFIG=$KUBE_CONFIG
                     kubectl describe pods -n flexshoes || true
                 '''
-            }
+
         }
     }
 }
