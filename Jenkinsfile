@@ -12,15 +12,12 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        # Cài docker-compose
                         mkdir -p /var/jenkins_home/bin
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
-                            export PATH=/var/jenkins_home/bin:$PATH
                         fi
                         docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
-                        # Cài kubectl
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                             chmod +x kubectl
@@ -90,8 +87,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        echo $PATH
-                        which docker-compose
                         docker-compose build
                     '''
                 }
@@ -106,84 +101,62 @@ pipeline {
                 }
             }
         }
-
         stage('Validate Kubeconfig') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
-                        echo "Kiểm tra cấu trúc file kubeconfig:"
                         grep -E "apiVersion:|clusters:|contexts:|users:" ${KUBECONFIG_FILE} || {
                             echo "File kubeconfig không hợp lệ"
                             exit 1
                         }
-
-                        echo "\nKiểm tra thông tin cluster:"
                         grep -A 3 "cluster:" ${KUBECONFIG_FILE}
                     '''
                 }
             }
         }
-
         stage('Verify Kubernetes Connection') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         export KUBECONFIG=${KUBECONFIG_FILE}
-                        if ! kubectl cluster-info; then
+                        kubectl cluster-info || {
                             echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                            echo "Chi tiết file kubeconfig:"
                             head -n 30 ${KUBECONFIG_FILE}
                             exit 1
-                        fi
+                        }
                         kubectl get nodes
                     '''
                 }
             }
         }
-
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
-                        // Đọc và sửa file kubeconfig
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
-
-                        // Thay thế đường dẫn Windows thành Linux
-                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\vitin\\\\.minikube', '/minikube')
+                        kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/minikube')
                         kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
-
-                        // Lưu file đã sửa
                         writeFile file: 'kubeconfig-modified', text: kubeconfigContent
-
-                        // Copy certificates vào container (nếu có thể)
                         sh '''
-                            mkdir -p /minikube/profiles/minikube
-                            # Giả sử bạn đã upload các file certificate lên Jenkins
-                            cp /var/jenkins_home/minikube-certs/client.crt /minikube/profiles/minikube/
-                            cp /var/jenkins_home/minikube-certs/client.key /minikube/profiles/minikube/
-                            cp /var/jenkins_home/minikube-certs/ca.crt /minikube/
-
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info
                             kubectl create namespace flexshoes || true
+                            kubectl apply -f k8s/jenkins-rbac.yaml -n flexshoes
                             kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
                         '''
                     }
                 }
             }
         }
-
         stage('Verify Deployment') {
             steps {
-                script {
-                    withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
-                        sh '''
-                            export KUBECONFIG=${KUBECONFIG_FILE}
-                            kubectl get pods -n flexshoes -o wide
-                            kubectl get services -n flexshoes
-                            kubectl get ingress -n flexshoes
-                        '''
-                    }
+                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        export KUBECONFIG=${KUBECONFIG_FILE}
+                        kubectl get pods -n flexshoes -o wide
+                        kubectl get services -n flexshoes
+                        kubectl get ingress -n flexshoes
+                    '''
                 }
             }
         }
