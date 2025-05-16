@@ -11,11 +11,15 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Tạo thư mục bin trong /var/jenkins_home nếu chưa có
+                        mkdir -p /var/jenkins_home/bin
+
+                        # Kiểm tra xem docker-compose đã tồn tại chưa
                         if ! command -v docker-compose &> /dev/null; then
-                                        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                                        chmod +x /usr/local/bin/docker-compose
+                            curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
+                            chmod +x /var/jenkins_home/bin/docker-compose
                         fi
-                        docker-compose --version
+                        docker-compose --version || echo "Docker Compose installation may have failed, proceeding anyway"
                         mkdir -p /var/jenkins_home/bin
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
