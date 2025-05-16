@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -23,7 +24,7 @@ public class Invoice implements Serializable {
     private Integer invoiceId;
 
     @Column(name = "ISSUE_DATE")
-    private LocalDate issueDate;
+    private LocalDateTime issueDate;
 
     @Column(name = "RECEIVER_NUMBER", length = 12)
     private String receiverNumber;

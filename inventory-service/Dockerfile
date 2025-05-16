@@ -16,7 +16,7 @@ RUN npm install swagger-jsdoc
 COPY . .
 
 # Expose port mà service sử dụng
-EXPOSE 5000
+EXPOSE 8085
 
 # Khởi động service
 CMD ["npm", "start"]

@@ -7,6 +7,7 @@ import com.microservice.order_service.entity.InvoiceDetail;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,7 @@ public class ListInvoiceMapper {
         Invoice invoice = invoiceDetail.getInvoice();
 
         dto.setInvoiceId(invoice.getInvoiceId());
-        dto.setIssueDate(invoice.getIssueDate());
+        dto.setIssueDate(LocalDate.from(invoice.getIssueDate()));
         dto.setOrderStatus(invoice.getOrderStatus());
         dto.setTotal(invoice.getTotal());
 //        dto.setProduct(mapProductIdToProduct(invoiceDetail.getProductId()));

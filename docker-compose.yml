@@ -1,10 +1,9 @@
-
 services:
   eureka-server:
-    image: eureka-server
+    image: ctmyname/eureka-server:latest  # Đã có sẵn, không cần sửa
     container_name: eureka-server
     build:
-      context: ./eureka-server  # Chỉ định thư mục chứa Dockerfile
+      context: ./eureka-server
       dockerfile: Dockerfile
     ports:
       - "8761:8761"
@@ -22,10 +21,10 @@ services:
     restart: always
 
   config-server:
-    image: config-server
+    image: ctmyname/config-server:latest  # Thêm ctmyname/ và :latest
     container_name: config-server
     build:
-      context: ./config-server  # Chỉ định thư mục chứa Dockerfile
+      context: ./config-server
       dockerfile: Dockerfile
     ports:
       - "8088:8088"
@@ -45,7 +44,7 @@ services:
     restart: always
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:6.0  # Image chính thức, không cần sửa
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -65,13 +64,12 @@ services:
     restart: always
 
   postgresDB:
-    image: postgres:15
+    image: postgres:15  # Image chính thức, không cần sửa
     restart: always
     container_name: my_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      # sửa lại tên database ở đây
       POSTGRES_DB: ChatDB
     ports:
       - "5432:5432"
@@ -86,43 +84,41 @@ services:
       retries: 5
 
   chat-service:
+    image: ctmyname/chat-service:latest  # Thêm ctmyname/ và :latest
     build:
       context: ./chat-service
       dockerfile: Dockerfile
     ports:
       - "8089:8089"
+    container_name: chat-service
+    restart: always
     depends_on:
-      # - postgresDB
       eureka-server:
         condition: service_healthy
       config-server:
         condition: service_healthy
       postgresDB:
         condition: service_healthy
-    container_name: chat_container
-    restart: always
     environment:
       - DB_PORT=5432
       - DB_HOST=postgresDB
-      # - DB_HOST=host.docker.internal
       - SPRING_APPLICATION_NAME=chat-service
       - EUREKA_INSTANCE_HOSTNAME=chat-server
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     env_file:
       - ./chat-service/.env
-    volumes:
-      - ./chat-service:/ChatDB
-      # - /app/node_modules
+    # volumes:
+    #   - ./chat-service:/ChatDB
     networks:
         - my-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8089/actuator/health"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.6  # Image chính thức, không cần sửa
     container_name: mariadb_container
     restart: always
     environment:
@@ -141,7 +137,7 @@ services:
       start_period: 20s
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest  # Image chính thức, không cần sửa
     container_name: mssql_container
     environment:
       - ACCEPT_EULA=Y
@@ -161,10 +157,8 @@ services:
       retries: 5
       start_period: 20s
 
-
-
   create-db:
-    image: mcr.microsoft.com/mssql-tools:latest
+    image: mcr.microsoft.com/mssql-tools:latest  # Image chính thức, không cần sửa
     container_name: create_db_container
     depends_on:
       - mssql
@@ -174,7 +168,7 @@ services:
     restart: "no"
 
   create-payment-db:
-    image: mcr.microsoft.com/mssql-tools:latest
+    image: mcr.microsoft.com/mssql-tools:latest  # Image chính thức, không cần sửa
     container_name: create_payment_db_container
     depends_on:
       - mssql
@@ -184,6 +178,7 @@ services:
     restart: "no"
 
   payment-service:
+    image: ctmyname/payment-service:latest  # Thêm ctmyname/ và :latest
     build:
       context: ./payment-service
       dockerfile: Dockerfile
@@ -216,6 +211,7 @@ services:
       retries: 3
 
   order-service:
+    image: ctmyname/order-service:latest  # Thêm ctmyname/ và :latest
     restart: always
     build:
       context: ./order-service
@@ -245,8 +241,10 @@ services:
       retries: 3
 
   inventory-service:
+    image: ctmyname/inventory-service:latest  # Thêm ctmyname/ và :latest
+    container_name: inventory-service
     build:
-      context: ./inventory-service  # Chỉ định thư mục chứa Dockerfile
+      context: ./inventory-service
       dockerfile: Dockerfile
     ports:
       - "8085:8085"
@@ -265,18 +263,22 @@ services:
       - MONGO_URI=mongodb+srv://FlexShoes:PasswordFlexShoes@cluster0.jxtoglw.mongodb.net/inventoryDB?retryWrites=true&w=majority
     env_file:
       - ./inventory-service/.env
-    volumes:
-      - ./inventory-service:/app
-      - /app/node_modules
+#    volumes:
+#      - ./inventory-service:/app
     restart: always
     networks:
       - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   notification-service:
-    image: notification-service
+    image: ctmyname/notification-service:latest  # Thêm ctmyname/ và :latest
     container_name: notification-service
     build:
-      context: ./notification-service  # Chỉ định thư mục chứa Dockerfile
+      context: ./notification-service
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
@@ -303,10 +305,10 @@ services:
     restart: always
 
   api-gateway:
-    image: api-gateway
+    image: ctmyname/api-gateway:latest  # Thêm ctmyname/ và :latest
     container_name: api-gateway
     build:
-      context: ./api-gateway  # Chỉ định thư mục chứa Dockerfile
+      context: ./api-gateway
       dockerfile: Dockerfile
     ports:
       - "8888:8888"
@@ -335,8 +337,9 @@ services:
     restart: always
 
   user-service:
+    image: ctmyname/user-service:latest  # Thêm ctmyname/ và :latest
     build:
-      context: ./user-service  # Chỉ định thư mục chứa Dockerfile
+      context: ./user-service
       dockerfile: Dockerfile
     container_name: user-service
     depends_on:
@@ -360,6 +363,8 @@ services:
       - URL_USER_SERVICE=http://profile-service:8081/profile
     ports:
       - "8080:8080"
+    volumes:
+      - user-service-data:/path/to/data
     networks:
       - my-network
     healthcheck:
@@ -371,8 +376,9 @@ services:
     restart: always
 
   profile-service:
+    image: ctmyname/profile-service:latest  # Thêm ctmyname/ và :latest
     build:
-      context: ./profile-service  # Chỉ định thư mục chứa Dockerfile
+      context: ./profile-service
       dockerfile: Dockerfile
     container_name: profile-service
     depends_on:
@@ -391,6 +397,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     ports:
       - "8081:8081"
+    volumes:
+      - profile-service-data:/path/to/data
     networks:
       - my-network
     healthcheck:
@@ -401,12 +409,13 @@ services:
       start_period: 120s
     restart: always
 
-
 volumes:
   mongodb-data:
   mariadb-data:
   mssql-data:
   postgres_data:
+  user-service-data:
+  profile-service-data:
 
 networks:
   my-network:

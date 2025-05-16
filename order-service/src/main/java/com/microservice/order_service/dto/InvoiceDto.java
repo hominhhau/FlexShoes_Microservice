@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,7 +20,7 @@ import java.util.List;
 public class InvoiceDto {
 	private Integer invoiceId;
 	@NotNull(message = "Issue date là bắt buộc")
-	private LocalDate issueDate;
+	private LocalDateTime issueDate;
 
 	@NotBlank(message = "Receiver number là bắt buộc")
 	private String receiverNumber;
@@ -50,5 +51,6 @@ public class InvoiceDto {
 
 	private Long customerId;
 	private CustomerDto customer;
+	private String customerName; // Thêm trường customerName
 	private List<InvoiceDetailDto> invoiceDetails;
 }

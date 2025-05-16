@@ -40,15 +40,13 @@ function registerWithEureka(port) {
   const client = new Eureka({
     instance: {
       app: "chat-service",
-      hostName: "chat-service",
-      ipAddr: "127.0.0.1",
+      hostName,
+      ipAddr,
       port: {
         enabled: true,
         $: 8089,
       },
       vipAddress: "chat-service",
-      statusPageUrl: "http://chat-service:8089/chat",
-      healthCheckUrl: "http://chat-service:8089/chat",
       dataCenterInfo: {
         "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
         name: "MyOwn",

@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # Thiết lập thư mục làm việc trong container
-WORKDIR /ChatDB
+WORKDIR /app
 
 # Sao chép file package.json và package-lock.json vào container
 COPY package*.json ./
@@ -18,7 +18,7 @@ COPY . .
 # RUN npm run build-src
 
 # Thiết lập biến môi trường mặc định (có thể bị ghi đè từ docker-compose)
-ENV DB_SSL=false 
+ENV DB_SSL=false
 ENV DB_USERNAME=postgres
 ENV DB_PASSWORD=1234
 # sửa lại tên database ở đây

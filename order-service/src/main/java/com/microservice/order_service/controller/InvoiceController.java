@@ -118,5 +118,16 @@ public class InvoiceController {
 			@RequestParam(required = false) String orderStatus) {
 		return ResponseEntity.ok(invoiceService.searchInvoices(id, customerName, orderStatus));
 	}
+	// Lấy số lượng đơn hàng theo tháng trong năm
+	@GetMapping("/stats/orders-by-month/{year}")
+	public ResponseEntity<List<Map<String, Object>>> getOrderCountByMonthsInYear(@PathVariable int year) {
+		return ResponseEntity.ok(invoiceService.getOrderCountByMonthsInYear(year));
+	}
+
+	// Lấy doanh thu theo tháng trong năm
+	@GetMapping("/stats/revenue-by-month/{year}")
+	public ResponseEntity<List<Map<String, Object>>> getRevenueByMonthsInYear(@PathVariable int year) {
+		return ResponseEntity.ok(invoiceService.getRevenueByMonthsInYear(year));
+	}
 }
 

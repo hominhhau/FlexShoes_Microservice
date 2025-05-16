@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="docker">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/microservice/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
+    <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge order">
+      <change beforePath="$PROJECT_DIR$/inventory-service/Utils/file.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/utils/file.service.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/routes/productRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/PaymentServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/PaymentServiceApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +105,7 @@
     &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
     &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.ConfigServerApplication.executor&quot;: &quot;Run&quot;,
@@ -119,7 +114,7 @@
     &quot;Spring Boot.PaymentServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.ProfileServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;release__2&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;release__3&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -352,7 +347,8 @@
       <workItem from="1747122211568" duration="22798000" />
       <workItem from="1747154829915" duration="9803000" />
       <workItem from="1747204246466" duration="5264000" />
-      <workItem from="1747210573875" duration="7454000" />
+      <workItem from="1747210573875" duration="7492000" />
+      <workItem from="1747220993473" duration="3794000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />
@@ -378,7 +374,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747164776331</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="merge order">
+      <option name="closed" value="true" />
+      <created>1747303420709</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1747303420709</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -388,9 +392,9 @@
     <MESSAGE value="merge chat service" />
     <MESSAGE value="merge customer" />
     <MESSAGE value="merge" />
-    <MESSAGE value="merge order" />
     <MESSAGE value="docker" />
-    <option name="LAST_COMMIT_MESSAGE" value="docker" />
+    <MESSAGE value="merge order" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge order" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

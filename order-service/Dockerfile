@@ -6,7 +6,7 @@ WORKDIR /app
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
-
+RUN chmod +x ./mvnw
 # Tải dependencies để tối ưu tốc độ build
 RUN ./mvnw dependency:go-offline
 

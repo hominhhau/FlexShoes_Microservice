@@ -315,77 +315,77 @@ module.exports = {
     }
   },
 
-  purchase: async (req, res) => {
-    const { items } = req.body;
-    console.log("Dữ liệu nhận được từ frontend:", req.body);
+  // purchase: async (req, res) => {
+  //   const { items } = req.body;
+  //   console.log("Dữ liệu nhận được từ frontend:", req.body);
 
-    try {
-      //Duyet qua tung sp
-      for (let item of items) {
-        const { productId, colorName, sizeName, quantity } = item;
+  //   try {
+  //     //Duyet qua tung sp
+  //     for (let item of items) {
+  //       const { productId, colorName, sizeName, quantity } = item;
 
-        const product = await Product.findById(productId).populate(
-          "inventory.numberOfProduct"
-        );
-        if (!product)
-          return res.status(404).json({ message: "Product not found" });
+  //       const product = await Product.findById(productId).populate(
+  //         "inventory.numberOfProduct"
+  //       );
+  //       if (!product)
+  //         return res.status(404).json({ message: "Product not found" });
 
-        //find ObjectId của color và size
-        const color = await Color.findOne({ colorName: colorName });
-        const size = await Size.findOne({ nameSize: sizeName });
+  //       //find ObjectId của color và size
+  //       const color = await Color.findOne({ colorName: colorName });
+  //       const size = await Size.findOne({ nameSize: sizeName });
 
-        if (!color || !size) {
-          return res
-            .status(400)
-            .json({
-              message: `Không tìm thấy màu hoặc size: ${colorName}, ${sizeName}`,
-            });
-        }
+  //       if (!color || !size) {
+  //         return res
+  //           .status(400)
+  //           .json({
+  //             message: `Không tìm thấy màu hoặc size: ${colorName}, ${sizeName}`,
+  //           });
+  //       }
 
-        const colorId = color._id;
-        const sizeId = size._id;
+  //       const colorId = color._id;
+  //       const sizeId = size._id;
 
-        //find item trong inventory khop mau va size
-        const inventoryItem = product.inventory.find(
-          (i) =>
-            i.numberOfProduct.color.toString() === colorId.toString() &&
-            i.numberOfProduct.size.toString() === sizeId.toString()
-        );
+  //       //find item trong inventory khop mau va size
+  //       const inventoryItem = product.inventory.find(
+  //         (i) =>
+  //           i.numberOfProduct.color.toString() === colorId.toString() &&
+  //           i.numberOfProduct.size.toString() === sizeId.toString()
+  //       );
 
-        if (!inventoryItem) {
-          return res.status(400).json({
-            message: `Không tìm thấy sản phẩm với size ${sizeName} và màu ${colorName}`,
-          });
-        }
+  //       if (!inventoryItem) {
+  //         return res.status(400).json({
+  //           message: `Không tìm thấy sản phẩm với size ${sizeName} và màu ${colorName}`,
+  //         });
+  //       }
 
-        if (inventoryItem.numberOfProduct.quantity < quantity) {
-          return res.status(400).json({
-            message: `Không đủ hàng cho size ${sizeName}, màu ${colorName}`,
-          });
-        }
+  //       if (inventoryItem.numberOfProduct.quantity < quantity) {
+  //         return res.status(400).json({
+  //           message: `Không đủ hàng cho size ${sizeName}, màu ${colorName}`,
+  //         });
+  //       }
 
-        //tru sl ton kho
-        inventoryItem.numberOfProduct.quantity -= quantity;
-        await inventoryItem.numberOfProduct.save();
-      }
+  //       //tru sl ton kho
+  //       inventoryItem.numberOfProduct.quantity -= quantity;
+  //       await inventoryItem.numberOfProduct.save();
+  //     }
 
-      //update sl ton kho
-      for (let item of items) {
-        const product = await Product.findById(item.productId).populate(
-          "inventory.numberOfProduct"
-        );
-        product.totalQuantity = product.inventory.reduce((sum, i) => {
-          return sum + (i.numberOfProduct?.quantity || 0);
-        }, 0);
-        await product.save();
-      }
+  //     //update sl ton kho
+  //     for (let item of items) {
+  //       const product = await Product.findById(item.productId).populate(
+  //         "inventory.numberOfProduct"
+  //       );
+  //       product.totalQuantity = product.inventory.reduce((sum, i) => {
+  //         return sum + (i.numberOfProduct?.quantity || 0);
+  //       }, 0);
+  //       await product.save();
+  //     }
 
-      res.json({ message: "Thành công", updated: true });
-    } catch (err) {
-      console.error("Chi tiết lỗi:", err);
-      res.status(500).json({ message: "Có lỗi xảy ra khi xử lý đơn hàng" });
-    }
-  },
+  //     res.json({ message: "Thành công", updated: true });
+  //   } catch (err) {
+  //     console.error("Chi tiết lỗi:", err);
+  //     res.status(500).json({ message: "Có lỗi xảy ra khi xử lý đơn hàng" });
+  //   }
+  // },
 
   deleteProductById: async (req, res) => {
     try {
@@ -434,4 +434,70 @@ module.exports = {
       res.status(500).json({ message: "Lỗi khi tìm kiếm sản phẩm" });
     }
   },
+purchase: async (req, res) => {
+  const { items } = req.body;
+  console.log('Dữ liệu nhận được từ frontend:', req.body);
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: "Danh sách sản phẩm không hợp lệ" });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const updatedProducts = new Set();
+    for (let item of items) {
+      const { productId, colorName, sizeName, quantity } = item;
+      if (!productId || !colorName || !sizeName || !quantity) {
+        throw new Error("Dữ liệu sản phẩm không đầy đủ");
+      }
+
+      const product = await Product.findById(productId)
+        .populate("inventory.numberOfProduct")
+        .session(session);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      const color = await Color.findOne({ colorName: { $regex: `^${colorName}$`, $options: 'i' } }).session(session);
+      const size = await Size.findOne({ nameSize: { $regex: `^${sizeName}$`, $options: 'i' } }).session(session);
+      if (!color || !size) {
+        throw new Error(`Không tìm thấy màu hoặc size: ${colorName}, ${sizeName}`);
+      }
+
+      const inventoryItem = product.inventory.find(i =>
+        i.numberOfProduct.color.toString() === color._id.toString() &&
+        i.numberOfProduct.size.toString() === size._id.toString()
+      );
+      if (!inventoryItem) {
+        throw new Error(`Không tìm thấy sản phẩm với size ${sizeName} và màu ${colorName}`);
+      }
+
+      if (inventoryItem.numberOfProduct.quantity < quantity) {
+        throw new Error(`Không đủ hàng cho size ${sizeName}, màu ${colorName}`);
+      }
+
+      inventoryItem.numberOfProduct.quantity -= quantity;
+      await inventoryItem.numberOfProduct.save({ session });
+
+      if (!updatedProducts.has(productId)) {
+        product.totalQuantity = product.inventory.reduce((sum, i) => {
+          return sum + (i.numberOfProduct?.quantity || 0);
+        }, 0);
+        await product.save({ session });
+        updatedProducts.add(productId);
+      }
+    }
+
+    await session.commitTransaction();
+    res.json({ message: "Thành công", updated: true });
+  } catch (err) {
+    await session.abortTransaction();
+    console.error("Chi tiết lỗi:", err);
+    res.status(500).json({ message: "Có lỗi xảy ra khi xử lý đơn hàng", error: err.message });
+  } finally {
+    session.endSession();
+  }
+}
+
 };
