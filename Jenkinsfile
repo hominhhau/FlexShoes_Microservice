@@ -107,17 +107,17 @@ pipeline {
             }
         }
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    writeFile file: 'kubeconfig', text: KUBE_CONFIG
-                    sh '''
-                        export KUBECONFIG=$(pwd)/kubeconfig
-                        kubectl create namespace flexshoes || true
-                        kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
-                    '''
-                }
+          steps {
+            withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+              sh '''
+                export KUBECONFIG=$KUBECONFIG_FILE
+                kubectl create namespace flexshoes || true
+                kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
+              '''
             }
+          }
         }
+
         stage('Verify Deployment') {
             steps {
                 script {
