@@ -120,26 +120,28 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
                     script {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        // Kiểm tra nếu kubeconfig đã nhúng dữ liệu chứng chỉ
+                        // Ưu tiên kubeconfig nhúng dữ liệu
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
+                            echo "Using embedded kubeconfig data"
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
-                            // Thay thế đường dẫn Windows bằng đường dẫn trong container
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
-                            kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+                            echo "Using file-based kubeconfig, replacing Windows paths"
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\', '/')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
                             if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
-                                echo "Certificates found, proceeding with file-based kubeconfig"
+                                echo "Certificates found at expected paths:"
+                                ls -l /var/jenkins_home/minikube-certs /var/jenkins_home/minikube-certs/profiles/minikube
                             else
-                                echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
+                                echo "Warning: Minikube certificates not found, relying on embedded kubeconfig data"
                             fi
+                            cat kubeconfig-modified
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info || {
                                 echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                                head -n 30 ${KUBECONFIG_FILE}
+                                cat kubeconfig-modified
                                 exit 1
                             }
                             kubectl get nodes
@@ -154,18 +156,20 @@ pipeline {
                     script {
                         String kubeconfigContent = readFile(KUBECONFIG_FILE)
                         if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
+                            echo "Using embedded kubeconfig data"
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         } else {
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs')
-                            kubeconfigContent = kubeconfigContent.replaceAll('\\\\\\\\', '/')
+                            echo "Using file-based kubeconfig, replacing Windows paths"
+                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\', '/')
                             writeFile file: 'kubeconfig-modified', text: kubeconfigContent
                         }
                         sh '''
                             mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
                             if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
-                                echo "Certificates found, proceeding with file-based kubeconfig"
+                                echo "Certificates found at expected paths:"
+                                ls -l /var/jenkins_home/minikube-certs /var/jenkins_home/minikube-certs/profiles/minikube
                             else
-                                echo "Warning: Minikube certificates not found, assuming kubeconfig has embedded data"
+                                echo "Warning: Minikube certificates not found, relying on embedded kubeconfig data"
                             fi
                             export KUBECONFIG=$(pwd)/kubeconfig-modified
                             kubectl cluster-info
