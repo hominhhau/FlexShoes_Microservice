@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'jenkins/inbound-agent:alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     environment {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
