@@ -5,31 +5,28 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         KUBE_CONFIG = credentials('kubeconfig-credentials')
+        PATH = "${env.PATH}:/var/jenkins_home/bin"
     }
     stages {
         stage('Setup Tools') {
             steps {
                 script {
                     sh '''
-                        # Tạo thư mục bin trong /var/jenkins_home nếu chưa có
+                        # Tạo thư mục bin nếu chưa có
                         mkdir -p /var/jenkins_home/bin
-
-                        # Kiểm tra xem docker-compose đã tồn tại chưa
+                        # Cài docker-compose nếu chưa có
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
-                            export PATH=$PATH:/var/jenkins_home/bin
                         fi
-                        docker-compose --version || { echo "Docker Compose installation failed"; exit 1; }
-
-                        # Kiểm tra xem kubectl đã tồn tại chưa
+                        docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
+                        # Cài kubectl nếu chưa có
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                             chmod +x kubectl
                             mv kubectl /var/jenkins_home/bin/
-                            export PATH=$PATH:/var/jenkins_home/bin
                         fi
-                        kubectl version --client || { echo "kubectl installation failed"; exit 1; }
+                        kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
                     '''
                 }
             }
@@ -42,9 +39,11 @@ pipeline {
         stage('Prepare Environment') {
             steps {
                 script {
-                    sh 'cp .env.example .env || true'
-                    sh 'cp chat-service/.env.example chat-service/.env || true'
-                    sh 'cp inventory-service/.env.example inventory-service/.env || true'
+                    sh '''
+                        cp .env.example .env
+                        cp chat-service/.env.example chat-service/.env
+                        cp inventory-service/.env.example inventory-service/.env
+                    '''
                     withCredentials([
                         string(credentialsId: 'sendinblue-api-key', variable: 'SENDINBLUE_API_KEY'),
                         string(credentialsId: 'chat-port', variable: 'CHAT_PORT'),
@@ -64,24 +63,24 @@ pipeline {
                         string(credentialsId: 'bucket-name', variable: 'BUCKET_NAME')
                     ]) {
                         sh '''
-                            sed -i "s|SENDINBLUE_API_KEY=placeholder|SENDINBLUE_API_KEY=$SENDINBLUE_API_KEY|" .env || true
-                            sed -i "s|PORT=placeholder|PORT=$CHAT_PORT|" chat-service/.env || true
-                            sed -i "s|REACT_URL=placeholder|REACT_URL=$REACT_URL|" chat-service/.env || true
-                            sed -i "s|DB_SSL=placeholder|DB_SSL=$DB_SSL|" chat-service/.env || true
-                            sed -i "s|DB_USERNAME=placeholder|DB_USERNAME=$DB_USERNAME|" chat-service/.env || true
-                            sed -i "s|DB_PASSWORD=placeholder|DB_PASSWORD=$DB_PASSWORD|" chat-service/.env || true
-                            sed -i "s|DB_DATABASE_NAME=placeholder|DB_DATABASE_NAME=$DB_DATABASE_NAME|" chat-service/.env || true
-                            sed -i "s|DB_HOST=placeholder|DB_HOST=$DB_HOST|" chat-service/.env || true
-                            sed -i "s|DB_PORT=placeholder|DB_PORT=$DB_PORT|" chat-service/.env || true
-                            sed -i "s|DB_DIALECT=placeholder|DB_DIALECT=$DB_DIALECT|" chat-service/.env || true
-                            sed -i "s|OPENAI_API_KEY=placeholder|OPENAI_API_KEY=$OPENAI_API_KEY|" chat-service/.env || true
-                            sed -i "s|PORT=8085|PORT=8085|" inventory-service/.env || true
-                            sed -i "s|MONGO_URI=placeholder|MONGO_URI=$MONGO_URI|" inventory-service/.env || true
-                            sed -i "s|ACCESSKEYID=placeholder|ACCESSKEYID=$ACCESSKEYID|" inventory-service/.env || true
-                            sed -i "s|SECRETACCESSKEY=placeholder|SECRETACCESSKEY=$SECRETACCESSKEY|" inventory-service/.env || true
-                            sed -i "s|REGION=placeholder|REGION=$REGION|" inventory-service/.env || true
-                            sed -i "s|BUCKET_NAME=placeholder|BUCKET_NAME=$BUCKET_NAME|" inventory-service/.env || true
-                            sed -i "s|OPENAI_API_KEY=placeholder|OPENAI_API_KEY=$OPENAI_API_KEY|" inventory-service/.env || true
+                            sed -i "s|SENDINBLUE_API_KEY=placeholder|SENDINBLUE_API_KEY=$SENDINBLUE_API_KEY|" .env
+                            sed -i "s|PORT=placeholder|PORT=$CHAT_PORT|" chat-service/.env
+                            sed -i "s|REACT_URL=placeholder|REACT_URL=$REACT_URL|" chat-service/.env
+                            sed -i "s|DB_SSL=placeholder|DB_SSL=$DB_SSL|" chat-service/.env
+                            sed -i "s|DB_USERNAME=placeholder|DB_USERNAME=$DB_USERNAME|" chat-service/.env
+                            sed -i "s|DB_PASSWORD=placeholder|DB_PASSWORD=$DB_PASSWORD|" chat-service/.env
+                            sed -i "s|DB_DATABASE_NAME=placeholder|DB_DATABASE_NAME=$DB_DATABASE_NAME|" chat-service/.env
+                            sed -i "s|DB_HOST=placeholder|DB_HOST=$DB_HOST|" chat-service/.env
+                            sed -i "s|DB_PORT=placeholder|DB_PORT=$DB_PORT|" chat-service/.env
+                            sed -i "s|DB_DIALECT=placeholder|DB_DIALECT=$DB_DIALECT|" chat-service/.env
+                            sed -i "s|OPENAI_API_KEY=placeholder|OPENAI_API_KEY=$OPENAI_API_KEY|" chat-service/.env
+                            sed -i "s|PORT=8085|PORT=8085|" inventory-service/.env
+                            sed -i "s|MONGO_URI=placeholder|MONGO_URI=$MONGO_URI|" inventory-service/.env
+                            sed -i "s|ACCESSKEYID=placeholder|ACCESSKEYID=$ACCESSKEYID|" inventory-service/.env
+                            sed -i "s|SECRETACCESSKEY=placeholder|SECRETACCESSKEY=$SECRETACCESSKEY|" inventory-service/.env
+                            sed -i "s|REGION=placeholder|REGION=$REGION|" inventory-service/.env
+                            sed -i "s|BUCKET_NAME=placeholder|BUCKET_NAME=$BUCKET_NAME|" inventory-service/.env
+                            sed -i "s|OPENAI_API_KEY=placeholder|OPENAI_API_KEY=$OPENAI_API_KEY|" inventory-service/.env
                         '''
                     }
                 }
@@ -135,10 +134,10 @@ pipeline {
             '''
         }
         success {
-            echo 'Kubernetes deployment completed successfully!'
+            echo 'Triển khai Kubernetes thành công!'
         }
         failure {
-            echo 'Kubernetes deployment failed!'
+            echo 'Triển khai Kubernetes thất bại!'
             sh '''
                 export KUBECONFIG=$KUBE_CONFIG
                 kubectl describe pods -n flexshoes || true
