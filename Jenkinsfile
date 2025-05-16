@@ -18,15 +18,18 @@ pipeline {
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
+                            export PATH=$PATH:/var/jenkins_home/bin
                         fi
-                        docker-compose --version || echo "Docker Compose installation may have failed, proceeding anyway"
-                        mkdir -p /var/jenkins_home/bin
+                        docker-compose --version || { echo "Docker Compose installation failed"; exit 1; }
+
+                        # Kiểm tra xem kubectl đã tồn tại chưa
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                             chmod +x kubectl
                             mv kubectl /var/jenkins_home/bin/
+                            export PATH=$PATH:/var/jenkins_home/bin
                         fi
-                        kubectl version --client || echo "kubectl installation may have failed"
+                        kubectl version --client || { echo "kubectl installation failed"; exit 1; }
                     '''
                 }
             }
