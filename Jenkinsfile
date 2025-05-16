@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'jenkins/inbound-agent:alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     environment {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
@@ -12,15 +17,21 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        # Tạo thư mục bin nếu chưa có
+                        # Cài Docker nếu chưa có
+                        if ! command -v docker &> /dev/null; then
+                            curl -fsSL https://get.docker.com -o get-docker.sh
+                            sh get-docker.sh
+                            usermod -aG docker jenkins
+                        fi
+                        docker version || { echo "Cài đặt Docker thất bại"; exit 1; }
+                        # Cài docker-compose
                         mkdir -p /var/jenkins_home/bin
-                        # Cài docker-compose nếu chưa có
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
                         fi
                         docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
-                        # Cài kubectl nếu chưa có
+                        # Cài kubectl
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                             chmod +x kubectl
@@ -89,7 +100,11 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    sh '''
+                        echo $PATH
+                        which docker-compose
+                        docker-compose build
+                    '''
                 }
             }
         }
@@ -130,7 +145,9 @@ pipeline {
         always {
             sh '''
                 export KUBECONFIG=$KUBE_CONFIG
-                kubectl logs -n flexshoes --all-pods --tail=100 || true
+                for pod in $(kubectl get pods -n flexshoes -o name); do
+                    kubectl logs -n flexshoes $pod --tail=100 || true
+                done
             '''
         }
         success {
