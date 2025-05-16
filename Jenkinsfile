@@ -22,6 +22,7 @@ pipeline {
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
+                            export PATH=/var/jenkins_home/bin:$PATH
                         fi
                         docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
                         # Cài kubectl
