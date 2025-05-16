@@ -109,19 +109,21 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    writeFile file: 'kubeconfig', text: KUBE_CONFIG
                     sh '''
-                        export KUBECONFIG=$KUBE_CONFIG
+                        export KUBECONFIG=$(pwd)/kubeconfig
                         kubectl create namespace flexshoes || true
                         kubectl apply -f k8s/flexshoes-all.yaml -n flexshoes
                     '''
                 }
             }
         }
+
         stage('Verify Deployment') {
             steps {
                 script {
                     sh '''
-                        export KUBECONFIG=$KUBE_CONFIG
+                        export KUBECONFIG=$(pwd)/kubeconfig
                         kubectl get pods -n flexshoes -o wide
                         kubectl get services -n flexshoes
                         kubectl get ingress -n flexshoes
@@ -129,29 +131,28 @@ pipeline {
                 }
             }
         }
-    }
+
     post {
         always {
-
-                sh '''
-                    export KUBECONFIG=$KUBE_CONFIG
-                    for pod in $(kubectl get pods -n flexshoes -o name); do
-                        kubectl logs -n flexshoes $pod --tail=100 || true
-                    done
-                '''
-
+            sh '''
+                export KUBECONFIG=$(pwd)/kubeconfig
+                for pod in $(kubectl get pods -n flexshoes -o name); do
+                    kubectl logs -n flexshoes $pod --tail=100 || true
+                done
+            '''
         }
-        success {
+
+       success {
             echo 'Triển khai Kubernetes thành công!'
-        }
-        failure {
+       }
 
-                echo 'Triển khai Kubernetes thất bại!'
-                sh '''
-                    export KUBECONFIG=$KUBE_CONFIG
-                    kubectl describe pods -n flexshoes || true
-                '''
-
-        }
+       failure {
+           echo 'Triển khai Kubernetes thất bại!'
+           sh '''
+                export KUBECONFIG=$(pwd)/kubeconfig
+                kubectl describe pods -n flexshoes || true
+           '''
+       }
     }
+
 }
