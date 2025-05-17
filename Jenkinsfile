@@ -26,8 +26,8 @@ pipeline {
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
                         docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
-                        apt-get update
-                        apt-get install -y yamllint
+                        sudo apt-get update
+                        sudo apt-get install -y yamllint
                         yamllint --version
                     '''
                 }
