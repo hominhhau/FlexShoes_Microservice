@@ -225,9 +225,29 @@ pipeline {
                             echo "ACCESSKEYID_B64: ${ACCESSKEYID_B64}"
                             echo "SECRETACCESSKEY_B64: ${SECRETACCESSKEY_B64}"
 
-                            # Tách secrets và config maps vào file riêng
-                            grep -B 1000 -A 1000 -E 'kind: (Secret|ConfigMap)' flexshoes-all.yaml > flexshoes-secrets-configmaps.yaml
-                            grep -v -E 'kind: (Secret|ConfigMap)' flexshoes-all.yaml > flexshoes-others.yaml
+                            # Tách secrets và config maps vào file riêng bằng awk
+                            awk '/^---/{p=1} p&&/kind: (Secret|ConfigMap)/,/^---/{print} /^---/{p=0}' flexshoes-all.yaml > flexshoes-secrets-configmaps.yaml
+                            awk '/^---/{p=1} p&&/kind: (Secret|ConfigMap)/{next} p{print} /^---/{p=0}' flexshoes-all.yaml > flexshoes-others.yaml
+
+                            # Kiểm tra nội dung file
+                            echo "=== Nội dung flexshoes-secrets-configmaps.yaml ==="
+                            cat flexshoes-secrets-configmaps.yaml
+                            echo "=== Nội dung flexshoes-others.yaml ==="
+                            cat flexshoes-others.yaml
+
+                            # Kiểm tra cú pháp YAML
+                            echo "=== Kiểm tra cú pháp flexshoes-secrets-configmaps.yaml ==="
+                            kubectl apply -f flexshoes-secrets-configmaps.yaml -n flexshoes --dry-run=client || {
+                                echo "ERROR: File flexshoes-secrets-configmaps.yaml không hợp lệ"
+                                cat flexshoes-secrets-configmaps.yaml
+                                exit 1
+                            }
+                            echo "=== Kiểm tra cú pháp flexshoes-others.yaml ==="
+                            kubectl apply -f flexshoes-others.yaml -n flexshoes --dry-run=client || {
+                                echo "ERROR: File flexshoes-others.yaml không hợp lệ"
+                                cat flexshoes-others.yaml
+                                exit 1
+                            }
 
                             # Cập nhật secrets với các giá trị bí mật
                             sed -i "s#OPENAI_API_KEY: cGxhY2Vob2xkZXI=#OPENAI_API_KEY: ${OPENAI_API_KEY_B64}#g" flexshoes-secrets-configmaps.yaml
@@ -238,10 +258,10 @@ pipeline {
                             # Sửa volume mount path
                             sed -i "s#mountPath: /path/to/data#mountPath: /app/data#g" flexshoes-others.yaml
 
-                            # Kiểm tra nội dung file
-                            echo "=== Nội dung flexshoes-secrets-configmaps.yaml ==="
+                            # Kiểm tra lại nội dung file sau khi sửa
+                            echo "=== Nội dung flexshoes-secrets-configmaps.yaml sau khi sửa ==="
                             cat flexshoes-secrets-configmaps.yaml
-                            echo "=== Nội dung flexshoes-others.yaml ==="
+                            echo "=== Nội dung flexshoes-others.yaml sau khi sửa ==="
                             cat flexshoes-others.yaml
                         '''
                     }
@@ -272,6 +292,7 @@ pipeline {
                         for file in flexshoes-secrets-configmaps.yaml flexshoes-others.yaml; do
                             kubectl apply -f \$file -n flexshoes --dry-run=client || {
                                 echo "ERROR: Kiểm tra cú pháp \$file thất bại"
+                                cat \$file
                                 exit 1
                             }
                         done
@@ -292,6 +313,8 @@ pipeline {
                         echo "=== Áp dụng flexshoes-secrets-configmaps.yaml ==="
                         kubectl apply -f flexshoes-secrets-configmaps.yaml -n flexshoes --v=8 || {
                             echo "ERROR: Áp dụng flexshoes-secrets-configmaps.yaml thất bại"
+                            echo "=== Nội dung flexshoes-secrets-configmaps.yaml ==="
+                            cat flexshoes-secrets-configmaps.yaml
                             exit 1
                         }
 
@@ -389,7 +412,6 @@ pipeline {
                     echo "===== Mô tả các pod bị lỗi ====="
                     kubectl describe pods -n flexshoes || true
 
-                    # Sửa lỗi thiếu dấu nháy kép
                     echo "===== Events namespace flexshoes ====="
                     kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
 
