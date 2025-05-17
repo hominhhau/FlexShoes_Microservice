@@ -225,9 +225,20 @@ pipeline {
                             echo "ACCESSKEYID_B64: ${ACCESSKEYID_B64}"
                             echo "SECRETACCESSKEY_B64: ${SECRETACCESSKEY_B64}"
 
-                            # Tách secrets và config maps vào file riêng bằng awk
-                            awk '/^---/{p=1} p&&/kind: (Secret|ConfigMap)/,/^---/{print} /^---/{p=0}' flexshoes-all.yaml > flexshoes-secrets-configmaps.yaml
-                            awk '/^---/{p=1} p&&/kind: (Secret|ConfigMap)/{next} p{print} /^---/{p=0}' flexshoes-all.yaml > flexshoes-others.yaml
+                            # Tách secrets và config maps
+                            awk '/^---/ {if (p) print "---"; p=0} /kind: (Secret|ConfigMap)/ {p=1} p {print}' flexshoes-all.yaml > flexshoes-secrets-configmaps.yaml
+                            # Tách các tài nguyên còn lại
+                            awk '/^---/ {if (p) print "---"; p=0} /kind: (Secret|ConfigMap)/ {p=0; next} /kind:/ {p=1} p {print}' flexshoes-all.yaml > flexshoes-others.yaml
+
+                            # Kiểm tra file có rỗng không
+                            if [ ! -s flexshoes-secrets-configmaps.yaml ]; then
+                                echo "ERROR: flexshoes-secrets-configmaps.yaml rỗng"
+                                exit 1
+                            fi
+                            if [ ! -s flexshoes-others.yaml ]; then
+                                echo "ERROR: flexshoes-others.yaml rỗng"
+                                exit 1
+                            fi
 
                             # Kiểm tra nội dung file
                             echo "=== Nội dung flexshoes-secrets-configmaps.yaml ==="
@@ -283,6 +294,10 @@ pipeline {
                         for file in flexshoes-secrets-configmaps.yaml flexshoes-others.yaml; do
                             if [ ! -f \$file ]; then
                                 echo "ERROR: \$file không tồn tại"
+                                exit 1
+                            fi
+                            if [ ! -s \$file ]; then
+                                echo "ERROR: \$file rỗng"
                                 exit 1
                             fi
                         done
@@ -395,11 +410,29 @@ pipeline {
 
                     # Kiểm tra file flexshoes-all.yaml
                     echo "=== Kiểm tra flexshoes-all.yaml ==="
-                    if [ -f flexshoes-all.yaml ]; then
+                    if [ -f flexshoes-all/che.yaml ]; then
                         echo "flexshoes-all.yaml found"
                         cat flexshoes-all.yaml
                     else
                         echo "ERROR: flexshoes-all.yaml không tồn tại"
+                    fi
+
+                    # Kiểm tra file flexshoes-secrets-configmaps.yaml
+                    echo "=== Kiểm tra flexshoes-secrets-configmaps.yaml ==="
+                    if [ -f flexshoes-secrets-configmaps.yaml ]; then
+                        echo "flexshoes-secrets-configmaps.yaml found"
+                        cat flexshoes-secrets-configmaps.yaml
+                    else
+                        echo "ERROR: flexshoes-secrets-configmaps.yaml không tồn tại"
+                    fi
+
+                    # Kiểm tra file flexshoes-others.yaml
+                    echo "=== Kiểm tra flexshoes-others.yaml ==="
+                    if [ -f flexshoes-others.yaml ]; then
+                        echo "flexshoes-others.yaml found"
+                        cat flexshoes-others.yaml
+                    else
+                        echo "ERROR: flexshoes-others.yaml không tồn tại"
                     fi
 
                     # Kiểm tra trạng thái namespace
