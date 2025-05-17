@@ -38,13 +38,20 @@ pipeline {
                              String kubeconfigContent = readFile(KUBECONFIG_FILE)
                              writeFile file: 'kubeconfig-temp', text: kubeconfigContent
                              sh '''
+                                 echo "Cleaning kubeconfig to use only minikube context"
+                                 kubectl config view --kubeconfig=$KUBECONFIG_FILE --minify --context=minikube > kubeconfig-cleaned
+                                 yamllint kubeconfig-cleaned || {
+                                     echo "Invalid YAML in kubeconfig-cleaned"
+                                     cat kubeconfig-cleaned
+                                     exit 1
+                                 }
                                  echo "Checking network connectivity to Minikube"
                                  curl -k --connect-timeout 5 https://192.168.49.2:8443 || {
                                      echo "Cannot connect to Minikube at 192.168.49.2:8443"
                                      exit 1
                                  }
                                  echo "Modifying kubeconfig server URL"
-                                 sed 's|server: https://[^ ]*|server: https://192.168.49.2:8443|g' kubeconfig-temp > kubeconfig-modified
+                                 sed -E 's|server: https://[^ ]+|server: https://192.168.49.2:8443|' kubeconfig-cleaned > kubeconfig-modified
                                  echo "Validating kubeconfig YAML"
                                  yamllint kubeconfig-modified || {
                                      echo "Invalid YAML in kubeconfig-modified"
