@@ -4,7 +4,7 @@ pipeline {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        KUBE_CONFIG = credentials('kubeconfig-credentials')
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-credentials'  // Đã đổi tên biến cho rõ ràng
         PATH = "/var/jenkins_home/bin:$PATH"
         MINIKUBE_IP = '192.168.49.2'
     }
@@ -14,27 +14,40 @@ pipeline {
                 script {
                     sh '''
                         mkdir -p /var/jenkins_home/bin
+                        # Cài đặt docker-compose nếu chưa có
                         if ! command -v docker-compose &> /dev/null; then
                             curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
                             chmod +x /var/jenkins_home/bin/docker-compose
                         fi
                         docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
+
+                        # Cài đặt kubectl nếu chưa có
                         if ! command -v kubectl &> /dev/null; then
                             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                             chmod +x kubectl
                             mv kubectl /var/jenkins_home/bin/
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
+
+                        # Cài đặt yq để kiểm tra YAML
+                        if ! command -v yq &> /dev/null; then
+                            wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /var/jenkins_home/bin/yq
+                            chmod +x /var/jenkins_home/bin/yq
+                        fi
+
+                        # Kiểm tra kết nối Docker
                         docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
                     '''
                 }
             }
         }
+
         stage('Checkout') {
             steps {
                 git branch: 'release_4', url: 'https://github.com/hominhhau/FlexShoes_Microservice.git'
             }
         }
+
         stage('Prepare Environment') {
             steps {
                 script {
@@ -85,6 +98,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Images') {
             steps {
                 script {
@@ -94,6 +108,7 @@ pipeline {
                 }
             }
         }
+
         stage('Push Docker Images') {
             steps {
                 script {
@@ -103,85 +118,170 @@ pipeline {
                 }
             }
         }
-                         stage('Validate Kubeconfig') {
-                              steps {
-                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
-                                      sh '''
-                                          echo "Validating kubeconfig content"
-                                          cat $KUBECONFIG_FILE
-                                          grep -E "apiVersion:|clusters:|contexts:|users:" $KUBECONFIG_FILE
-                                          grep -A 3 "cluster:" $KUBECONFIG_FILE
-                                      '''
-                                  }
-                              }
-                          }
-                          stage('Verify Kubernetes Connection') {
-                              steps {
-                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
-                                      script {
-                                          String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                                          writeFile file: 'kubeconfig-temp', text: kubeconfigContent
-                                          sh '''
-                                              echo "Cleaning kubeconfig to use only minikube context"
-                                              kubectl config view --kubeconfig=$KUBECONFIG_FILE --minify --context=minikube > kubeconfig-cleaned
-                                              echo "Checking network connectivity to Minikube"
-                                              curl -k --connect-timeout 5 https://192.168.49.2:8443 || {
-                                                  echo "Cannot connect to Minikube at 192.168.49.2:8443"
-                                                  exit 1
-                                              }
-                                              echo "Modifying kubeconfig server URL"
-                                              sed -E 's|server: https://[^ ]+|server: https://192.168.49.2:8443|' kubeconfig-cleaned > kubeconfig-modified
-                                              echo "Kubeconfig content:"
-                                              cat kubeconfig-modified
-                                              export KUBECONFIG=$(pwd)/kubeconfig-modified
-                                              kubectl cluster-info || {
-                                                  echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                                                  cat $(pwd)/kubeconfig-modified
-                                                  exit 1
-                                              }
-                                              kubectl get nodes
-                                          '''
-                                      }
-                                  }
-                              }
-                          }
-                          stage('Deploy to Kubernetes') {
-                              steps {
-                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
-                                      sh '''
-                                          export KUBECONFIG=$(pwd)/kubeconfig-modified
-                                          kubectl apply -f flexshoes-all.yaml -n flexshoes
-                                      '''
-                                  }
-                              }
-                          }
-                          stage('Verify Deployment') {
-                              steps {
-                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
-                                      sh '''
-                                          export KUBECONFIG=$(pwd)/kubeconfig-modified
-                                          kubectl get pods -n flexshoes -o name
-                                          kubectl rollout status deployment -n flexshoes
-                                      '''
-                                  }
-                              }
-                          }
+
+        stage('Validate Kubeconfig') {
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        sh '''
+                            echo "Kiểm tra kubeconfig..."
+                            mkdir -p ${WORKSPACE}/.kube
+                            cp $KUBECONFIG_FILE ${WORKSPACE}/.kube/config
+                            chmod 600 ${WORKSPACE}/.kube/config
+
+                            # Kiểm tra định dạng YAML
+                            yq eval '.' ${WORKSPACE}/.kube/config || {
+                                echo "Lỗi định dạng YAML trong file kubeconfig"
+                                exit 1
+                            }
+
+                            # Kiểm tra các trường bắt buộc
+                            REQUIRED_FIELDS=("apiVersion" "clusters" "contexts" "users")
+                            for field in "${REQUIRED_FIELDS[@]}"; do
+                                if ! grep -q "$field:" ${WORKSPACE}/.kube/config; then
+                                    echo "Thiếu trường bắt buộc: $field trong kubeconfig"
+                                    exit 1
+                                fi
+                            done
+
+                            echo "Kubeconfig hợp lệ"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Verify Kubernetes Connection') {
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        sh '''
+                            # Chuẩn bị kubeconfig
+                            mkdir -p ${WORKSPACE}/.kube
+                            cp $KUBECONFIG_FILE ${WORKSPACE}/.kube/config
+                            chmod 600 ${WORKSPACE}/.kube/config
+
+                            # Cập nhật địa chỉ server Minikube
+                            sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|" ${WORKSPACE}/.kube/config
+
+                            export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                            # Kiểm tra kết nối mạng tới Minikube
+                            if ! curl -k --connect-timeout 5 https://${MINIKUBE_IP}:8443; then
+                                echo "Không thể kết nối tới Minikube tại ${MINIKUBE_IP}:8443"
+                                echo "Kiểm tra:"
+                                echo "1. Minikube đang chạy"
+                                echo "2. IP Minikube chính xác"
+                                echo "3. Có thể kết nối từ Jenkins tới Minikube"
+                                exit 1
+                            fi
+
+                            # Kiểm tra kết nối kubectl
+                            kubectl config view
+                            if ! kubectl cluster-info; then
+                                echo "LỖI: Không thể kết nối tới Kubernetes cluster"
+                                echo "Nội dung kubeconfig:"
+                                cat ${WORKSPACE}/.kube/config
+                                exit 1
+                            fi
+
+                            kubectl get nodes
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        sh '''
+                            export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                            # Tạo namespace nếu chưa tồn tại
+                            if ! kubectl get namespace flexshoes &> /dev/null; then
+                                kubectl create namespace flexshoes
+                            fi
+
+                            # Áp dụng cấu hình Kubernetes
+                            kubectl apply -f flexshoes-all.yaml -n flexshoes
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        sh '''
+                            export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                            # Kiểm tra trạng thái các pod
+                            kubectl get pods -n flexshoes -o wide
+
+                            # Kiểm tra rollout status cho từng deployment
+                            for deployment in $(kubectl get deployments -n flexshoes -o name); do
+                                kubectl rollout status ${deployment} -n flexshoes --timeout=120s || {
+                                    echo "Lỗi khi triển khai ${deployment}"
+                                    kubectl describe ${deployment} -n flexshoes
+                                    exit 1
+                                }
+                            done
+
+                            # Kiểm tra service
+                            kubectl get services -n flexshoes
+                        '''
+                    }
+                }
+            }
+        }
     }
+
     post {
         always {
-            sh '''
-                export KUBECONFIG=$(pwd)/kubeconfig-modified
-                for pod in $(kubectl get pods -n flexshoes -o name 2>/dev/null || echo ""); do
-                    kubectl logs -n flexshoes $pod --tail=100 || true
-                done
-            '''
+            withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                sh '''
+                    export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                    # Lấy logs từ tất cả các pod
+                    echo "===== Logs từ các pod ====="
+                    for pod in $(kubectl get pods -n flexshoes -o name 2>/dev/null || echo ""); do
+                        echo "Logs từ $pod:"
+                        kubectl logs -n flexshoes $pod --tail=100 || true
+                        echo ""
+                    done
+
+                    # Lấy thông tin tổng quan về cluster
+                    echo "===== Thông tin cluster ====="
+                    kubectl get all -n flexshoes
+                '''
+            }
         }
+
         failure {
-            echo 'Triển khai Kubernetes thất bại!'
-            sh '''
-                export KUBECONFIG=$(pwd)/kubeconfig-modified
-                kubectl describe pods -n flexshoes || true
-            '''
+            withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                echo 'Triển khai Kubernetes thất bại!'
+                sh '''
+                    export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                    # Lấy thông tin chi tiết về lỗi
+                    echo "===== Mô tả các pod bị lỗi ====="
+                    kubectl describe pods -n flexshoes || true
+
+                    echo "===== Events namespace flexshoes ====="
+                    kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
+
+                    echo "===== Logs từ các container bị lỗi ====="
+                    for pod in $(kubectl get pods -n flexshoes --field-selector=status.phase!=Running -o name 2>/dev/null || echo ""); do
+                        echo "Logs từ $pod:"
+                        kubectl logs -n flexshoes $pod --all-containers=true --tail=100 || true
+                        echo ""
+                    done
+                '''
+            }
         }
     }
 }
