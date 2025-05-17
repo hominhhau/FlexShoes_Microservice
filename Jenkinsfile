@@ -7,6 +7,7 @@ pipeline {
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-credentials'  // Đã đổi tên biến cho rõ ràng
         PATH = "/var/jenkins_home/bin:$PATH"
         MINIKUBE_IP = '192.168.49.2'
+        CERTS_DIR = "/var/jenkins_home/minikube-certs"
     }
     stages {
         stage('Setup Tools') {
@@ -113,30 +114,34 @@ pipeline {
             }
         }
 
-        stage('Prepare Kubeconfig') {
+        stage('Configure Kubeconfig') {
             steps {
                 withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
                     script {
-                        sh '''
-                            # Tạo thư mục .kube và copy file config
+                        sh """
                             mkdir -p ${WORKSPACE}/.kube
-                            cp $KUBECONFIG_FILE ${WORKSPACE}/.kube/config-original
+                            cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
 
-                            # Sửa đường dẫn certificate từ Windows sang Linux
-                            sed -i 's|C:\\\\Users\\\\[^\\\\]*|/var/jenkins_home|g' ${WORKSPACE}/.kube/config-original
-                            sed -i 's|\\\\|/|g' ${WORKSPACE}/.kube/config-original
+                            # Cập nhật đường dẫn certs trong kubeconfig
+                            sed -i 's|/.*/\.minikube/ca.crt|${CERTS_DIR}/ca.crt|g' ${WORKSPACE}/.kube/config
+                            sed -i 's|/.*/\.minikube/profiles/minikube/client.crt|${CERTS_DIR}/profiles/minikube/client.crt|g' ${WORKSPACE}/.kube/config
+                            sed -i 's|/.*/\.minikube/profiles/minikube/client.key|${CERTS_DIR}/profiles/minikube/client.key|g' ${WORKSPACE}/.kube/config
 
-                            # Cập nhật địa chỉ server Minikube
-                            sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|" ${WORKSPACE}/.kube/config-original
+                            # Cập nhật địa chỉ server
+                            sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
 
-                            # Copy sang file config chính thức
-                            cp ${WORKSPACE}/.kube/config-original ${WORKSPACE}/.kube/config
                             chmod 600 ${WORKSPACE}/.kube/config
+                            export KUBECONFIG=${WORKSPACE}/.kube/config
 
                             # Kiểm tra kubeconfig
-                            export KUBECONFIG=${WORKSPACE}/.kube/config
                             kubectl config view
-                        '''
+                            kubectl config current-context
+
+                            # Kiểm tra file certs tồn tại
+                            ls -la ${CERTS_DIR}/ca.crt
+                            ls -la ${CERTS_DIR}/profiles/minikube/client.crt
+                            ls -la ${CERTS_DIR}/profiles/minikube/client.key
+                        """
                     }
                 }
             }
@@ -145,31 +150,40 @@ pipeline {
         stage('Verify Kubernetes Connection') {
             steps {
                 script {
-                    sh '''
+                    sh """
                         export KUBECONFIG=${WORKSPACE}/.kube/config
 
-                        # Kiểm tra kết nối mạng tới Minikube
+                        # Kiểm tra kết nối mạng
+                        echo "Kiểm tra kết nối tới Minikube API..."
                         if ! curl -k --connect-timeout 5 https://${MINIKUBE_IP}:8443; then
-                            echo "Không thể kết nối tới Minikube tại ${MINIKUBE_IP}:8443"
+                            echo "ERROR: Không thể kết nối tới Minikube API"
                             exit 1
                         fi
 
                         # Kiểm tra kết nối kubectl
+                        echo "Kiểm tra kết nối kubectl..."
                         if ! kubectl cluster-info; then
-                            echo "ERROR: Không thể kết nối tới Kubernetes cluster"
+                            echo "ERROR: Không thể xác thực với Kubernetes cluster"
+                            echo "Thông tin kubeconfig:"
+                            kubectl config view
+                            echo "Kiểm tra certificates:"
+                            ls -la ${CERTS_DIR}/
                             exit 1
                         fi
 
+                        echo "Kết nối Kubernetes thành công!"
                         kubectl get nodes
-                    '''
+                    """
                 }
             }
         }
 
+        // Giữ nguyên các stage Deploy và Verify
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh '''
+                    sh """
                         export KUBECONFIG=${WORKSPACE}/.kube/config
 
                         # Tạo namespace nếu chưa tồn tại
@@ -179,7 +193,7 @@ pipeline {
 
                         # Áp dụng cấu hình Kubernetes
                         kubectl apply -f flexshoes-all.yaml -n flexshoes
-                    '''
+                    """
                 }
             }
         }
@@ -187,11 +201,14 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 script {
-                    sh '''
+                    sh """
                         export KUBECONFIG=${WORKSPACE}/.kube/config
-                        kubectl get pods -n flexshoes
+                        echo "Kiểm tra các pod..."
+                        kubectl get pods -n flexshoes -o wide
+
+                        echo "Kiểm tra trạng thái deployment..."
                         kubectl rollout status deployment -n flexshoes
-                    '''
+                    """
                 }
             }
         }
