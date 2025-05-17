@@ -115,37 +115,40 @@ pipeline {
         }
 
         stage('Configure Kubeconfig') {
-            steps {
-                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                    script {
-                        sh """
-                            mkdir -p ${WORKSPACE}/.kube
-                            cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
+                    steps {
+                        withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                            script {
+                                sh '''
+                                    mkdir -p ${WORKSPACE}/.kube
+                                    cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
 
-                            # Cập nhật đường dẫn certs trong kubeconfig
-                            sed -i 's|/.*/\.minikube/ca.crt|${CERTS_DIR}/ca.crt|g' ${WORKSPACE}/.kube/config
-                            sed -i 's|/.*/\.minikube/profiles/minikube/client.crt|${CERTS_DIR}/profiles/minikube/client.crt|g' ${WORKSPACE}/.kube/config
-                            sed -i 's|/.*/\.minikube/profiles/minikube/client.key|${CERTS_DIR}/profiles/minikube/client.key|g' ${WORKSPACE}/.kube/config
+                                    # Sử dụng dấu phân cách khác và escape đúng cách
+                                    sed -i "s|/.*/\\.minikube/ca.crt|${CERTS_DIR}/ca.crt|g" ${WORKSPACE}/.kube/config
+                                    sed -i "s|/.*/\\.minikube/profiles/minikube/client.crt|${CERTS_DIR}/profiles/minikube/client.crt|g" ${WORKSPACE}/.kube/config
+                                    sed -i "s|/.*/\\.minikube/profiles/minikube/client.key|${CERTS_DIR}/profiles/minikube/client.key|g" ${WORKSPACE}/.kube/config
 
-                            # Cập nhật địa chỉ server
-                            sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
+                                    # Cập nhật địa chỉ server
+                                    sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
 
-                            chmod 600 ${WORKSPACE}/.kube/config
-                            export KUBECONFIG=${WORKSPACE}/.kube/config
+                                    chmod 600 ${WORKSPACE}/.kube/config
+                                    export KUBECONFIG=${WORKSPACE}/.kube/config
 
-                            # Kiểm tra kubeconfig
-                            kubectl config view
-                            kubectl config current-context
+                                    # Kiểm tra kubeconfig
+                                    echo "=== Kubeconfig ==="
+                                    cat ${WORKSPACE}/.kube/config
+                                    kubectl config current-context
 
-                            # Kiểm tra file certs tồn tại
-                            ls -la ${CERTS_DIR}/ca.crt
-                            ls -la ${CERTS_DIR}/profiles/minikube/client.crt
-                            ls -la ${CERTS_DIR}/profiles/minikube/client.key
-                        """
+                                    # Kiểm tra file certs
+                                    echo "=== Certificates ==="
+                                    ls -la ${CERTS_DIR}/ca.crt
+                                    ls -la ${CERTS_DIR}/profiles/minikube/client.crt
+                                    ls -la ${CERTS_DIR}/profiles/minikube/client.key
+                                '''
+                            }
+                        }
                     }
                 }
-            }
-        }
+
 
         stage('Verify Kubernetes Connection') {
             steps {
