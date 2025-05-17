@@ -49,7 +49,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: eback-server
+  name: eureka-server
   namespace: flexshoes
 spec:
   selector:

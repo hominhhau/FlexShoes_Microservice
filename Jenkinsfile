@@ -43,7 +43,7 @@ pipeline {
             }
         }
 
-        stage('Prepare Environment') {
+stage('Prepare Environment') {
             steps {
                 script {
                     sh '''
@@ -154,7 +154,6 @@ pipeline {
             }
         }
 
-
         stage('Verify Kubernetes Connection') {
             steps {
                 script {
@@ -186,108 +185,158 @@ pipeline {
             }
         }
 
-        // Giữ nguyên các stage Deploy và Verify
-
-        stage('Deploy to Kubernetes') {
-                    steps {
-                        script {
-                            sh """
-                                export KUBECONFIG=${WORKSPACE}/.kube/config
-
-                                # Kiểm tra các file trong workspace
-                                echo "=== Nội dung workspace ==="
-                                ls -la ${WORKSPACE}
-
-                                # Kiểm tra file flexshoes-all.yaml
-                                if [ ! -f flexshoes-all.yaml ]; then
-                                    echo "ERROR: flexshoes-all.yaml not found"
-                                    exit 1
-                                fi
-
-                                # Tạo namespace nếu chưa tồn tại
-                                if ! kubectl get namespace flexshoes &> /dev/null; then
-                                    kubectl create namespace flexshoes
-                                fi
-
-                                # Validate file YAML trước khi apply
-                                kubectl apply -f flexshoes-all.yaml -n flexshoes --dry-run=client
-
-                                # Áp dụng cấu hình Kubernetes
-                                kubectl apply -f flexshoes-all.yaml -n flexshoes
-                            """
-                        }
-                    }
-                }
-
-                stage('Verify Deployment') {
-                    steps {
-                        script {
-                            sh """
-                                export KUBECONFIG=${WORKSPACE}/.kube/config
-                                echo "Kiểm tra các pod..."
-                                kubectl get pods -n flexshoes -o wide
-
-                                echo "Kiểm tra trạng thái deployment..."
-                                kubectl rollout status deployment -n flexshoes
-                            """
-                        }
-                    }
-                }
-            }
-            post {
-                always {
-                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+        stage('Prepare Kubernetes Manifests') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'openai-api-key', variable: 'OPENAI_API_KEY'),
+                    string(credentialsId: 'sendinblue-api-key', variable: 'SENDINBLUE_API_KEY'),
+                    string(credentialsId: 'access-key-id', variable: 'ACCESSKEYID'),
+                    string(credentialsId: 'secret-access-key', variable: 'SECRETACCESSKEY')
+                ]) {
+                    script {
                         sh '''
-                            export KUBECONFIG=${WORKSPACE}/.kube/config
+                            # Mã hóa các giá trị bí mật thành base64
+                            OPENAI_API_KEY_B64=$(echo -n "${OPENAI_API_KEY}" | base64)
+                            SENDINBLUE_API_KEY_B64=$(echo -n "${SENDINBLUE_API_KEY}" | base64)
+                            ACCESSKEYID_B64=$(echo -n "${ACCESSKEYID}" | base64)
+                            SECRETACCESSKEY_B64=$(echo -n "${SECRETACCESSKEY}" | base64)
 
-                            # Kiểm tra workspace
-                            echo "=== Nội dung workspace ==="
-                            ls -la ${WORKSPACE}
+                            # Cập nhật flexshoes-all.yaml với các giá trị bí mật
+                            sed -i "s|OPENAI_API_KEY: cGxhY2Vob2xkZXI=|OPENAI_API_KEY: ${OPENAI_API_KEY_B64}|g" flexshoes-all.yaml
+                            sed -i "s|SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI=|SENDINBLUE_API_KEY: ${SENDINBLUE_API_KEY_B64}|g" flexshoes-all.yaml
+                            sed -i "s|ACCESSKEYID: cGxhY2Vob2xkZXI=|ACCESSKEYID: ${ACCESSKEYID_B64}|g" flexshoes-all.yaml
+                            sed -i "s|SECRETACCESSKEY: cGxhY2Vob2xkZXI=|SECRETACCESSKEY: ${SECRETACCESSKEY_B64}|g" flexshoes-all.yaml
 
-                            # Lấy logs từ tất cả các pod
-                            echo "===== Logs từ các pod ====="
-                            for pod in $(kubectl get pods -n flexshoes -o name 2>/dev/null || echo ""); do
-                                echo "Logs từ $pod:"
-                                kubectl logs -n flexshoes $pod --tail=100 || true
-                                echo ""
-                            done
+                            # Sửa typo trong tên service eureka-server
+                            sed -i "s|name: eback-server|name: eureka-server|g" flexshoes-all.yaml
 
-                            # Lấy thông tin tổng quan về cluster
-                            echo "===== Thông tin cluster ====="
-                            kubectl get all -n flexshoes
-                        '''
-                    }
-                }
-                failure {
-                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                        echo 'Triển khai Kubernetes thất bại!'
-                        sh '''
-                            export KUBECONFIG=${WORKSPACE}/.kube/config
-
-                            # Kiểm tra file flexshoes-all.yaml
-                            echo "=== Kiểm tra flexshoes-all.yaml ==="
-                            if [ -f flexshoes-all.yaml ]; then
-                                echo "flexshoes-all.yaml found"
-                                cat flexshoes-all.yaml
-                            else
-                                echo "ERROR: flexshoes-all.yaml not found"
-                            fi
-
-                            # Lấy thông tin chi tiết về lỗi
-                            echo "===== Mô tả các pod bị lỗi ====="
-                            kubectl describe pods -n flexshoes || true
-
-                            echo "===== Events namespace flexshoes ====="
-                            kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
-
-                            echo "===== Logs từ các container bị lỗi ====="
-                            for pod in $(kubectl get pods -n flexshoes --field-selector=status.phase!=Running -o name 2>/dev/null || echo ""); do
-                                echo "Logs từ $pod:"
-                                kubectl logs -n flexshoes $pod --all-containers=true --tail=100 || true
-                                echo ""
-                            done
+                            # Sửa volume mount path (giả sử /app/data)
+                            sed -i "s|mountPath: /path/to/data|mountPath: /app/data|g" flexshoes-all.yaml
                         '''
                     }
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh """
+                        export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                        # Kiểm tra các file trong workspace
+                        echo "=== Nội dung workspace ==="
+                        ls -la ${WORKSPACE}
+
+                        # Kiểm tra file flexshoes-all.yaml
+                        if [ ! -f flexshoes-all.yaml ]; then
+                            echo "ERROR: flexshoes-all.yaml không tồn tại"
+                            exit 1
+                        fi
+
+                        # Validate file YAML trước khi apply
+                        echo "=== Kiểm tra cú pháp flexshoes-all.yaml ==="
+                        kubectl apply -f flexshoes-all.yaml -n flexshoes --dry-run=client || {
+                            echo "ERROR: Kiểm tra cú pháp flexshoes-all.yaml thất bại"
+                            exit 1
+                        }
+
+                        # Tạo namespace nếu chưa tồn tại
+                        if ! kubectl get namespace flexshoes &> /dev/null; then
+                            kubectl create namespace flexshoes
+                        fi
+
+                        # Áp dụng cấu hình Kubernetes với xử lý lỗi
+                        echo "=== Áp dụng flexshoes-all.yaml ==="
+                        kubectl apply -f flexshoes-all.yaml -n flexshoes --v=8 || {
+                            echo "ERROR: Áp dụng flexshoes-all.yaml thất bại"
+                            kubectl get all -n flexshoes
+                            kubectl get secrets -n flexshoes
+                            kubectl get configmaps -n flexshoes
+                            exit 1
+                        }
+                    """
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    sh """
+                        export KUBECONFIG=${WORKSPACE}/.kube/config
+                        echo "Kiểm tra các pod..."
+                        kubectl get pods -n flexshoes -o wide
+
+                        echo "Kiểm tra trạng thái deployment..."
+                        kubectl rollout status deployment -n flexshoes
+                    """
+                }
+            }
+        }
+    }
+    post {
+        always {
+            withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                sh '''
+                    export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                    # Kiểm tra workspace
+                    echo "=== Nội dung workspace ==="
+                    ls -la ${WORKSPACE}
+
+                    # Lấy logs từ tất cả các pod
+                    echo "===== Logs từ các pod ====="
+                    for pod in $(kubectl get pods -n flexshoes -o name 2>/dev/null || echo ""); do
+                        echo "Logs từ $pod:"
+                        kubectl logs -n flexshoes $pod --tail=100 || true
+                        echo ""
+                    done
+
+                    # Lấy thông tin tổng quan về cluster
+                    echo "===== Thông tin cluster ====="
+                    kubectl get all -n flexshoes
+                    kubectl get secrets -n flexshoes
+                    kubectl get configmaps -n flexshoes
+                '''
+            }
+        }
+        failure {
+            withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                echo 'Triển khai Kubernetes thất bại!'
+                sh '''
+                    export KUBECONFIG=${WORKSPACE}/.kube/config
+
+                    # Kiểm tra file flexshoes-all.yaml
+                    echo "=== Kiểm tra flexshoes-all.yaml ==="
+                    if [ -f flexshoes-all.yaml ]; then
+                        echo "flexshoes-all.yaml found"
+                        cat flexshoes-all.yaml
+                    else
+                        echo "ERROR: flexshoes-all.yaml không tồn tại"
+                    fi
+
+                    # Kiểm tra trạng thái namespace
+                    echo "===== Trạng thái namespace flexshoes ====="
+                    kubectl get all -n flexshoes
+                    kubectl get secrets -n flexshoes
+                    kubectl get configmaps -n flexshoes
+
+                    # Lấy thông tin chi tiết về lỗi
+                    echo "===== Mô tả các pod bị lỗi ====="
+                    kubectl describe pods -n flexshoes || true
+
+                    echo "===== Events namespace flexshoes ====="
+                    kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
+
+                    echo "===== Logs từ các container bị lỗi ====="
+                    for pod in $(kubectl get pods -n flexshoes --field-selector=status.phase!=Running -o name 2>/dev/null || echo ""); do
+                        echo "Logs từ $pod:"
+                        kubectl logs -n flexshoes $pod --all-containers=true --tail=100 || true
+                        echo ""
+                    done
+                '''
+            }
+        }
+    }
+}
