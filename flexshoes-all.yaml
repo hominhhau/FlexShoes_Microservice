@@ -1,0 +1,1123 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flexshoes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server
+  namespace: flexshoes
+  labels:
+    app: eureka-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+        - name: eureka-server
+          image: ctmyname/eureka-server:latest
+          ports:
+            - containerPort: 8761
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "eureka-server"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "eureka-server"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eback-server
+  namespace: flexshoes
+spec:
+  selector:
+    app: eureka-server
+  ports:
+    - protocol: TCP
+      port: 8761
+      targetPort: 8761
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+  namespace: flexshoes
+  labels:
+    app: config-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+        - name: config-server
+          image: ctmyname/config-server:latest
+          ports:
+            - containerPort: 8088
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "config-server"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+  namespace: flexshoes
+spec:
+  selector:
+    app: config-server
+  ports:
+    - protocol: TCP
+      port: 8088
+      targetPort: 8088
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: flexshoes
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:6.0
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secrets
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secrets
+                  key: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGO_INITDB_DATABASE
+              value: "notification-service"
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+          livenessProbe:
+            exec:
+              command: ["mongosh", "--eval", "db.adminCommand('ping')"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: mongodb-data
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: flexshoes
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+  namespace: flexshoes
+  labels:
+    app: postgresdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgresdb-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresdb-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: "ChatDB"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresdb
+  namespace: flexshoes
+spec:
+  selector:
+    app: postgresdb
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: flexshoes
+  labels:
+    app: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.6
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              value: "spring_security_jwt"
+          volumeMounts:
+            - name: mariadb-data
+              mountPath: /var/lib/mysql
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mariadb-data
+          persistentVolumeClaim:
+            claimName: mariadb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: flexshoes
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql
+  namespace: flexshoes
+  labels:
+    app: mssql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2019-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_PASSWORD
+            - name: MSSQL_PID
+              value: "Express"
+            - name: MSSQL_SSL_ENFORCE
+              value: "false"
+          volumeMounts:
+            - name: mssql-data
+              mountPath: /var/opt/mssql
+          livenessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: mssql-data
+          persistentVolumeClaim:
+            claimName: mssql-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql
+  namespace: flexshoes
+spec:
+  selector:
+    app: mssql
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mssql-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-order-db
+  namespace: flexshoes
+spec:
+  template:
+    spec:
+      containers:
+        - name: create-db
+          image: mcr.microsoft.com/mssql-tools:latest
+          command:
+            - /bin/bash
+            - -c
+            - "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE OrderService;'"
+          env:
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_PASSWORD
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-payment-db
+  namespace: flexshoes
+spec:
+  template:
+    spec:
+      containers:
+        - name: create-payment-db
+          image: mcr.microsoft.com/mssql-tools:latest
+          command:
+            - /bin/bash
+            - -c
+            - "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE paymentDB;'"
+          env:
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_PASSWORD
+      restartPolicy: Never
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+  namespace: flexshoes
+  labels:
+    app: chat-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+        - name: chat-service
+          image: ctmyname/chat-service:latest
+          ports:
+            - containerPort: 8089
+          env:
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_HOST
+              value: "postgresdb"
+            - name: SPRING_APPLICATION_NAME
+              value: "chat-service"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "chat-server"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          envFrom:
+            - configMapRef:
+                name: chat-service-config
+            - secretRef:
+                name: chat-service-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: chat-service
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: flexshoes
+  labels:
+    app: payment-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+        - name: payment-service
+          image: ctmyname/payment-service:latest
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "payment-service"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:sqlserver://mssql:1433;databaseName=paymentDB;encrypt=true;trustServerCertificate=true;"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_PASSWORD
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+            - name: TZ
+              value: "Asia/Ho_Chi_Minh"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: payment-service
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: flexshoes
+  labels:
+    app: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: ctmyname/order-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:sqlserver://mssql:1433;databaseName=OrderService;encrypt=false;trustServerCertificate=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secrets
+                  key: MSSQL_SA_PASSWORD
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: order-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  namespace: flexshoes
+  labels:
+    app: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - name: inventory-service
+          image: ctmyname/inventory-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_APPLICATION_NAME
+              value: "inventory-service"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "eureka-server"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: PORT
+              value: "8085"
+          envFrom:
+            - configMapRef:
+                name: inventory-service-config
+            - secretRef:
+                name: inventory-service-secrets
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: inventory-service
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: flexshoes
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: ctmyname/notification-service:latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+            - name: SPRING_DATA_MONGODB_URI
+              value: "mongodb://root:root@mongodb:27017/notification-service?authSource=admin"
+          envFrom:
+            - secretRef:
+                name: notification-service-secrets
+          livenessProbe:
+            httpGet:
+              path: /notification/actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /notification/actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: flexshoes
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: ctmyname/api-gateway:latest
+          ports:
+            - containerPort: 8888
+          env:
+            - name: KEY_BASEURL
+              value: "http://user-service:8080"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8888
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8888
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: flexshoes
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: flexshoes
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: ctmyname/user-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: MYSQL_ROOT_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: MYSQL_ROOT_PASSWORD
+            - name: URL_NOTIFICATION_SERVICE
+              value: "http://notification-service:8082/notification"
+            - name: URL_USER_SERVICE
+              value: "http://profile-service:8081/profile"
+          volumeMounts:
+            - name: user-service-data
+              mountPath: /path/to/data
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 10
+      volumes:
+        - name: user-service-data
+          persistentVolumeClaim:
+            claimName: user-service-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: user-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-service-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+  namespace: flexshoes
+  labels:
+    app: profile-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-service
+  template:
+    metadata:
+      labels:
+        app: profile-service
+    spec:
+      containers:
+        - name: profile-service
+          image: ctmyname/profile-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_SLEUTH_SAMPLER_PROBABILITY
+              value: "1.0"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: MYSQL_ROOT_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secrets
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: profile-service-data
+              mountPath: /path/to/data
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 120
+            periodSeconds: 10
+      volumes:
+        - name: profile-service-data
+          persistentVolumeClaim:
+            claimName: profile-service-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-service
+  namespace: flexshoes
+spec:
+  selector:
+    app: profile-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: profile-service-pvc
+  namespace: flexshoes
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  MONGO_INITDB_ROOT_USERNAME: cm9vdA== # base64 encoded "root"
+  MONGO_INITDB_ROOT_PASSWORD: cm9vdA== # base64 encoded "root"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresdb-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM= # base64 encoded "postgres"
+  POSTGRES_PASSWORD: MTIzNA== # base64 encoded "1234"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  MYSQL_ROOT_USERNAME: cm9vdA== # base64 encoded "root"
+  MYSQL_ROOT_PASSWORD: cm9vdA== # base64 encoded "root"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mssql-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  MSSQL_SA_USERNAME: c2E= # base64 encoded "sa"
+  MSSQL_SA_PASSWORD: U2FAMTIzNDU2 # base64 encoded "Sa@123456"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: chat-service-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  DB_USERNAME: cG9zdGdyZXM= # base64 encoded "postgres"
+  DB_PASSWORD: MTIzNA== # base64 encoded "1234"
+  OPENAI_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: inventory-service-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  MONGO_URI: bW9uZ29kYitzcnY6Ly9GbGV4U2hvZXM6UGFzc3dvcmRGbGV4U2hvZXNAY2x1c3RlcjAuanh0b2dsdy5tb25nb2RiLm5ldC9pbnZlbnRvcnlEQj9yZXRyeVdyaXRlcz10cnVlJnc9bWFqb3JpdHk= # base64 encoded Mongo URI
+  ACCESSKEYID: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+  SECRETACCESSKEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+  OPENAI_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notification-service-secrets
+  namespace: flexshoes
+type: Opaque
+data:
+  SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chat-service-config
+  namespace: flexshoes
+data:
+  CHAT_PORT: "8089"
+  DB_DIALECT: "postgres"
+  DB_DATABASE_NAME: "ChatDB"
+  DB_HOST: "postgresdb"
+  DB_PORT: "5432"
+  DB_SSL: "false"
+  REACT_URL: "http://localhost:3000"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-service-config
+  namespace: flexshoes
+data:
+  PORT: "8085"
+  REGION: "us-east-1"
+  BUCKET_NAME: "flexshoes-bucket"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flexshoes-ingress
+  namespace: flexshoes
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: flexshoes.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8888
