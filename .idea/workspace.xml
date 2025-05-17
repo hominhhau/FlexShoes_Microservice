@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge order">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8s/flexshoes-all.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/flexshoes-all.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -356,7 +356,10 @@
       <workItem from="1747331545629" duration="1420000" />
       <workItem from="1747341024565" duration="590000" />
       <workItem from="1747380110756" duration="8209000" />
-      <workItem from="1747413502576" duration="6017000" />
+      <workItem from="1747413502576" duration="6526000" />
+      <workItem from="1747467211118" duration="2078000" />
+      <workItem from="1747469852165" duration="879000" />
+      <workItem from="1747470865404" duration="1512000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />

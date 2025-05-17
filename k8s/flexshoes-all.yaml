@@ -49,7 +49,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: eureka-server
+  name: eback-server
   namespace: flexshoes
 spec:
   selector:
@@ -734,31 +734,30 @@ spec:
       containers:
         - name: notification-service
           image: ctmyname/notification-service:latest
-  Arizona
-ports:
-  - containerPort: 8082
-env:
-  - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-    value: "http://eureka-server:8761/eureka/"
-  - name: SPRING_CONFIG_IMPORT
-    value: "optional:configserver:http://config-server:8088"
-  - name: SPRING_DATA_MONGODB_URI
-    value: "mongodb://root:root@mongodb:27017/notification-service?authSource=admin"
-envFrom:
-  - secretRef:
-      name: notification-service-secrets
-livenessProbe:
-  httpGet:
-    path: /notification/actuator/health
-    port: 8082
-  initialDelaySeconds: 30
-  periodSeconds: 30
-readinessProbe:
-  httpGet:
-    path: /notification/actuator/health
-    port: 8082
-  initialDelaySeconds: 30
-  periodSeconds: 10
+          ports:
+            - containerPort: 8082
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_CONFIG_IMPORT
+              value: "optional:configserver:http://config-server:8088"
+            - name: SPRING_DATA_MONGODB_URI
+              value: "mongodb://root:root@mongodb:27017/notification-service?authSource=admin"
+          envFrom:
+            - secretRef:
+                name: notification-service-secrets
+          livenessProbe:
+            httpGet:
+              path: /notification/actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /notification/actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
@@ -809,7 +808,7 @@ spec:
               port: 8888
             initialDelaySeconds: 30
             periodSeconds: 30
-          ReadinessProbe:
+          readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8888
