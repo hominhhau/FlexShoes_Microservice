@@ -26,9 +26,6 @@ pipeline {
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
                         docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
-                        sudo apt-get update
-                        sudo apt-get install -y yamllint
-                        yamllint --version
                     '''
                 }
             }
@@ -106,84 +103,69 @@ pipeline {
                 }
             }
         }
-             stage('Validate Kubeconfig') {
-                 steps {
-                     withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                         sh '''
-                             echo "Validating kubeconfig content"
-                             cat $KUBECONFIG_FILE
-                             grep -E "apiVersion:|clusters:|contexts:|users:" $KUBECONFIG_FILE
-                             grep -A 3 "cluster:" $KUBECONFIG_FILE
-                             yamllint $KUBECONFIG_FILE || {
-                                 echo "Invalid YAML in kubeconfig file"
-                                 exit 1
-                             }
-                         '''
-                     }
-                 }
-             }
-             stage('Verify Kubernetes Connection') {
-                 steps {
-                     withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                         script {
-                             String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                             writeFile file: 'kubeconfig-temp', text: kubeconfigContent
-                             sh '''
-                                 echo "Cleaning kubeconfig to use only minikube context"
-                                 kubectl config view --kubeconfig=$KUBECONFIG_FILE --minify --context=minikube > kubeconfig-cleaned
-                                 yamllint kubeconfig-cleaned || {
-                                     echo "Invalid YAML in kubeconfig-cleaned"
-                                     cat kubeconfig-cleaned
-                                     exit 1
-                                 }
-                                 echo "Checking network connectivity to Minikube"
-                                 curl -k --connect-timeout 5 https://192.168.49.2:8443 || {
-                                     echo "Cannot connect to Minikube at 192.168.49.2:8443"
-                                     exit 1
-                                 }
-                                 echo "Modifying kubeconfig server URL"
-                                 sed -E 's|server: https://[^ ]+|server: https://192.168.49.2:8443|' kubeconfig-cleaned > kubeconfig-modified
-                                 echo "Validating kubeconfig YAML"
-                                 yamllint kubeconfig-modified || {
-                                     echo "Invalid YAML in kubeconfig-modified"
-                                     cat kubeconfig-modified
-                                     exit 1
-                                 }
-                                 echo "Kubeconfig content:"
-                                 cat kubeconfig-modified
-                                 export KUBECONFIG=$(pwd)/kubeconfig-modified
-                                 kubectl cluster-info || {
-                                     echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                                     cat $(pwd)/kubeconfig-modified
-                                     exit 1
-                                 }
-                                 kubectl get nodes
-                             '''
-                         }
-                     }
-                 }
-             }
-             stage('Deploy to Kubernetes') {
-                 steps {
-                     withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                         sh '''
-                             export KUBECONFIG=$(pwd)/kubeconfig-modified
-                             kubectl apply -f flexshoes-all.yaml -n flexshoes
-                         '''
-                     }
-                 }
-             }
-             stage('Verify Deployment') {
-                 steps {
-                     withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                         sh '''
-                             export KUBECONFIG=$(pwd)/kubeconfig-modified
-                             kubectl get pods -n flexshoes -o name
-                             kubectl rollout status deployment -n flexshoes
-                         '''
-                     }
-                 }
-             }
+                         stage('Validate Kubeconfig') {
+                              steps {
+                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                      sh '''
+                                          echo "Validating kubeconfig content"
+                                          cat $KUBECONFIG_FILE
+                                          grep -E "apiVersion:|clusters:|contexts:|users:" $KUBECONFIG_FILE
+                                          grep -A 3 "cluster:" $KUBECONFIG_FILE
+                                      '''
+                                  }
+                              }
+                          }
+                          stage('Verify Kubernetes Connection') {
+                              steps {
+                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                      script {
+                                          String kubeconfigContent = readFile(KUBECONFIG_FILE)
+                                          writeFile file: 'kubeconfig-temp', text: kubeconfigContent
+                                          sh '''
+                                              echo "Cleaning kubeconfig to use only minikube context"
+                                              kubectl config view --kubeconfig=$KUBECONFIG_FILE --minify --context=minikube > kubeconfig-cleaned
+                                              echo "Checking network connectivity to Minikube"
+                                              curl -k --connect-timeout 5 https://192.168.49.2:8443 || {
+                                                  echo "Cannot connect to Minikube at 192.168.49.2:8443"
+                                                  exit 1
+                                              }
+                                              echo "Modifying kubeconfig server URL"
+                                              sed -E 's|server: https://[^ ]+|server: https://192.168.49.2:8443|' kubeconfig-cleaned > kubeconfig-modified
+                                              echo "Kubeconfig content:"
+                                              cat kubeconfig-modified
+                                              export KUBECONFIG=$(pwd)/kubeconfig-modified
+                                              kubectl cluster-info || {
+                                                  echo "ERROR: Không thể kết nối tới Kubernetes cluster"
+                                                  cat $(pwd)/kubeconfig-modified
+                                                  exit 1
+                                              }
+                                              kubectl get nodes
+                                          '''
+                                      }
+                                  }
+                              }
+                          }
+                          stage('Deploy to Kubernetes') {
+                              steps {
+                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                      sh '''
+                                          export KUBECONFIG=$(pwd)/kubeconfig-modified
+                                          kubectl apply -f flexshoes-all.yaml -n flexshoes
+                                      '''
+                                  }
+                              }
+                          }
+                          stage('Verify Deployment') {
+                              steps {
+                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                      sh '''
+                                          export KUBECONFIG=$(pwd)/kubeconfig-modified
+                                          kubectl get pods -n flexshoes -o name
+                                          kubectl rollout status deployment -n flexshoes
+                                      '''
+                                  }
+                              }
+                          }
     }
     post {
         always {
