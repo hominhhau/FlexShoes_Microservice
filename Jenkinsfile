@@ -105,7 +105,7 @@ pipeline {
         }
                          stage('Validate Kubeconfig') {
                               steps {
-                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
                                       sh '''
                                           echo "Validating kubeconfig content"
                                           cat $KUBECONFIG_FILE
@@ -117,7 +117,7 @@ pipeline {
                           }
                           stage('Verify Kubernetes Connection') {
                               steps {
-                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
                                       script {
                                           String kubeconfigContent = readFile(KUBECONFIG_FILE)
                                           writeFile file: 'kubeconfig-temp', text: kubeconfigContent
@@ -147,7 +147,7 @@ pipeline {
                           }
                           stage('Deploy to Kubernetes') {
                               steps {
-                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
                                       sh '''
                                           export KUBECONFIG=$(pwd)/kubeconfig-modified
                                           kubectl apply -f flexshoes-all.yaml -n flexshoes
@@ -157,7 +157,7 @@ pipeline {
                           }
                           stage('Verify Deployment') {
                               steps {
-                                  withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                  withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
                                       sh '''
                                           export KUBECONFIG=$(pwd)/kubeconfig-modified
                                           kubectl get pods -n flexshoes -o name
