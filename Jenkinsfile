@@ -115,39 +115,44 @@ pipeline {
         }
 
         stage('Configure Kubeconfig') {
-                    steps {
-                        withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                            script {
-                                sh '''
-                                    mkdir -p ${WORKSPACE}/.kube
-                                    cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
+            steps {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        sh '''
+                            mkdir -p ${WORKSPACE}/.kube
+                            cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
 
-                                    # Sử dụng dấu phân cách khác và escape đúng cách
-                                    sed -i "s|/.*/\\.minikube/ca.crt|${CERTS_DIR}/ca.crt|g" ${WORKSPACE}/.kube/config
-                                    sed -i "s|/.*/\\.minikube/profiles/minikube/client.crt|${CERTS_DIR}/profiles/minikube/client.crt|g" ${WORKSPACE}/.kube/config
-                                    sed -i "s|/.*/\\.minikube/profiles/minikube/client.key|${CERTS_DIR}/profiles/minikube/client.key|g" ${WORKSPACE}/.kube/config
+                            # Mã hóa certificate files thành base64
+                            CA_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/ca.crt)
+                            CLIENT_CERT_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/profiles/minikube/client.crt)
+                            CLIENT_KEY_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/profiles/minikube/client.key)
 
-                                    # Cập nhật địa chỉ server
-                                    sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
+                            # Cập nhật kubeconfig để sử dụng certificate data
+                            sed -i "s|certificate-authority:.*|certificate-authority-data: ${CA_DATA}|g" ${WORKSPACE}/.kube/config
+                            sed -i "s|client-certificate:.*|client-certificate-data: ${CLIENT_CERT_DATA}|g" ${WORKSPACE}/.kube/config
+                            sed -i "s|client-key:.*|client-key-data: ${CLIENT_KEY_DATA}|g" ${WORKSPACE}/.kube/config
 
-                                    chmod 600 ${WORKSPACE}/.kube/config
-                                    export KUBECONFIG=${WORKSPACE}/.kube/config
+                            # Cập nhật địa chỉ server
+                            sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
 
-                                    # Kiểm tra kubeconfig
-                                    echo "=== Kubeconfig ==="
-                                    cat ${WORKSPACE}/.kube/config
-                                    kubectl config current-context
+                            chmod 600 ${WORKSPACE}/.kube/config
+                            export KUBECONFIG=${WORKSPACE}/.kube/config
 
-                                    # Kiểm tra file certs
-                                    echo "=== Certificates ==="
-                                    ls -la ${CERTS_DIR}/ca.crt
-                                    ls -la ${CERTS_DIR}/profiles/minikube/client.crt
-                                    ls -la ${CERTS_DIR}/profiles/minikube/client.key
-                                '''
-                            }
-                        }
+                            # Kiểm tra kubeconfig
+                            echo "=== Kubeconfig ==="
+                            cat ${WORKSPACE}/.kube/config
+                            kubectl config current-context
+
+                            # Kiểm tra file certs
+                            echo "=== Certificates ==="
+                            ls -la ${CERTS_DIR}/ca.crt
+                            ls -la ${CERTS_DIR}/profiles/minikube/client.crt
+                            ls -la ${CERTS_DIR}/profiles/minikube/client.key
+                        '''
                     }
                 }
+            }
+        }
 
 
         stage('Verify Kubernetes Connection') {
