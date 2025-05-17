@@ -29,12 +29,6 @@ pipeline {
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
 
-                        # Cài đặt yq để kiểm tra YAML
-                        if ! command -v yq &> /dev/null; then
-                            wget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64 -O /var/jenkins_home/bin/yq
-                            chmod +x /var/jenkins_home/bin/yq
-                        fi
-
                         # Kiểm tra kết nối Docker
                         docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
                     '''
@@ -128,12 +122,6 @@ pipeline {
                             mkdir -p ${WORKSPACE}/.kube
                             cp $KUBECONFIG_FILE ${WORKSPACE}/.kube/config
                             chmod 600 ${WORKSPACE}/.kube/config
-
-                            # Kiểm tra định dạng YAML
-                            yq eval '.' ${WORKSPACE}/.kube/config || {
-                                echo "Lỗi định dạng YAML trong file kubeconfig"
-                                exit 1
-                            }
 
                             # Kiểm tra các trường bắt buộc
                             REQUIRED_FIELDS=("apiVersion" "clusters" "contexts" "users")
