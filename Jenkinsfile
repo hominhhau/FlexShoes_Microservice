@@ -99,6 +99,8 @@ pipeline {
                 script {
                     sh '''
                         docker-compose build
+                        echo "=== Danh sách images sau khi build ==="
+                        docker images
                     '''
                 }
             }
@@ -108,7 +110,11 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        sh 'docker-compose push'
+                        sh '''
+                            docker-compose push
+                            echo "=== Xác nhận images đã đẩy ==="
+                            docker images | grep ctmyname
+                        '''
                     }
                 }
             }
@@ -123,16 +129,14 @@ pipeline {
                             cp ${KUBECONFIG_FILE} ${WORKSPACE}/.kube/config
 
                             # Mã hóa certificate files thành base64
-                            CA_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/ca.crt)
-                            CLIENT_CERT_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/profiles/minikube/client.crt)
-                            CLIENT_KEY_DATA=$(base64 -w 0 /var/jenkins_home/minikube-certs/profiles/minikube/client.key)
+                            CA_DATA=$(base64 -w 0 ${CERTS_DIR}/ca.crt)
+                            CLIENT_CERT_DATA=$(base64 -w 0 ${CERTS_DIR}/profiles/minikube/client.crt)
+                            CLIENT_KEY_DATA=$(base64 -w 0 ${CERTS_DIR}/profiles/minikube/client.key)
 
-                            # Cập nhật kubeconfig để sử dụng certificate data
+                            # Cập nhật kubeconfig
                             sed -i "s|certificate-authority:.*|certificate-authority-data: ${CA_DATA}|g" ${WORKSPACE}/.kube/config
                             sed -i "s|client-certificate:.*|client-certificate-data: ${CLIENT_CERT_DATA}|g" ${WORKSPACE}/.kube/config
                             sed -i "s|client-key:.*|client-key-data: ${CLIENT_KEY_DATA}|g" ${WORKSPACE}/.kube/config
-
-                            # Cập nhật địa chỉ server
                             sed -i "s|server:.*|server: https://${MINIKUBE_IP}:8443|g" ${WORKSPACE}/.kube/config
 
                             chmod 600 ${WORKSPACE}/.kube/config
@@ -162,21 +166,35 @@ pipeline {
 
                         # Kiểm tra kết nối mạng
                         echo "Kiểm tra kết nối tới Minikube API..."
-                        if ! curl -k --connect-timeout 5 https://${MINIKUBE_IP}:8443; then
-                            echo "ERROR: Không thể kết nối tới Minikube API"
+                        curl -k --connect-timeout 5 https://${MINIKUBE_IP}:8443 || {
+                            echo "WARNING: Không thể kết nối trực tiếp tới Minikube API (có thể do RBAC)"
+                        }
+
+                        # Kiểm tra quyền kubectl
+                        echo "Kiểm tra quyền kubectl..."
+                        kubectl auth can-i create deployment -n flexshoes || {
+                            echo "ERROR: Không có quyền tạo deployment trong namespace flexshoes"
                             exit 1
-                        fi
+                        }
+                        kubectl auth can-i create secret -n flexshoes || {
+                            echo "ERROR: Không có quyền tạo secret trong namespace flexshoes"
+                            exit 1
+                        }
+                        kubectl auth can-i create service -n flexshoes || {
+                            echo "ERROR: Không có quyền tạo service trong namespace flexshoes"
+                            exit 1
+                        }
 
                         # Kiểm tra kết nối kubectl
                         echo "Kiểm tra kết nối kubectl..."
-                        if ! kubectl cluster-info; then
+                        kubectl cluster-info || {
                             echo "ERROR: Không thể xác thực với Kubernetes cluster"
                             echo "Thông tin kubeconfig:"
                             kubectl config view
                             echo "Kiểm tra certificates:"
                             ls -la ${CERTS_DIR}/
                             exit 1
-                        fi
+                        }
 
                         echo "Kết nối Kubernetes thành công!"
                         kubectl get nodes
@@ -195,7 +213,7 @@ pipeline {
                 ]) {
                     script {
                         sh '''
-                            # Mã hóa các giá trị bí mật thành base64, đảm bảo không có ký tự xuống dòng
+                            # Mã hóa các giá trị bí mật thành base64
                             OPENAI_API_KEY_B64=$(echo -n "${OPENAI_API_KEY}" | base64 -w 0)
                             SENDINBLUE_API_KEY_B64=$(echo -n "${SENDINBLUE_API_KEY}" | base64 -w 0)
                             ACCESSKEYID_B64=$(echo -n "${ACCESSKEYID}" | base64 -w 0)
@@ -207,18 +225,24 @@ pipeline {
                             echo "ACCESSKEYID_B64: ${ACCESSKEYID_B64}"
                             echo "SECRETACCESSKEY_B64: ${SECRETACCESSKEY_B64}"
 
-                            # Cập nhật flexshoes-all.yaml với các giá trị bí mật, sử dụng dấu phân cách #
-                            sed -i "s#OPENAI_API_KEY: cGxhY2Vob2xkZXI=#OPENAI_API_KEY: ${OPENAI_API_KEY_B64}#g" flexshoes-all.yaml
-                            sed -i "s#SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI=#SENDINBLUE_API_KEY: ${SENDINBLUE_API_KEY_B64}#g" flexshoes-all.yaml
-                            sed -i "s#ACCESSKEYID: cGxhY2Vob2xkZXI=#ACCESSKEYID: ${ACCESSKEYID_B64}#g" flexshoes-all.yaml
-                            sed -i "s#SECRETACCESSKEY: cGxhY2Vob2xkZXI=#SECRETACCESSKEY: ${SECRETACCESSKEY_B64}#g" flexshoes-all.yaml
+                            # Tách secrets và config maps vào file riêng
+                            grep -B 1000 -A 1000 -E 'kind: (Secret|ConfigMap)' flexshoes-all.yaml > flexshoes-secrets-configmaps.yaml
+                            grep -v -E 'kind: (Secret|ConfigMap)' flexshoes-all.yaml > flexshoes-others.yaml
 
-                            # Sửa volume mount path (giả sử /app/data)
-                            sed -i "s#mountPath: /path/to/data#mountPath: /app/data#g" flexshoes-all.yaml
+                            # Cập nhật secrets với các giá trị bí mật
+                            sed -i "s#OPENAI_API_KEY: cGxhY2Vob2xkZXI=#OPENAI_API_KEY: ${OPENAI_API_KEY_B64}#g" flexshoes-secrets-configmaps.yaml
+                            sed -i "s#SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI=#SENDINBLUE_API_KEY: ${SENDINBLUE_API_KEY_B64}#g" flexshoes-secrets-configmaps.yaml
+                            sed -i "s#ACCESSKEYID: cGxhY2Vob2xkZXI=#ACCESSKEYID: ${ACCESSKEYID_B64}#g" flexshoes-secrets-configmaps.yaml
+                            sed -i "s#SECRETACCESSKEY: cGxhY2Vob2xkZXI=#SECRETACCESSKEY: ${SECRETACCESSKEY_B64}#g" flexshoes-secrets-configmaps.yaml
 
-                            # Kiểm tra nội dung file sau khi sửa
-                            echo "=== Nội dung flexshoes-all.yaml sau khi sửa ==="
-                            cat flexshoes-all.yaml
+                            # Sửa volume mount path
+                            sed -i "s#mountPath: /path/to/data#mountPath: /app/data#g" flexshoes-others.yaml
+
+                            # Kiểm tra nội dung file
+                            echo "=== Nội dung flexshoes-secrets-configmaps.yaml ==="
+                            cat flexshoes-secrets-configmaps.yaml
+                            echo "=== Nội dung flexshoes-others.yaml ==="
+                            cat flexshoes-others.yaml
                         '''
                     }
                 }
@@ -235,35 +259,65 @@ pipeline {
                         echo "=== Nội dung workspace ==="
                         ls -la ${WORKSPACE}
 
-                        # Kiểm tra file flexshoes-all.yaml
-                        if [ ! -f flexshoes-all.yaml ]; then
-                            echo "ERROR: flexshoes-all.yaml không tồn tại"
-                            exit 1
+                        # Kiểm tra file YAML
+                        for file in flexshoes-secrets-configmaps.yaml flexshoes-others.yaml; do
+                            if [ ! -f \$file ]; then
+                                echo "ERROR: \$file không tồn tại"
+                                exit 1
+                            fi
+                        done
+
+                        # Validate file YAML
+                        echo "=== Kiểm tra cú pháp YAML ==="
+                        for file in flexshoes-secrets-configmaps.yaml flexshoes-others.yaml; do
+                            kubectl apply -f \$file -n flexshoes --dry-run=client || {
+                                echo "ERROR: Kiểm tra cú pháp \$file thất bại"
+                                exit 1
+                            }
+                        done
+
+                        # Tạo namespace nếu chưa tồn tại
+                        echo "=== Kiểm tra namespace flexshoes ==="
+                        if ! kubectl get namespace flexshoes &> /dev/null; then
+                            echo "Tạo namespace flexshoes..."
+                            kubectl create namespace flexshoes || {
+                                echo "ERROR: Tạo namespace flexshoes thất bại"
+                                exit 1
+                            }
+                        else
+                            echo "Namespace flexshoes đã tồn tại"
                         fi
 
-                        # Validate file YAML trước khi apply
-                        echo "=== Kiểm tra cú pháp flexshoes-all.yaml ==="
-                        kubectl apply -f flexshoes-all.yaml -n flexshoes --dry-run=client || {
-                            echo "ERROR: Kiểm tra cú pháp flexshoes-all.yaml thất bại"
+                        # Áp dụng secrets và config maps trước
+                        echo "=== Áp dụng flexshoes-secrets-configmaps.yaml ==="
+                        kubectl apply -f flexshoes-secrets-configmaps.yaml -n flexshoes --v=8 || {
+                            echo "ERROR: Áp dụng flexshoes-secrets-configmaps.yaml thất bại"
                             exit 1
                         }
 
-                        # Tạo namespace nếu chưa tồn tại
-                        if ! kubectl get namespace flexshoes &> /dev/null; then
-                            kubectl create namespace flexshoes
-                        fi
-
-                        # Áp dụng cấu hình Kubernetes với xử lý lỗi
-                        echo "=== Áp dụng flexshoes-all.yaml ==="
-                        kubectl apply -f flexshoes-all.yaml -n flexshoes --v=8 || {
-                            echo "ERROR: Áp dụng flexshoes-all.yaml thất bại"
+                        # Áp dụng các tài nguyên còn lại
+                        echo "=== Áp dụng flexshoes-others.yaml ==="
+                        kubectl apply -f flexshoes-others.yaml -n flexshoes --v=8 || {
+                            echo "ERROR: Áp dụng flexshoes-others.yaml thất bại"
+                            echo "=== Trạng thái namespace sau khi apply ==="
                             kubectl get all -n flexshoes
                             kubectl get secrets -n flexshoes
                             kubectl get configmaps -n flexshoes
+                            echo "=== Mô tả pods ==="
                             kubectl describe pods -n flexshoes || true
+                            echo "=== Events namespace flexshoes ==="
                             kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
+                            echo "=== Logs từ các pod lỗi ==="
+                            for pod in \$(kubectl get pods -n flexshoes --field-selector=status.phase!=Running -o name 2>/dev/null || echo ""); do
+                                echo "Logs từ \$pod:"
+                                kubectl logs -n flexshoes \$pod --all-containers=true --tail=100 || true
+                                echo ""
+                            done
                             exit 1
                         }
+
+                        echo "=== Áp dụng YAML thành công ==="
+                        kubectl get all -n flexshoes
                     """
                 }
             }
@@ -335,7 +389,8 @@ pipeline {
                     echo "===== Mô tả các pod bị lỗi ====="
                     kubectl describe pods -n flexshoes || true
 
-                    echo "===== Events namespace flexshoes =====
+                    # Sửa lỗi thiếu dấu nháy kép
+                    echo "===== Events namespace flexshoes ====="
                     kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
 
                     echo "===== Logs từ các container bị lỗi ====="
