@@ -124,59 +124,44 @@ pipeline {
                 }
             }
         }
-        stage('Verify Kubernetes Connection') {
-            steps {
-                withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
-                    script {
-                        String kubeconfigContent = readFile(KUBECONFIG_FILE)
-                        // Ưu tiên kubeconfig nhúng dữ liệu
-                        if (kubeconfigContent.contains("certificate-authority-data") && kubeconfigContent.contains("client-certificate-data") && kubeconfigContent.contains("client-key-data")) {
-                            echo "Using embedded kubeconfig data"
-                            kubeconfigContent = kubeconfigContent.replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
-                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
-                        } else {
-                            echo "Using file-based kubeconfig, replacing paths and server"
-                            kubeconfigContent = kubeconfigContent.replaceAll('C:\\\\Users\\\\[^\\\\]+\\\\.minikube', '/var/jenkins_home/minikube-certs').replaceAll('\\\\+', '/').replaceAll('/+', '/').replaceAll('https://[^ ]+', 'https://host.docker.internal:51166')
-                            writeFile file: 'kubeconfig-modified', text: kubeconfigContent
-                        }
-                        sh '''
-                            echo "Checking network connectivity to Minikube"
-                            curl -k --connect-timeout 5 https://host.docker.internal:51166 || {
-                                echo "Cannot connect to Minikube at host.docker.internal:51166, trying MINIKUBE_IP"
-                                curl -k --connect-timeout 5 https://$MINIKUBE_IP:8443 || {
-                                    echo "Cannot connect to Minikube at $MINIKUBE_IP:8443"
-                                    exit 1
-                                }
-                            }
-                            echo "Validating kubeconfig server URL"
-                            grep "server: https://host.docker.internal:51166" kubeconfig-modified || {
-                                echo "Invalid server URL in kubeconfig-modified"
-                                cat kubeconfig-modified
-                                exit 1
-                            }
-                            echo "Checking certificate files"
-                            mkdir -p /var/jenkins_home/minikube-certs/profiles/minikube
-                            if [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.crt ] && [ -f /var/jenkins_home/minikube-certs/profiles/minikube/client.key ] && [ -f /var/jenkins_home/minikube-certs/ca.crt ]; then
-                                echo "Certificates found at expected paths:"
-                                ls -l /var/jenkins_home/minikube-certs /var/jenkins_home/minikube-certs/profiles/minikube
-                            else
-                                echo "Warning: Minikube certificates not found, relying on embedded kubeconfig data"
-                            fi
-                            echo "Kubeconfig content:"
-                            cat kubeconfig-modified
-                            export KUBECONFIG=$(pwd)/kubeconfig-modified
-                            kubectl cluster-info || {
-                                echo "ERROR: Không thể kết nối tới Kubernetes cluster"
-                                cat $(pwd)/kubeconfig-modified
-                                ls -l /var/jenkins_home/minikube-certs /var/jenkins_home/minikube-certs/profiles/minikube || echo "Certificate directory not found"
-                                exit 1
-                            }
-                            kubectl get nodes
-                        '''
-                    }
-                }
-            }
-        }
+             stage('Verify Kubernetes Connection') {
+                 steps {
+                     withCredentials([file(credentialsId: env.KUBE_CONFIG, variable: 'KUBECONFIG_FILE')]) {
+                         script {
+                             String kubeconfigContent = readFile(KUBECONFIG_FILE)
+                             writeFile file: 'kubeconfig-temp', text: kubeconfigContent
+                             sh '''
+                                 echo "Checking network connectivity to Minikube"
+                                 curl -k --connect-timeout 5 https://192.168.49.2:8443 || {
+                                     echo "Cannot connect to Minikube at 192.168.49.2:8443"
+                                     exit 1
+                                 }
+                                 echo "Modifying kubeconfig server URL"
+                                 sed 's|server: https://[^ ]*|server: https://192.168.49.2:8443|g' kubeconfig-temp > kubeconfig-modified
+                                 echo "Validating kubeconfig YAML"
+                                 if command -v yamllint >/dev/null 2>&1; then
+                                     yamllint kubeconfig-modified || {
+                                         echo "Invalid YAML in kubeconfig-modified"
+                                         cat kubeconfig-modified
+                                         exit 1
+                                     }
+                                 else
+                                     echo "yamllint not installed, skipping YAML validation"
+                                 fi
+                                 echo "Kubeconfig content:"
+                                 cat kubeconfig-modified
+                                 export KUBECONFIG=$(pwd)/kubeconfig-modified
+                                 kubectl cluster-info || {
+                                     echo "ERROR: Không thể kết nối tới Kubernetes cluster"
+                                     cat $(pwd)/kubeconfig-modified
+                                     exit 1
+                                 }
+                                 kubectl get nodes
+                             '''
+                         }
+                     }
+                 }
+             }
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
