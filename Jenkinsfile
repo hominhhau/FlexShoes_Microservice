@@ -136,8 +136,8 @@ pipeline {
                             echo "Checking network connectivity to Minikube"
                             curl -k --connect-timeout 5 https://host.docker.internal:51166 || {
                                 echo "Cannot connect to Minikube at host.docker.internal:51166, trying MINIKUBE_IP"
-                                curl -k --connect-timeout 5 https://$MINIKUBE_IP:51166 || {
-                                    echo "Cannot connect to Minikube at $MINIKUBE_IP:51166"
+                                curl -k --connect-timeout 5 https://$MINIKUBE_IP:8443 || {
+                                    echo "Cannot connect to Minikube at $MINIKUBE_IP:8443"
                                     exit 1
                                 }
                             }
