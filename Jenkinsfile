@@ -4,7 +4,7 @@ pipeline {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-credentials'  // Đã đổi tên biến cho rõ ràng
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-credentials'
         PATH = "/var/jenkins_home/bin:$PATH"
         MINIKUBE_IP = '192.168.49.2'
         CERTS_DIR = "/var/jenkins_home/minikube-certs"
@@ -43,7 +43,7 @@ pipeline {
             }
         }
 
-stage('Prepare Environment') {
+        stage('Prepare Environment') {
             steps {
                 script {
                     sh '''
@@ -195,23 +195,30 @@ stage('Prepare Environment') {
                 ]) {
                     script {
                         sh '''
-                            # Mã hóa các giá trị bí mật thành base64
-                            OPENAI_API_KEY_B64=$(echo -n "${OPENAI_API_KEY}" | base64)
-                            SENDINBLUE_API_KEY_B64=$(echo -n "${SENDINBLUE_API_KEY}" | base64)
-                            ACCESSKEYID_B64=$(echo -n "${ACCESSKEYID}" | base64)
-                            SECRETACCESSKEY_B64=$(echo -n "${SECRETACCESSKEY}" | base64)
+                            # Mã hóa các giá trị bí mật thành base64, đảm bảo không có ký tự xuống dòng
+                            OPENAI_API_KEY_B64=$(echo -n "${OPENAI_API_KEY}" | base64 -w 0)
+                            SENDINBLUE_API_KEY_B64=$(echo -n "${SENDINBLUE_API_KEY}" | base64 -w 0)
+                            ACCESSKEYID_B64=$(echo -n "${ACCESSKEYID}" | base64 -w 0)
+                            SECRETACCESSKEY_B64=$(echo -n "${SECRETACCESSKEY}" | base64 -w 0)
 
-                            # Cập nhật flexshoes-all.yaml với các giá trị bí mật
-                            sed -i "s|OPENAI_API_KEY: cGxhY2Vob2xkZXI=|OPENAI_API_KEY: ${OPENAI_API_KEY_B64}|g" flexshoes-all.yaml
-                            sed -i "s|SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI=|SENDINBLUE_API_KEY: ${SENDINBLUE_API_KEY_B64}|g" flexshoes-all.yaml
-                            sed -i "s|ACCESSKEYID: cGxhY2Vob2xkZXI=|ACCESSKEYID: ${ACCESSKEYID_B64}|g" flexshoes-all.yaml
-                            sed -i "s|SECRETACCESSKEY: cGxhY2Vob2xkZXI=|SECRETACCESSKEY: ${SECRETACCESSKEY_B64}|g" flexshoes-all.yaml
+                            # Kiểm tra giá trị base64
+                            echo "OPENAI_API_KEY_B64: ${OPENAI_API_KEY_B64}"
+                            echo "SENDINBLUE_API_KEY_B64: ${SENDINBLUE_API_KEY_B64}"
+                            echo "ACCESSKEYID_B64: ${ACCESSKEYID_B64}"
+                            echo "SECRETACCESSKEY_B64: ${SECRETACCESSKEY_B64}"
 
-                            # Sửa typo trong tên service eureka-server
-                            sed -i "s|name: eback-server|name: eureka-server|g" flexshoes-all.yaml
+                            # Cập nhật flexshoes-all.yaml với các giá trị bí mật, sử dụng dấu phân cách #
+                            sed -i "s#OPENAI_API_KEY: cGxhY2Vob2xkZXI=#OPENAI_API_KEY: ${OPENAI_API_KEY_B64}#g" flexshoes-all.yaml
+                            sed -i "s#SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI=#SENDINBLUE_API_KEY: ${SENDINBLUE_API_KEY_B64}#g" flexshoes-all.yaml
+                            sed -i "s#ACCESSKEYID: cGxhY2Vob2xkZXI=#ACCESSKEYID: ${ACCESSKEYID_B64}#g" flexshoes-all.yaml
+                            sed -i "s#SECRETACCESSKEY: cGxhY2Vob2xkZXI=#SECRETACCESSKEY: ${SECRETACCESSKEY_B64}#g" flexshoes-all.yaml
 
                             # Sửa volume mount path (giả sử /app/data)
-                            sed -i "s|mountPath: /path/to/data|mountPath: /app/data|g" flexshoes-all.yaml
+                            sed -i "s#mountPath: /path/to/data#mountPath: /app/data#g" flexshoes-all.yaml
+
+                            # Kiểm tra nội dung file sau khi sửa
+                            echo "=== Nội dung flexshoes-all.yaml sau khi sửa ==="
+                            cat flexshoes-all.yaml
                         '''
                     }
                 }
@@ -253,6 +260,8 @@ stage('Prepare Environment') {
                             kubectl get all -n flexshoes
                             kubectl get secrets -n flexshoes
                             kubectl get configmaps -n flexshoes
+                            kubectl describe pods -n flexshoes || true
+                            kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
                             exit 1
                         }
                     """
@@ -326,7 +335,7 @@ stage('Prepare Environment') {
                     echo "===== Mô tả các pod bị lỗi ====="
                     kubectl describe pods -n flexshoes || true
 
-                    echo "===== Events namespace flexshoes ====="
+                    echo "===== Events namespace flexshoes =====
                     kubectl get events -n flexshoes --sort-by='.metadata.creationTimestamp' || true
 
                     echo "===== Logs từ các container bị lỗi ====="
