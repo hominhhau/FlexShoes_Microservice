@@ -106,6 +106,13 @@ pipeline {
         stage('Validate Kubeconfig') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                            def kubeconfigContent = readFile(KUBECONFIG_FILE)
+                            if (!kubeconfigContent.contains('client-certificate-data') || !kubeconfigContent.contains('client-key-data')) {
+                              error("Kubeconfig chưa nhúng chứng chỉ client, hãy upload kubeconfig đã `kubectl config view --raw`")
+                            }
+
+                          }
                     sh '''
                         echo "Validating kubeconfig content"
                         grep -E "apiVersion:|clusters:|contexts:|users:" $KUBECONFIG_FILE || {
