@@ -73,3 +73,39 @@ ls -l /var/run/docker.sock
 
 docker exec -it jenkins bash
 docker ps
+
+### GKE
+
+### Triển khai
+
+gcloud container clusters create flexshoes-cluster --machine-type e2-micro --num-nodes 1 --region asia-southeast1 --project flexshoes-project --disk-size 50
+
+gcloud container clusters create flexshoes-cluster --machine-type e2-medium --num-nodes 1 --region asia-southeast1 --project flexshoes-project --disk-size 50
+
+gcloud container clusters list --project flexshoes-project
+
+kubectl get nodes
+
+kubectl apply -f flexshoes-all.yaml -n flexshoes
+
+### e2-standard-4 sẽ tiêu tốn ~$73.66/1 tuần
+
+gcloud container node-pools update default-pool --cluster flexshoes-cluster --machine-type e2-standard-4 --region asia-southeast1 --project flexshoes-project --disk-size 50
+
+gcloud container clusters delete flexshoes-cluster --region asia-southeast1 --project flexshoes-project
+
+gcloud container clusters create flexshoes-cluster --machine-type e2-standard-2 --num-nodes 1 --region asia-southeast1 --project flexshoes-project --disk-size 50 --enable-ip-alias 
+
+gcloud container clusters create flexshoes-cluster --machine-type e2-standard-4 --num-nodes 1 --region asia-southeast1 --project flexshoes-project --disk-size 50 --enable-ip-alias
+
+### Tắt cluster
+gcloud container clusters update flexshoes-cluster --region asia-southeast1 --project flexshoes-project --enable-autoscaling --min-nodes 0 --max-nodes 3
+
+gcloud container clusters stop flexshoes-cluster --region asia-southeast1 --project flexshoes-project
+
+gcloud container clusters start flexshoes-cluster --region asia-southeast1 --project flexshoes-project
+
+### Xóa các Job hiện có
+kubectl delete job create-order-db -n flexshoes
+
+kubectl delete job create-payment-db -n flexshoes
