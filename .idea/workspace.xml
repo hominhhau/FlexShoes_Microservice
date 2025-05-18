@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge order">
-      <change beforePath="$PROJECT_DIR$/inventory-service/Utils/file.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/utils/file.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/controllers/productsController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/UserServiceApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
