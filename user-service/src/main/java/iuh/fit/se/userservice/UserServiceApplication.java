@@ -34,91 +34,91 @@ public class UserServiceApplication {
         System.out.println("User Service is running...");
     }
 
-//    private void initData(PasswordEncoder passwordEncoder,
-//                          PermissionService permissionService,
-//                          RoleService roleService,
-//                          UserService userService) {
-//
-//        Permission permissionRead = Permission.builder()
-//                .code(PermissionType.PERMISSION_READ.name())
-//                .name(PermissionType.PERMISSION_READ.name())
-//                .build();
-//        permissionService.savePermission(permissionRead);
-//
-//        Permission permissionWrite = Permission.builder()
-//                .code(PermissionType.PERMISSION_WRITE.name())
-//                .name(PermissionType.PERMISSION_WRITE.name())
-//                .build();
-//        permissionService.savePermission(permissionWrite);
-//
-//        Permission permissionDelete = Permission.builder()
-//                .code(PermissionType.PERMISSION_DELETE.name())
-//                .name(PermissionType.PERMISSION_DELETE.name())
-//                .build();
-//        permissionService.savePermission(permissionDelete);
-//
-//        Permission permissionUpdate = Permission.builder()
-//                .code(PermissionType.PERMISSION_UPDATE.name())
-//                .name(PermissionType.PERMISSION_UPDATE.name())
-//                .build();
-//        permissionService.savePermission(permissionUpdate);
-//
-//        Role roleUser = Role.builder()
-//                .code(RoleType.ROLE_USER.name())
-//                .name(RoleType.ROLE_USER.name())
-//                .permissions(Set.of(permissionRead))
-//                .build();
-//        roleService.saveRole(roleUser);
-//
-//        Role roleAdmin = Role.builder()
-//                .code(RoleType.ROLE_ADMIN.name())
-//                .name(RoleType.ROLE_ADMIN.name())
-//                .permissions(Set.of(permissionRead, permissionWrite, permissionUpdate))
-//                .build();
-//        roleService.saveRole(roleAdmin);
-//
-//        Role roleSuperAdmin = Role.builder()
-//                .code(RoleType.ROLE_SUPER_ADMIN.name())
-//                .name(RoleType.ROLE_SUPER_ADMIN.name())
-//                .permissions(Set.of(permissionRead, permissionWrite, permissionUpdate, permissionDelete))
-//                .build();
-//        roleService.saveRole(roleSuperAdmin);
-//
-//
-//        User user = User.builder()
-//                .userName("user")
-//                .email("user@user.com")
-//                .password(passwordEncoder.encode("password"))
-//                .enabled(true)
-//                .roles(Set.of(roleUser))
-//                .build();
-//        userService.saveUser(user);
-//
-//        User admin = User.builder()
-//                .userName("admin")
-//                .email("admin@admin.com")
-//                .password(passwordEncoder.encode("password"))
-//                .enabled(true)
-//                .roles(Set.of(roleAdmin))
-//                .build();
-//        userService.saveUser(admin);
-//
-//        User superAdmin = User.builder()
-//                .userName("superadmin")
-//                .email("superadmin@superadmin.com")
-//                .password(passwordEncoder.encode("password"))
-//                .enabled(true)
-//                .roles(Set.of(roleSuperAdmin))
-//                .build();
-//        userService.saveUser(superAdmin);
-//    }
-//
-//    @Bean
-//    public CommandLineRunner runner(PasswordEncoder passwordEncoder, PermissionService permissionService, RoleService roleService, UserService userService) {
-//        return (args) -> {
-//            initData(passwordEncoder, permissionService, roleService, userService);
-//        };
-//
-//        //[Role(id=null, code=ROLE_USER, name=ROLE_USER, permissions=[Permission(id=null, code=PERMISSION_READ, name=PERMISSION_READ)])]
-//    }
+    private void initData(PasswordEncoder passwordEncoder,
+                          PermissionService permissionService,
+                          RoleService roleService,
+                          UserService userService) {
+
+        Permission permissionRead = Permission.builder()
+                .code(PermissionType.PERMISSION_READ.name())
+                .name(PermissionType.PERMISSION_READ.name())
+                .build();
+        permissionService.savePermission(permissionRead);
+
+        Permission permissionWrite = Permission.builder()
+                .code(PermissionType.PERMISSION_WRITE.name())
+                .name(PermissionType.PERMISSION_WRITE.name())
+                .build();
+        permissionService.savePermission(permissionWrite);
+
+        Permission permissionDelete = Permission.builder()
+                .code(PermissionType.PERMISSION_DELETE.name())
+                .name(PermissionType.PERMISSION_DELETE.name())
+                .build();
+        permissionService.savePermission(permissionDelete);
+
+        Permission permissionUpdate = Permission.builder()
+                .code(PermissionType.PERMISSION_UPDATE.name())
+                .name(PermissionType.PERMISSION_UPDATE.name())
+                .build();
+        permissionService.savePermission(permissionUpdate);
+
+        Role roleUser = Role.builder()
+                .code(RoleType.ROLE_USER.name())
+                .name(RoleType.ROLE_USER.name())
+                .permissions(Set.of(permissionRead))
+                .build();
+        roleService.saveRole(roleUser);
+
+        Role roleAdmin = Role.builder()
+                .code(RoleType.ROLE_ADMIN.name())
+                .name(RoleType.ROLE_ADMIN.name())
+                .permissions(Set.of(permissionRead, permissionWrite, permissionUpdate))
+                .build();
+        roleService.saveRole(roleAdmin);
+
+        Role roleSuperAdmin = Role.builder()
+                .code(RoleType.ROLE_SUPER_ADMIN.name())
+                .name(RoleType.ROLE_SUPER_ADMIN.name())
+                .permissions(Set.of(permissionRead, permissionWrite, permissionUpdate, permissionDelete))
+                .build();
+        roleService.saveRole(roleSuperAdmin);
+
+
+        User user = User.builder()
+                .userName("user")
+                .email("user@user.com")
+                .password(passwordEncoder.encode("password"))
+                .enabled(true)
+                .roles(Set.of(roleUser))
+                .build();
+        userService.saveUser(user);
+
+        User admin = User.builder()
+                .userName("admin")
+                .email("admin@admin.com")
+                .password(passwordEncoder.encode("password"))
+                .enabled(true)
+                .roles(Set.of(roleAdmin))
+                .build();
+        userService.saveUser(admin);
+
+        User superAdmin = User.builder()
+                .userName("superadmin")
+                .email("superadmin@superadmin.com")
+                .password(passwordEncoder.encode("password"))
+                .enabled(true)
+                .roles(Set.of(roleSuperAdmin))
+                .build();
+        userService.saveUser(superAdmin);
+    }
+
+    @Bean
+    public CommandLineRunner runner(PasswordEncoder passwordEncoder, PermissionService permissionService, RoleService roleService, UserService userService) {
+        return (args) -> {
+            initData(passwordEncoder, permissionService, roleService, userService);
+        };
+
+        //[Role(id=null, code=ROLE_USER, name=ROLE_USER, permissions=[Permission(id=null, code=PERMISSION_READ, name=PERMISSION_READ)])]
+    }
 }
