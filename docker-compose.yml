@@ -424,3 +424,5 @@ volumes:
 networks:
   my-network:
     driver: bridge
+
+# docker compose up --build
