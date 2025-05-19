@@ -122,3 +122,17 @@ kubectl port-forward svc/eureka-server 8761:8761 -n flexshoes
 
 
 kubectl logs -n flexshoes api-gateway-7df4dd9764-nz9f9  --tail=100
+
+kubectl rollout restart deployment api-gateway -n flexshoes 
+
+kubectl port-forward svc/frontend 8091:80 -n flexshoes
+
+kubectl describe pod inventory-service-64f87cd666-t2b6l -n flexshoes
+
+kubectl delete pod api-gateway-66f6fd6ffd-f8f22dns-test -n flexshoes
+
+kubectl get pods -n flexshoes 
+
+
+
+kubectl get services -n flexshoes

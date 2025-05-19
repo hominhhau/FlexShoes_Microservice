@@ -82,7 +82,7 @@ public class EmailService {
                 "                      Hãy khám phá những sản phẩm giày thể thao mới nhất, các chương trình ưu đãi và nhiều điều tuyệt vời khác.\n" +
                 "                    </p>\n" +
                 "                    <div style=\"text-align:center;margin:30px 0;\">\n" +
-                "                      <a href=\"https://flexshoes.vn\" style=\"background-color:#1e88e5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:5px;font-size:16px;display:inline-block;\">\n" +
+                "                      <a href=\"https://flexshoes.io.vn\" style=\"background-color:#1e88e5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:5px;font-size:16px;display:inline-block;\">\n" +
                 "                        Khám phá ngay\n" +
                 "                      </a>\n" +
                 "                    </div>\n" +

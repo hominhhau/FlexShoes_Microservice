@@ -1,10 +1,9 @@
 server:
-    port: 8888
+  port: 8888
 
 app:
-    api-prefix: /api/v1
+  api-prefix: /api/v1
 
-# Eureka client
 eureka:
   client:
     register-with-eureka: true
@@ -12,7 +11,6 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka-server:8761/eureka/
 
-# Spring Cloud Config
 management:
   trace:
     sampling:
@@ -21,7 +19,7 @@ management:
 key:
   baseUrl: "http://localhost:8080"
 
-spring: 
+spring:
   application:
     name: api-gateway
   config:
@@ -30,46 +28,57 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
+          enabled: false  # Tắt vì không dùng lb://
       routes:
         - id: notification_service
-          uri: lb://notification-service
+          uri: http://notification-service:8082
           predicates:
-          - Path=${app.api-prefix}/notification/**
+            - Path=${app.api-prefix}/notification/**
           filters:
-          - StripPrefix=2
+            - StripPrefix=2
+
         - id: payment_service
-          uri: lb://payment-service
+          uri: http://payment-service:8084
           predicates:
             - Path=${app.api-prefix}/payment/**
           filters:
             - StripPrefix=2
+
         - id: profile_service
-          uri: lb://profile-service
+          uri: http://profile-service:8081
           predicates:
             - Path=${app.api-prefix}/profile/**
           filters:
             - StripPrefix=2
+
         - id: inventory_service
-          uri: lb://inventory-service
+          uri: http://inventory-service:8085
           predicates:
             - Path=${app.api-prefix}/inventory/**
           filters:
             - StripPrefix=2
+
         - id: order_service
-          uri: lb://order-service
+          uri: http://order-service:8083
           predicates:
             - Path=${app.api-prefix}/invoices/**
           filters:
             - StripPrefix=2
+
         - id: user_service
-          uri: lb://user-service
+          uri: http://user-service:8080
           predicates:
             - Path=${app.api-prefix}/users/**
+          filters:
+            - StripPrefix=2
+
+        - id: chat_service
+          uri: http://chat-service:8089
+          predicates:
+            - Path=${app.api-prefix}/chat/**
           filters:
             - StripPrefix=2
 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
-

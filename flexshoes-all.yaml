@@ -226,7 +226,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -308,7 +308,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -385,7 +385,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -485,7 +485,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: batch/v1
 kind: Job
@@ -657,20 +657,20 @@ spec:
               value: "optional:configserver:http://config-server:8088"
             - name: TZ
               value: "Asia/Ho_Chi_Minh"
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8084
-            initialDelaySeconds: 60
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8084
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8084
+#            initialDelaySeconds: 60
+#            periodSeconds: 30
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8084
+#            initialDelaySeconds: 60
+#            periodSeconds: 10
+#            failureThreshold: 3
           resources:
             requests:
               cpu: "200m"           # Tăng từ 50m → 200m
@@ -790,7 +790,7 @@ spec:
     spec:
       containers:
         - name: inventory-service
-          image: ctmyname/inventory-service:latest
+          image: ctmyname/inventory-service:v2
           imagePullPolicy: Always
           ports:
             - containerPort: 8085
@@ -877,20 +877,20 @@ spec:
           envFrom:
             - secretRef:
                 name: notification-service-secrets
-          livenessProbe:
-            httpGet:
-              path: notification/actuator/health
-              port: 8082
-            initialDelaySeconds: 60
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: notification/actuator/health
-              port: 8082
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: notification/actuator/health
+#              port: 8082
+#            initialDelaySeconds: 60
+#            periodSeconds: 30
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: notification/actuator/health
+#              port: 8082
+#            initialDelaySeconds: 60
+#            periodSeconds: 10
+#            failureThreshold: 3
           resources:
             requests:
               cpu: "200m"           # Tăng từ 50m → 200m
@@ -932,7 +932,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: ctmyname/api-gateway:latest
+          image: docker.io/ctmyname/api-gateway:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8888
@@ -1026,20 +1026,20 @@ spec:
           volumeMounts:
             - name: user-service-data
               mountPath: /path/to/data
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 120
-            periodSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8080
+#            initialDelaySeconds: 120
+#            periodSeconds: 30
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8080
+#            initialDelaySeconds: 120
+#            periodSeconds: 10
+#            failureThreshold: 3
           resources:
             requests:
               cpu: "100m"           # Tăng từ 50m → 200m
@@ -1076,7 +1076,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1123,20 +1123,20 @@ spec:
           volumeMounts:
             - name: profile-service-data
               mountPath: /path/to/data
-          livenessProbe:
-            httpGet:
-              path: /profile/actuator/health
-              port: 8081
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /profile/actuator/health
-              port: 8081
-            initialDelaySeconds: 120
-            periodSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: /profile/actuator/health
+#              port: 8081
+#            initialDelaySeconds: 120
+#            periodSeconds: 30
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /profile/actuator/health
+#              port: 8081
+#            initialDelaySeconds: 120
+#            periodSeconds: 10
+#            failureThreshold: 3
           resources:
             requests:
               cpu: "200m"   # Giảm từ 100m-200m
@@ -1173,7 +1173,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: Secret
@@ -1224,7 +1224,7 @@ type: Opaque
 data:
   DB_USERNAME: cG9zdGdyZXM= # base64 encoded "postgres"
   DB_PASSWORD: MTIzNA== # base64 encoded "1234"
-  OPENAI_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+  OPENAI_API_KEY: c2stcHJvai04Y3owQ0pYX2pMZHk3YUZqRUhwR2QwbnZtSTdaR1hGdGJNbFk4TnZyOUwxWm9BRWlaYjVBVlBWNlJQSU95NjNZRTVTUjFnUDRfVFQzQmxia0ZKR3JCa2kta3ZnRVF0WGZuVXU4NzFwdmJuOEd1UjFjRk43V1E3bDI2VkwtWE5iZ0ZQUl9ZWnJMbUZSZm54eVM0SWc3bWFwbkhQa0E= # base64 encoded "placeholder", replace with actual key
 ---
 apiVersion: v1
 kind: Secret
@@ -1234,9 +1234,9 @@ metadata:
 type: Opaque
 data:
   MONGO_URI: bW9uZ29kYitzcnY6Ly9GbGV4U2hvZXM6UGFzc3dvcmRGbGV4U2hvZXNAY2x1c3RlcjAuanh0b2dsdy5tb25nb2RiLm5ldC9pbnZlbnRvcnlEQj9yZXRyeVdyaXRlcz10cnVlJnc9bWFqb3JpdHk= # base64 encoded Mongo URI
-  ACCESSKEYID: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
-  SECRETACCESSKEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
-  OPENAI_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+  ACCESSKEYID: QUtJQVdQUE82SFJEUlM1VkFHT1U= # base64 encoded "placeholder", replace with actual key
+  SECRETACCESSKEY: U1hEMnViR0tKb01WQkdPM0czKzVTYi9EUzg0WWN1MXpISTRTRGduQg== # base64 encoded "placeholder", replace with actual key
+  OPENAI_API_KEY: c2stcHJvai04Y3owQ0pYX2pMZHk3YUZqRUhwR2QwbnZtSTdaR1hGdGJNbFk4TnZyOUwxWm9BRWlaYjVBVlBWNlJQSU95NjNZRTVTUjFnUDRfVFQzQmxia0ZKR3JCa2kta3ZnRVF0WGZuVXU4NzFwdmJuOEd1UjFjRk43V1E3bDI2VkwtWE5iZ0ZQUl9ZWnJMbUZSZm54eVM0SWc3bWFwbkhQa0E= # base64 encoded "placeholder", replace with actual key
 ---
 apiVersion: v1
 kind: Secret
@@ -1245,7 +1245,7 @@ metadata:
   namespace: flexshoes
 type: Opaque
 data:
-  SENDINBLUE_API_KEY: cGxhY2Vob2xkZXI= # base64 encoded "placeholder", replace with actual key
+  SENDINBLUE_API_KEY: eGtleXNpYi1kZDZiMDc3MDlkMmVjN2E3ODRlM2FhY2U4ZDg5OTcyNDU1MjdiYzY0MjkzNzFlNjg3YjhhNzMxYmU4ZTgzMWVkLW1obFhPbEdzblpLd0s2MFo= # base64 encoded "placeholder", replace with actual key
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -1270,37 +1270,37 @@ data:
   PORT: "8085"
   REGION: "us-east-1"
   BUCKET_NAME: "flexshoes-bucket"
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: flexshoes-ingress
-  namespace: flexshoes
-spec:
-  ingressClassName: nginx  # Thay vì annotation
-  rules:
-    - host: flexshoes.io.vn
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend
-                port:
-                  number: 80
-    - host: api.flexshoes.io.vn
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: api-gateway
-                port:
-                  number: 8888
-  tls:
-    - hosts:
-        - flexshoes.io.vn
-        - api.flexshoes.io.vn
-      secretName: flexshoes-tls
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: frontend
+#  namespace: flexshoes
+#spec:
+#  selector:
+#    app: frontend
+#  ports:
+#    - protocol: TCP
+#      port: 80
+#      targetPort: 80
+#---
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: frontend
+#  namespace: flexshoes
+#spec:
+#  replicas: 1
+#  selector:
+#    matchLabels:
+#      app: frontend
+#  template:
+#    metadata:
+#      labels:
+#        app: frontend
+#    spec:
+#      containers:
+#        - name: frontend
+#          image: <your-frontend-image>
+#          ports:
+#            - containerPort: 80

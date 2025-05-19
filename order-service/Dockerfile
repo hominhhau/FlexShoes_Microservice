@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Copy file JAR từ giai đoạn build sang
 COPY --from=build /app/target/*.jar app.jar
 
-# Mở cổng 8080
-EXPOSE 8080
+# Mở cổng 8083
+EXPOSE 8083
 
 # Chạy ứng dụng Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]

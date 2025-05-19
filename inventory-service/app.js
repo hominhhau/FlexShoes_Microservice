@@ -22,6 +22,15 @@ const app = express();
 //     credentials: true,
 // }));
 
+// ✅ CORS config to allow credentials from localhost:3000
+app.use(cors({
+    origin: 'https://api.flexshoes.io.vn',
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Đảm bảo bao gồm các phương thức bạn sử dụng
+    allowedHeaders: 'Content-Type, Authorization', // Thêm các header tùy chỉnh nếu có
+}));
+
+
 // Body parser middleware
 app.use(express.json());
 
@@ -38,13 +47,6 @@ app.use('/inventory', chatGPTRoutes);
 app.get('/actuator/health', (req, res) => {
     res.status(200).json({ status: 'UP' });
 });
-// ✅ CORS config to allow credentials from localhost:3000
-app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Đảm bảo bao gồm các phương thức bạn sử dụng
-    allowedHeaders: 'Content-Type, Authorization', // Thêm các header tùy chỉnh nếu có
-}));
 
 // Connect DB
 connectDB();
