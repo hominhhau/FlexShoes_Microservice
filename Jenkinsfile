@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git branch: 'release_3', url: 'https://github.com/hominhhau/FlexShoes_Microservice.git'
+                git branch: 'release_3_1', url: 'https://github.com/hominhhau/FlexShoes_Microservice.git'
             }
         }
         stage('Prepare Environment') {
