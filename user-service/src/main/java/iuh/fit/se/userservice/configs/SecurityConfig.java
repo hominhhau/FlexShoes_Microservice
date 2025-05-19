@@ -151,14 +151,32 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
+    @Order(5) // Đảm bảo xử lý trước apiFilterChain (Order 4)
+    @Bean
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .securityMatcher(new AntPathRequestMatcher("/actuator/health")) // Áp dụng cho đường dẫn chính xác
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()) // Cho phép truy cập tự do
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()));
+                })
+                .httpBasic(Customizer.withDefaults());
 
-    @Order(5)
+        return httpSecurity.build();
+    }
+
+
+    @Order(6)
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher(new AntPathRequestMatcher("/api/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(new AntPathRequestMatcher("/users/introspect")).permitAll() // Thêm rule nàys
+                        .requestMatchers(new AntPathRequestMatcher("/actuator/health")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
@@ -173,7 +191,7 @@ public class SecurityConfig {
     }
 
 
-    @Order(6)
+    @Order(7)
     @Bean
     SecurityFilterChain logoutFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher((new AntPathRequestMatcher("/users/logout")))
@@ -196,6 +214,7 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
 
 
 

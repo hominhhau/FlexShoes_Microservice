@@ -19,7 +19,15 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/email/send",
-            "/registration-success"
+            "/registration-success",
+            "/notification/**",
+            "/actuator/**",
+            "/health",
+            "/actuator/health",
+            "/actuator/info",
+            "/notification/actuator/**",
+            "/notification/health",
+            "/notification/actuator/health"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -30,10 +38,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .anyRequest().authenticated());
+
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)

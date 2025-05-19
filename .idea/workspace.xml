@@ -5,11 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge order">
-      <change afterPath="$PROJECT_DIR$/ingress.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/curlpod.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/flexshoes-all.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/flexshoes-all.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/microservice/notification_service/configuration/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/microservice/payment_service/configuration/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/profile-service/src/main/java/iuh/fit/se/profileservice/configuration/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/configs/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/configs/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/filters/JwtAccessTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/iuh/fit/se/userservice/filters/JwtAccessTokenFilter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

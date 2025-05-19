@@ -109,3 +109,16 @@ gcloud container clusters start flexshoes-cluster --region asia-southeast1 --pro
 kubectl delete job create-order-db -n flexshoes
 
 kubectl delete job create-payment-db -n flexshoes
+
+
+# Pull tất cả:
+kubectl rollout restart deployment -n flexshoes
+
+# Eureka Server
+kubectl port-forward svc/eureka-server 8761:8761 -n flexshoes 
+
+
+
+
+
+kubectl logs -n flexshoes api-gateway-7df4dd9764-nz9f9  --tail=100

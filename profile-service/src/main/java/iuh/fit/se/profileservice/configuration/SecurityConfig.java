@@ -20,7 +20,9 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
-            "check-profile",
+            "/check-profile",
+            "/actuator/health",
+            "/profile/actuator/health",
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -31,19 +33,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request
+                // Cho phép GET và POST với các PUBLIC_ENDPOINTS
+                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                // Các request khác cần xác thực
+                .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
+
 
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {

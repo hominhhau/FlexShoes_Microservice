@@ -24,6 +24,7 @@ spec:
       containers:
         - name: eureka-server
           image: ctmyname/eureka-server:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8761
           env:
@@ -49,11 +50,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "100m"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              memory: "1Gi"
-              cpu: "200m"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -67,7 +68,8 @@ spec:
     - protocol: TCP
       port: 8761
       targetPort: 8761
-  type: ClusterIP
+      nodePort: 30861  # hoặc để trống để tự chọn (30000–32767)
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -100,6 +102,7 @@ spec:
       containers:
         - name: config-server
           image: ctmyname/config-server:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8088
           env:
@@ -123,11 +126,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "200m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -189,11 +192,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
       volumes:
         - name: mongodb-data
           persistentVolumeClaim:
@@ -271,11 +274,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
@@ -348,11 +351,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
       volumes:
         - name: mariadb-data
           persistentVolumeClaim:
@@ -412,11 +415,11 @@ spec:
               mountPath: /var/opt/mssql
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              memory: "64Mi"
+              cpu: "50m"
             limits:
-              cpu: "200m"
-              memory: "256Mi"
+              memory: "128Mi"
+              cpu: "100m"
           securityContext:
             runAsUser: 0  # root để chown được
       containers:
@@ -444,11 +447,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "800m"
-              memory: "2048Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
           volumeMounts:
             - name: mssql-data
               mountPath: /var/opt/mssql
@@ -555,6 +558,7 @@ spec:
       containers:
         - name: chat-service
           image: ctmyname/chat-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8089
           env:
@@ -573,27 +577,27 @@ spec:
                 name: chat-service-config
             - secretRef:
                 name: chat-service-secrets
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8089
-            initialDelaySeconds: 60
-            periodSeconds: 30
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8089
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8089
+#            initialDelaySeconds: 60
+#            periodSeconds: 30
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /actuator/health
+#              port: 8089
+#            initialDelaySeconds: 60
+#            periodSeconds: 10
+#            failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -629,6 +633,7 @@ spec:
       containers:
         - name: payment-service
           image: ctmyname/payment-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8084
           env:
@@ -668,11 +673,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -708,6 +713,7 @@ spec:
       containers:
         - name: order-service
           image: ctmyname/order-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8083
           env:
@@ -731,23 +737,25 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8083
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
             periodSeconds: 30
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8083
-            initialDelaySeconds: 60
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
             periodSeconds: 10
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -783,6 +791,7 @@ spec:
       containers:
         - name: inventory-service
           image: ctmyname/inventory-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8085
           env:
@@ -815,11 +824,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "50m"   # Giảm từ 100m-200m
+              memory: "256Mi"
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "100m"  # Giảm từ 200m-400m
+              memory: "512Mi"  # Giảm từ 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -855,6 +864,7 @@ spec:
       containers:
         - name: notification-service
           image: ctmyname/notification-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
           env:
@@ -869,25 +879,25 @@ spec:
                 name: notification-service-secrets
           livenessProbe:
             httpGet:
-              path: /notification/actuator/health
+              path: notification/actuator/health
               port: 8082
             initialDelaySeconds: 60
             periodSeconds: 30
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /notification/actuator/health
+              path: notification/actuator/health
               port: 8082
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -923,6 +933,7 @@ spec:
       containers:
         - name: api-gateway
           image: ctmyname/api-gateway:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8888
           env:
@@ -948,11 +959,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "200m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -988,6 +999,7 @@ spec:
       containers:
         - name: user-service
           image: ctmyname/user-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
@@ -1030,11 +1042,11 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
-              memory: "512Mi"
+              cpu: "100m"           # Tăng từ 50m → 200m
+              memory: "512Mi"       # Tăng từ 256Mi → 512Mi
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "500m"           # Tăng từ 100m → 500m
+              memory: "1Gi"         # Tăng từ 512Mi → 1Gi
       volumes:
         - name: user-service-data
           persistentVolumeClaim:
@@ -1086,6 +1098,7 @@ spec:
       containers:
         - name: profile-service
           image: ctmyname/profile-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
@@ -1112,25 +1125,25 @@ spec:
               mountPath: /path/to/data
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /profile/actuator/health
               port: 8081
             initialDelaySeconds: 120
             periodSeconds: 30
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /profile/actuator/health
               port: 8081
             initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
+              cpu: "200m"   # Giảm từ 100m-200m
               memory: "512Mi"
             limits:
-              cpu: "400m"
-              memory: "1024Mi"
+              cpu: "400m"  # Giảm từ 200m-400m
+              memory: "1Gi"  # Giảm từ 1Gi
       volumes:
         - name: profile-service-data
           persistentVolumeClaim:
