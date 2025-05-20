@@ -136,3 +136,16 @@ kubectl get pods -n flexshoes
 
 
 kubectl get services -n flexshoes
+
+
+### Dừng và chạy hệ thống 
+kubectl get deploy -n flexshoes
+
+kubectl get deploy -n flexshoes -o yaml > all-deployments-backup.yaml
+
+kubectl get deploy -n flexshoes -o name | xargs -I{} kubectl scale -n flexshoes {} --replicas=0
+
+kubectl get deploy -n flexshoes -o json | ConvertFrom-Json | Select-Object -ExpandProperty items | ForEach-Object { kubectl scale deploy $_.metadata.name -n flexshoes --replicas=0 }
+
+kubectl apply -f all-deployments-backup.yaml
+
