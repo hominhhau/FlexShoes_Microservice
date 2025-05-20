@@ -23,14 +23,14 @@ app.get("/chat", (req, res) => {
 });
 
 
-app.post("/send", chatController.sendMess);
-app.post("/show", chatController.showMess);
-app.get("/getAllSender", chatController.getAllSender);
-app.get("/getLastMessage", chatController.getLastMessage);
-app.post("/updateMessageStatus", chatController.updateMessageStatus);
+app.post("/chat/send", chatController.sendMess);
+app.post("/chat/show", chatController.showMess);
+app.get("/chat/getAllSender", chatController.getAllSender);
+app.get("/chat/getLastMessage", chatController.getLastMessage);
+app.post("/chat/updateMessageStatus", chatController.updateMessageStatus);
 
 // chatbot AI chatGPT
-app.post('/chatgpt', ChatGPTController.chatGPTResponse);
+app.post('/chat/chatgpt', ChatGPTController.chatGPTResponse);
 
 const { Eureka } = require('eureka-js-client');
 
