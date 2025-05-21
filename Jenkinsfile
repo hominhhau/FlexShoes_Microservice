@@ -3,8 +3,6 @@ pipeline {
     environment {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig-credentials'
         PATH = "/var/jenkins_home/bin:$PATH"
         K8S_NAMESPACE = 'flexshoes'
     }
@@ -71,38 +69,12 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
+                    withKubeConfig([credentialsId: 'gke-credentials', clusterName: 'flexshoes-cluster', namespace: 'flexshoes']) {
                         sh '''
-                            # Kiểm tra kết nối tới Kubernetes cluster
-                            kubectl --kubeconfig=$KUBECONFIG version || { echo "Không thể kết nối tới Kubernetes cluster"; exit 1; }
-
-                            # Tạo namespace nếu chưa tồn tại
-                            kubectl --kubeconfig=$KUBECONFIG get namespace $K8S_NAMESPACE || kubectl --kubeconfig=$KUBECONFIG create namespace $K8S_NAMESPACE
-
-                            # Áp dụng file manifest
-                            kubectl --kubeconfig=$KUBECONFIG apply -f flexshoes-all.yaml -n $K8S_NAMESPACE
-
-                            # Kiểm tra trạng thái triển khai
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/eureka-server -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/config-server -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/mongodb -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/postgresdb -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/mariadb -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/mssql -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/chat-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/payment-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/order-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/inventory-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/notification-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/api-gateway -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/user-service -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG rollout status deployment/profile-service -n $K8S_NAMESPACE
-
-                            # Kiểm tra trạng thái Jobs
-                            kubectl --kubeconfig=$KUBECONFIG wait --for=condition=complete --timeout=300s job/create-order-db -n $K8S_NAMESPACE
-                            kubectl --kubeconfig=$KUBECONFIG wait --for=condition=complete --timeout=300s job/create-payment-db -n $K8S_NAMESPACE
-
-                            echo "Triển khai lên Kubernetes cluster hoàn tất!"
+                            kubectl apply -f flexshoes-all.yaml
+                            echo "=== Kiểm tra trạng thái deployment ==="
+                            kubectl get deployments -n flexshoes
+                            kubectl get pods -n flexshoes
                         '''
                     }
                 }
@@ -110,8 +82,14 @@ pipeline {
         }
     }
     post {
-        always {
-            sh 'rm -f $KUBECONFIG'
+        success {
+            echo 'Pipeline completed successfully!'
         }
-    }
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
+        }
+        always {
+            echo 'Cleaning up workspace'
+            cleanWs()
+        }
 }
