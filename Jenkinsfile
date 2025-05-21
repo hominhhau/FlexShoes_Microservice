@@ -14,14 +14,14 @@ pipeline {
                   sh '''
                       mkdir -p /var/jenkins_home/bin
                       # Cài đặt docker-compose nếu chưa có
-                      if ! command -v docker-compose &> /dev/null; then
+                      if ! command -v docker-compose >/dev/null 2>&1; then
                           curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose || { echo "Tải docker-compose thất bại"; exit 1; }
                           chmod +x /var/jenkins_home/bin/docker-compose
                       fi
                       docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
 
                       # Cài đặt kubectl nếu chưa có
-                      if ! command -v kubectl &> /dev/null; then
+                      if ! command -v kubectl >/dev/null 2>&1; then
                           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" || { echo "Tải kubectl thất bại"; exit 1; }
                           chmod +x kubectl
                           mv kubectl /var/jenkins_home/bin/ || { echo "Di chuyển kubectl thất bại"; exit 1; }
@@ -29,7 +29,7 @@ pipeline {
                       kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
 
                       # Cài đặt Google Cloud SDK nếu chưa có
-                      if ! command -v gcloud &> /dev/null; then
+                      if ! command -v gcloud >/dev/null 2>&1; then
                           echo "Bắt đầu cài đặt Google Cloud SDK..."
                           curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Tải Google Cloud SDK thất bại"; exit 1; }
                           tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Giải nén Google Cloud SDK thất bại"; exit 1; }
@@ -147,8 +147,8 @@ pipeline {
                script {
                    withCredentials([file(credentialsId: 'gke-credentials', variable: 'KUBECONFIG_FILE')]) {
                        sh '''
-                           # Áp dụng PATH từ env.sh
-                           source /var/jenkins_home/env.sh || { echo "Không thể áp dụng PATH từ env.sh"; exit 1; }
+                           # Áp dụng PATH từ env.sh (sử dụng . thay vì source)
+                           . /var/jenkins_home/env.sh || { echo "Không thể áp dụng PATH từ env.sh"; exit 1; }
                            gcloud auth activate-service-account --key-file=$KUBECONFIG_FILE || { echo "Xác thực Service Account thất bại"; exit 1; }
                            gcloud container clusters get-credentials flexshoes-cluster --region asia-southeast1-b --project flexshoes-project || { echo "Lấy thông tin GKE cluster thất bại"; exit 1; }
                            kubectl apply -f flexshoes-all.yaml || { echo "Áp dụng flexshoes-all.yaml thất bại"; exit 1; }
