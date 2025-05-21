@@ -121,15 +121,15 @@ kubectl port-forward svc/eureka-server 8761:8761 -n flexshoes
 
 
 
-kubectl logs -n flexshoes user-service-58fb7fc959-b8z5k --tail=100
+kubectl logs -n flexshoes notification-service-6c46fd6f46-cdw94 --tail=100
 
 kubectl rollout restart deployment payment-service -n flexshoes 
 
 kubectl port-forward svc/frontend 8091:80 -n flexshoes
 
-kubectl describe pod notification-service-6c5c5b9cd8-hwzz4 -n flexshoes
+kubectl describe pod order-service-68778cf9cb-lwv8w -n flexshoes
 
-kubectl delete pod user-service-658459bf4-mtvm2 -n flexshoes
+kubectl delete pod profile-service-5687dc656-n98cx -n flexshoes
 
 kubectl get pods -n flexshoes 
 
@@ -149,8 +149,10 @@ kubectl get deploy -n flexshoes -o name | xargs -I{} kubectl scale -n flexshoes 
 
 kubectl get deploy -n flexshoes -o json | ConvertFrom-Json | Select-Object -ExpandProperty items | ForEach-Object { kubectl scale deploy $_.metadata.name -n flexshoes --replicas=0 }
 
-kubectl apply -f frontend.yaml
+kubectl apply -f flexshoes-all.yaml
 
 kubectl scale deployment frontend --replicas=0 -n flexshoes
+
+kubectl delete namespace flexshoes
 
  

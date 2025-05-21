@@ -843,23 +843,20 @@ spec:
       targetPort: 8085
   type: ClusterIP
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: notification-service
   namespace: flexshoes
   labels:
     app: notification-service
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: notification-service
   template:
     metadata:
       labels:
         app: notification-service
     spec:
+
       containers:
         - name: notification-service
           image: ctmyname/notification-service:VERSION_PLACEHOLDER
@@ -897,6 +894,7 @@ spec:
             limits:
               cpu: "500m"           # Tăng từ 100m → 500m
               memory: "1Gi"         # Tăng từ 512Mi → 1Gi
+      restartPolicy: Never
 ---
 apiVersion: v1
 kind: Service
@@ -978,23 +976,20 @@ spec:
       targetPort: 8888
   type: ClusterIP
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: user-service
   namespace: flexshoes
   labels:
     app: user-service
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: user-service
   template:
     metadata:
       labels:
         app: user-service
     spec:
+
       containers:
         - name: user-service
           image: ctmyname/user-service:VERSION_PLACEHOLDER
@@ -1050,6 +1045,7 @@ spec:
         - name: user-service-data
           persistentVolumeClaim:
             claimName: user-service-pvc
+      restartPolicy: Never
 ---
 apiVersion: v1
 kind: Service
@@ -1077,23 +1073,20 @@ spec:
     requests:
       storage: 2Gi
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: profile-service
   namespace: flexshoes
   labels:
     app: profile-service
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: profile-service
   template:
     metadata:
       labels:
         app: profile-service
     spec:
+
       containers:
         - name: profile-service
           image: ctmyname/profile-service:VERSION_PLACEHOLDER
@@ -1147,6 +1140,7 @@ spec:
         - name: profile-service-data
           persistentVolumeClaim:
             claimName: profile-service-pvc
+      restartPolicy: Never
 ---
 apiVersion: v1
 kind: Service
