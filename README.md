@@ -129,7 +129,7 @@ kubectl port-forward svc/frontend 8091:80 -n flexshoes
 
 kubectl describe pod order-service-68778cf9cb-lwv8w -n flexshoes
 
-kubectl delete pod profile-service-5687dc656-n98cx -n flexshoes
+kubectl delete pod profile-service-7f8d76cb87-sh75d -n flexshoes
 
 kubectl get pods -n flexshoes 
 

@@ -157,7 +157,7 @@ pipeline {
                             gcloud container clusters get-credentials flexshoes-cluster --region asia-southeast1-b --project flexshoes-project || { echo "Lấy thông tin GKE cluster thất bại"; exit 1; }
                             # Cập nhật version trong flexshoes-all.yaml
                             sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" flexshoes-all.yaml || { echo "Cập nhật version trong flexshoes-all.yaml thất bại"; exit 1; }
-                            kubectl apply -f flexshoes-all.yaml || { echo "Áp dụng flexshoes-all.yaml thất bại"; exit 1; }
+
                             echo "=== Kiểm tra trạng thái deployment ==="
                             kubectl get deployments -n flexshoes
                             kubectl get pods -n flexshoes
