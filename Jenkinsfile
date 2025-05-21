@@ -28,6 +28,16 @@ pipeline {
                         fi
                         kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
 
+                        # Cài đặt Google Cloud SDK nếu chưa có
+                        if ! command -v gcloud &> /dev/null; then
+                            curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-450.0.0-linux-x86_64.tar.gz
+                            tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz
+                            mv google-cloud-sdk /var/jenkins_home/
+                            /var/jenkins_home/google-cloud-sdk/install.sh --quiet
+                            export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin
+                        fi
+                        gcloud --version || { echo "Cài đặt Google Cloud SDK thất bại"; exit 1; }
+
                         # Kiểm tra kết nối Docker
                         docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
                     '''
