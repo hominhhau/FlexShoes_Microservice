@@ -127,8 +127,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'gke-credentials', clusterName: 'flexshoes-cluster', namespace: 'flexshoes']) {
+                    withCredentials([file(credentialsId: 'gke-credentials', variable: 'KUBECONFIG_FILE')]) {
                         sh '''
+                            gcloud auth activate-service-account --key-file=$KUBECONFIG_FILE
+                            gcloud container clusters get-credentials flexshoes-cluster --region asia-southeast1-b --project flexshoes-project
                             kubectl apply -f flexshoes-all.yaml
                             echo "=== Kiểm tra trạng thái deployment ==="
                             kubectl get deployments -n flexshoes
