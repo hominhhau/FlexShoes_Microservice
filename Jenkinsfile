@@ -8,50 +8,50 @@ pipeline {
     }
     stages {
 
-       stage('Setup Tools') {
-           steps {
-               script {
-                   sh '''
-                       mkdir -p /var/jenkins_home/bin
-                       # Cài đặt docker-compose nếu chưa có
-                       if ! command -v docker-compose &> /dev/null; then
-                           curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
-                           chmod +x /var/jenkins_home/bin/docker-compose
-                       fi
-                       docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
+      stage('Setup Tools') {
+          steps {
+              script {
+                  sh '''
+                      mkdir -p /var/jenkins_home/bin
+                      # Cài đặt docker-compose nếu chưa có
+                      if ! command -v docker-compose &> /dev/null; then
+                          curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose || { echo "Tải docker-compose thất bại"; exit 1; }
+                          chmod +x /var/jenkins_home/bin/docker-compose
+                      fi
+                      docker-compose --version || { echo "Cài đặt Docker Compose thất bại"; exit 1; }
 
-                       # Cài đặt kubectl nếu chưa có
-                       if ! command -v kubectl &> /dev/null; then
-                           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                           chmod +x kubectl
-                           mv kubectl /var/jenkins_home/bin/
-                       fi
-                       kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
+                      # Cài đặt kubectl nếu chưa có
+                      if ! command -v kubectl &> /dev/null; then
+                          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" || { echo "Tải kubectl thất bại"; exit 1; }
+                          chmod +x kubectl
+                          mv kubectl /var/jenkins_home/bin/ || { echo "Di chuyển kubectl thất bại"; exit 1; }
+                      fi
+                      kubectl version --client || { echo "Cài đặt kubectl thất bại"; exit 1; }
 
-                       # Cài đặt Google Cloud SDK nếu chưa có
-                       if ! command -v gcloud &> /dev/null; then
-                           echo "Bắt đầu cài đặt Google Cloud SDK..."
-                           curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Tải Google Cloud SDK thất bại"; exit 1; }
-                           tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Giải nén Google Cloud SDK thất bại"; exit 1; }
-                           # Xóa thư mục google-cloud-sdk cũ nếu tồn tại
-                           rm -rf /var/jenkins_home/google-cloud-sdk || { echo "Xóa thư mục google-cloud-sdk cũ thất bại"; exit 1; }
-                           mv google-cloud-sdk /var/jenkins_home/ || { echo "Di chuyển Google Cloud SDK thất bại"; exit 1; }
-                           /var/jenkins_home/google-cloud-sdk/install.sh --quiet || { echo "Cài đặt Google Cloud SDK thất bại"; exit 1; }
-                       fi
-                       # Cập nhật PATH trực tiếp trong shell hiện tại
-                       export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin
-                       # Lưu PATH vào tệp env.sh để sử dụng trong các bước sau
-                       echo "export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin" > /var/jenkins_home/env.sh
-                       # Kiểm tra cài đặt gcloud
-                       gcloud --version || { echo "Google Cloud SDK không hoạt động"; exit 1; }
-                       echo "Google Cloud SDK đã được cài đặt thành công: $(gcloud --version)"
+                      # Cài đặt Google Cloud SDK nếu chưa có
+                      if ! command -v gcloud &> /dev/null; then
+                          echo "Bắt đầu cài đặt Google Cloud SDK..."
+                          curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Tải Google Cloud SDK thất bại"; exit 1; }
+                          tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Giải nén Google Cloud SDK thất bại"; exit 1; }
+                          # Xóa thư mục google-cloud-sdk cũ nếu tồn tại
+                          rm -rf /var/jenkins_home/google-cloud-sdk || { echo "Xóa thư mục google-cloud-sdk cũ thất bại"; exit 1; }
+                          mv google-cloud-sdk /var/jenkins_home/ || { echo "Di chuyển Google Cloud SDK thất bại"; exit 1; }
+                          /var/jenkins_home/google-cloud-sdk/install.sh --quiet || { echo "Cài đặt Google Cloud SDK thất bại"; exit 1; }
+                      fi
+                      # Cập nhật PATH trực tiếp
+                      export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin
+                      # Lưu PATH vào env.sh
+                      echo "export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin" > /var/jenkins_home/env.sh
+                      # Kiểm tra cài đặt gcloud
+                      gcloud --version || { echo "Google Cloud SDK không hoạt động"; exit 1; }
+                      echo "Google Cloud SDK đã được cài đặt thành công: $(gcloud --version)"
 
-                       # Kiểm tra kết nối Docker
-                       docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
-                   '''
-               }
-           }
-       }
+                      # Kiểm tra kết nối Docker
+                      docker ps || { echo "Không thể kết nối với Docker daemon"; exit 1; }
+                  '''
+              }
+          }
+      }
 
         stage('Checkout') {
             steps {
@@ -142,22 +142,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: 'gke-credentials', variable: 'KUBECONFIG_FILE')]) {
-                        sh '''
-                            gcloud auth activate-service-account --key-file=$KUBECONFIG_FILE
-                            gcloud container clusters get-credentials flexshoes-cluster --region asia-southeast1-b --project flexshoes-project
-                            kubectl apply -f flexshoes-all.yaml
-                            echo "=== Kiểm tra trạng thái deployment ==="
-                            kubectl get deployments -n flexshoes
-                            kubectl get pods -n flexshoes
-                        '''
-                    }
-                }
-            }
-        }
+       stage('Deploy to Kubernetes') {
+           steps {
+               script {
+                   withCredentials([file(credentialsId: 'gke-credentials', variable: 'KUBECONFIG_FILE')]) {
+                       sh '''
+                           # Áp dụng PATH từ env.sh
+                           source /var/jenkins_home/env.sh || { echo "Không thể áp dụng PATH từ env.sh"; exit 1; }
+                           gcloud auth activate-service-account --key-file=$KUBECONFIG_FILE || { echo "Xác thực Service Account thất bại"; exit 1; }
+                           gcloud container clusters get-credentials flexshoes-cluster --region asia-southeast1-b --project flexshoes-project || { echo "Lấy thông tin GKE cluster thất bại"; exit 1; }
+                           kubectl apply -f flexshoes-all.yaml || { echo "Áp dụng flexshoes-all.yaml thất bại"; exit 1; }
+                           echo "=== Kiểm tra trạng thái deployment ==="
+                           kubectl get deployments -n flexshoes
+                           kubectl get pods -n flexshoes
+                       '''
+                   }
+               }
+           }
+       }
     }
     post {
         success {
