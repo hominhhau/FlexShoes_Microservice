@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0d69ed61-e627-4732-9a61-6b61421f66c3" name="Changes" comment="merge chat">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Jenkinsfile" beforeDir="false" afterPath="$PROJECT_DIR$/Jenkinsfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -374,7 +373,7 @@
       <workItem from="1747814895118" duration="9357000" />
       <workItem from="1747837650286" duration="168000" />
       <workItem from="1747838699437" duration="6074000" />
-      <workItem from="1747848312925" duration="8686000" />
+      <workItem from="1747848312925" duration="8778000" />
     </task>
     <task id="LOCAL-00002" summary="merge customer">
       <option name="closed" value="true" />

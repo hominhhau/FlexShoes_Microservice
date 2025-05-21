@@ -1,10 +1,5 @@
 pipeline {
-        agent {
-            docker {
-                image 'alpine'
-                args '-v /var/run/docker.sock:/var/run/docker.sock'
-            }
-        }
+        agent any
     environment {
         DOCKER_REGISTRY = 'ctmyname'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
@@ -12,16 +7,7 @@ pipeline {
         K8S_NAMESPACE = 'flexshoes'
     }
     stages {
-            stage('Prepare Docker Socket') {
-                steps {
-                    sh '''
-                        echo "Thay đổi group và quyền cho Docker socket"
-                        chgrp 103 /var/run/docker.sock
-                        chmod g+rw /var/run/docker.sock
-                        ls -l /var/run/docker.sock
-                    '''
-                }
-            }
+
         stage('Setup Tools') {
             steps {
                 script {
