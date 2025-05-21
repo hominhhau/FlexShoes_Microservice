@@ -33,24 +33,27 @@ pipeline {
                           echo "Bắt đầu cài đặt Google Cloud SDK..."
                           curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Tải Google Cloud SDK thất bại"; exit 1; }
                           tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz || { echo "Giải nén Google Cloud SDK thất bại"; exit 1; }
+                          # Xóa thư mục google-cloud-sdk cũ nếu tồn tại
                           rm -rf /var/jenkins_home/google-cloud-sdk || { echo "Xóa thư mục google-cloud-sdk cũ thất bại"; exit 1; }
                           mv google-cloud-sdk /var/jenkins_home/ || { echo "Di chuyển Google Cloud SDK thất bại"; exit 1; }
                           /var/jenkins_home/google-cloud-sdk/install.sh --quiet || { echo "Cài đặt Google Cloud SDK thất bại"; exit 1; }
+                          # Cập nhật PATH ngay sau khi cài đặt gcloud
+                          export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin
+                          # Kiểm tra gcloud ngay sau khi cài đặt
+                          gcloud --version || { echo "Google Cloud SDK không hoạt động sau khi cài đặt"; exit 1; }
                       fi
 
                       # Cài đặt gke-gcloud-auth-plugin nếu chưa có
                       if ! command -v gke-gcloud-auth-plugin >/dev/null 2>&1; then
                           echo "Bắt đầu cài đặt gke-gcloud-auth-plugin..."
-                          gcloud components install gke-gcloud-auth-plugin --quiet || { echo "Cài đặt gke-gcloud-auth-plugin thất bại"; exit 1; }
+                          /var/jenkins_home/google-cloud-sdk/bin/gcloud components install gke-gcloud-auth-plugin --quiet || { echo "Cài đặt gke-gcloud-auth-plugin thất bại"; exit 1; }
                       fi
                       gke-gcloud-auth-plugin --version || { echo "gke-gcloud-auth-plugin không hoạt động"; exit 1; }
                       echo "gke-gcloud-auth-plugin đã được cài đặt thành công: $(gke-gcloud-auth-plugin --version)"
 
-                      # Cập nhật PATH trực tiếp
-                      export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin:/var/jenkins_home/bin
                       # Lưu PATH vào env.sh
                       echo "export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin:/var/jenkins_home/bin" > /var/jenkins_home/env.sh
-                      # Kiểm tra cài đặt gcloud
+                      # Kiểm tra cài đặt gcloud lần cuối
                       gcloud --version || { echo "Google Cloud SDK không hoạt động"; exit 1; }
                       echo "Google Cloud SDK đã được cài đặt thành công: $(gcloud --version)"
 
