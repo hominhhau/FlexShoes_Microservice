@@ -34,8 +34,10 @@ pipeline {
                             tar -xvf google-cloud-sdk-450.0.0-linux-x86_64.tar.gz
                             mv google-cloud-sdk /var/jenkins_home/
                             /var/jenkins_home/google-cloud-sdk/install.sh --quiet
-                            export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin
                         fi
+                        # Cập nhật PATH và lưu vào ~/.bashrc để sử dụng trong các bước sau
+                        echo 'export PATH=$PATH:/var/jenkins_home/google-cloud-sdk/bin' >> /var/jenkins_home/.bashrc
+                        source /var/jenkins_home/.bashrc
                         gcloud --version || { echo "Cài đặt Google Cloud SDK thất bại"; exit 1; }
 
                         # Kiểm tra kết nối Docker
