@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +55,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 			throw new RuntimeException("Không thể lấy thông tin khách hàng từ service: " + e.getMessage());
 		}
 	}
-//	public CustomerDto getCustomerInfo(Long customerId) {
+	//	public CustomerDto getCustomerInfo(Long customerId) {
 //		ResponseEntity<ApiResponse<CustomerDto>> response = customerServiceClient.getCustomerById(customerId);
 //		return response.getBody() != null ? response.getBody().getResponse() : null;
 //	}
@@ -176,11 +179,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getOrderCountByMonthsInYear(int year) {
-		List<Object[]> results = invoiceRepository.countOrdersByMonthInYear(year);
-		List<Map<String, Object>> monthlyData = new ArrayList<>();
+	public List<Map<String, Object>> getOrderCountByMonthsInYear(int year, Map<String, String> params) {
+		List<Object[]> results;
+		if (params.containsKey("startDate") && params.containsKey("endDate")) {
+			LocalDate startDate = LocalDate.parse(params.get("startDate"));
+			LocalDate endDate = LocalDate.parse(params.get("endDate"));
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException("Start date cannot be later than end date");
+			}
+			// Convert LocalDate to LocalDateTime
+			LocalDateTime startDateTime = startDate.atStartOfDay();
+			LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX); // 23:59:59.999999999
+			results = invoiceRepository.countOrdersByMonthInRange(startDateTime, endDateTime);
+		} else {
+			results = invoiceRepository.countOrdersByMonthInYear(year);
+		}
 
-		// Khởi tạo dữ liệu cho tất cả các tháng (1-12) với giá trị mặc định là 0
+		List<Map<String, Object>> monthlyData = new ArrayList<>();
 		for (int month = 1; month <= 12; month++) {
 			Map<String, Object> data = new HashMap<>();
 			data.put("month", month);
@@ -188,7 +203,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 			monthlyData.add(data);
 		}
 
-		// Cập nhật dữ liệu từ kết quả truy vấn
 		for (Object[] result : results) {
 			Integer month = (Integer) result[0];
 			Long count = (Long) result[1];
@@ -199,11 +213,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getRevenueByMonthsInYear(int year) {
-		List<Object[]> results = invoiceRepository.sumRevenueByMonthInYear(year);
-		List<Map<String, Object>> monthlyData = new ArrayList<>();
+	public List<Map<String, Object>> getRevenueByMonthsInYear(int year, Map<String, String> params) {
+		List<Object[]> results;
+		if (params.containsKey("startDate") && params.containsKey("endDate")) {
+			LocalDate startDate = LocalDate.parse(params.get("startDate"));
+			LocalDate endDate = LocalDate.parse(params.get("endDate"));
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException("Start date cannot be later than end date");
+			}
+			// Convert LocalDate to LocalDateTime
+			LocalDateTime startDateTime = startDate.atStartOfDay();
+			LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+			results = invoiceRepository.sumRevenueByMonthInRange(startDateTime, endDateTime);
+		} else {
+			results = invoiceRepository.sumRevenueByMonthInYear(year);
+		}
 
-		// Khởi tạo dữ liệu cho tất cả các tháng (1-12) với giá trị mặc định là 0
+		List<Map<String, Object>> monthlyData = new ArrayList<>();
 		for (int month = 1; month <= 12; month++) {
 			Map<String, Object> data = new HashMap<>();
 			data.put("month", month);
@@ -211,7 +237,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 			monthlyData.add(data);
 		}
 
-		// Cập nhật dữ liệu từ kết quả truy vấn
 		for (Object[] result : results) {
 			Integer month = (Integer) result[0];
 			Double revenue = (Double) result[1];
@@ -220,7 +245,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
 		return monthlyData;
 	}
-
 	@Override
 	public List<InvoiceDto> getAllInvoice() {
 		return invoiceRepository.findAll().stream()
@@ -343,17 +367,50 @@ public class InvoiceServiceImpl implements InvoiceService {
 	}
 
 	@Override
-	public long getTotalOrderCount() {
+	public long getTotalOrderCount(Map<String, String> params) {
+		if (params.containsKey("startDate") && params.containsKey("endDate")) {
+			LocalDate startDate = LocalDate.parse(params.get("startDate"));
+			LocalDate endDate = LocalDate.parse(params.get("endDate"));
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException("Start date cannot be later than end date");
+			}
+			// Convert LocalDate to LocalDateTime
+			LocalDateTime startDateTime = startDate.atStartOfDay();
+			LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+			return invoiceRepository.countByIssueDateBetween(startDateTime, endDateTime);
+		}
 		return invoiceRepository.count();
 	}
 
 	@Override
-	public long getTotalShippingOrders() {
+	public long getTotalShippingOrders(Map<String, String> params) {
+		if (params.containsKey("startDate") && params.containsKey("endDate")) {
+			LocalDate startDate = LocalDate.parse(params.get("startDate"));
+			LocalDate endDate = LocalDate.parse(params.get("endDate"));
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException("Start date cannot be later than end date");
+			}
+			// Convert LocalDate to LocalDateTime
+			LocalDateTime startDateTime = startDate.atStartOfDay();
+			LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+			return invoiceRepository.countByOrderStatusAndIssueDateBetween("Processing", startDateTime, endDateTime);
+		}
 		return invoiceRepository.countByOrderStatus("Processing");
 	}
 
 	@Override
-	public double getTotalAmount() {
+	public double getTotalAmount(Map<String, String> params) {
+		if (params.containsKey("startDate") && params.containsKey("endDate")) {
+			LocalDate startDate = LocalDate.parse(params.get("startDate"));
+			LocalDate endDate = LocalDate.parse(params.get("endDate"));
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException("Start date cannot be later than end date");
+			}
+			// Convert LocalDate to LocalDateTime
+			LocalDateTime startDateTime = startDate.atStartOfDay();
+			LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+			return invoiceRepository.sumTotalAmountByIssueDateBetween(startDateTime, endDateTime);
+		}
 		return invoiceRepository.sumTotalAmount();
 	}
 
@@ -369,26 +426,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 		}
 		return null; // Trả về null nếu không tìm thấy
 	}
-
-//	@Override
-//	public List<InvoiceDto> searchInvoices(Integer id, String customerName, String orderStatus) {
-//		Long customerId = null;
-//
-//		// Nếu có tên khách hàng, tìm customerId trong danh sách cache
-//		if (customerName != null && !customerName.trim().isEmpty()) {
-//			customerId = getCustomerIdByName(customerName);
-//			if (customerId == null) {
-//				return List.of(); // Không tìm thấy khách hàng => Trả về danh sách rỗng
-//			}
-//		}
-//
-//		// Tìm hóa đơn theo customerId tìm được
-//		return invoiceRepository.searchInvoices(id, customerId, orderStatus)
-//				.stream()
-//				.map(invoiceMapper::toDTO)
-//				.toList();
-//	}
-
 
 	@Override
 	public InvoiceDto createInvoiceFormOrder(InvoiceDto invoiceDto) {
@@ -466,4 +503,135 @@ public class InvoiceServiceImpl implements InvoiceService {
 				})
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public List<Map<String, Object>> getOrderCountByYears(Map<String, String> params) {
+		LocalDate startDate = LocalDate.parse(params.get("startDate"));
+		LocalDate endDate = LocalDate.parse(params.get("endDate"));
+		LocalDateTime startDateTime = startDate.atStartOfDay();
+		LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+		List<Object[]> results = invoiceRepository.countOrdersByYears(startDateTime, endDateTime);
+
+		List<Map<String, Object>> yearlyData = new ArrayList<>();
+		int startYear = startDate.getYear();
+		int endYear = endDate.getYear();
+		for (int year = startYear; year <= endYear; year++) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("year", year);
+			data.put("count", 0L);
+			yearlyData.add(data);
+		}
+
+		for (Object[] result : results) {
+			Integer year = (Integer) result[0];
+			Long count = (Long) result[1];
+			yearlyData.stream()
+					.filter(data -> data.get("year").equals(year))
+					.findFirst()
+					.ifPresent(data -> data.put("count", count));
+		}
+
+		return yearlyData;
+	}
+
+	@Override
+	public List<Map<String, Object>> getRevenueByYears(Map<String, String> params) {
+		LocalDate startDate = LocalDate.parse(params.get("startDate"));
+		LocalDate endDate = LocalDate.parse(params.get("endDate"));
+		LocalDateTime startDateTime = startDate.atStartOfDay();
+		LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+		List<Object[]> results = invoiceRepository.sumRevenueByYears(startDateTime, endDateTime);
+
+		List<Map<String, Object>> yearlyData = new ArrayList<>();
+		int startYear = startDate.getYear();
+		int endYear = endDate.getYear();
+		for (int year = startYear; year <= endYear; year++) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("year", year);
+			data.put("revenue", 0.0);
+			yearlyData.add(data);
+		}
+
+		for (Object[] result : results) {
+			Integer year = (Integer) result[0];
+			Double revenue = (Double) result[1];
+			yearlyData.stream()
+					.filter(data -> data.get("year").equals(year))
+					.findFirst()
+					.ifPresent(data -> data.put("revenue", revenue));
+		}
+
+		return yearlyData;
+	}
+	@Override
+	public List<Map<String, Object>> getOrderCountByDays(Map<String, String> params) {
+		LocalDate startDate = LocalDate.parse(params.get("startDate"));
+		LocalDate endDate = LocalDate.parse(params.get("endDate"));
+		if (startDate.isAfter(endDate)) {
+			throw new IllegalArgumentException("Start date cannot be later than end date");
+		}
+		LocalDateTime startDateTime = startDate.atStartOfDay();
+		LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+		List<Object[]> results = invoiceRepository.countOrdersByDays(startDateTime, endDateTime);
+		System.out.println("countOrdersByDays results: " + results);
+
+		List<Map<String, Object>> dailyData = new ArrayList<>();
+		LocalDate current = startDate;
+		while (!current.isAfter(endDate)) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("date", current.toString());
+			data.put("count", 0L);
+			dailyData.add(data);
+			current = current.plusDays(1);
+		}
+
+		for (Object[] result : results) {
+			String date = result[0].toString();
+			// Xử lý count linh hoạt (Integer hoặc Long)
+			Long count;
+			if (result[1] instanceof Integer) {
+				count = ((Integer) result[1]).longValue();
+			} else {
+				count = (Long) result[1];
+			}
+			dailyData.stream()
+					.filter(data -> data.get("date").equals(date))
+					.findFirst()
+					.ifPresent(data -> data.put("count", count));
+		}
+
+		return dailyData;
+	}
+
+	@Override
+	public List<Map<String, Object>> getRevenueByDays(Map<String, String> params) {
+		LocalDate startDate = LocalDate.parse(params.get("startDate"));
+		LocalDate endDate = LocalDate.parse(params.get("endDate"));
+		LocalDateTime startDateTime = startDate.atStartOfDay();
+		LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+		List<Object[]> results = invoiceRepository.sumRevenueByDays(startDateTime, endDateTime);
+
+		List<Map<String, Object>> dailyData = new ArrayList<>();
+		LocalDate current = startDate;
+		while (!current.isAfter(endDate)) {
+			Map<String, Object> data = new HashMap<>();
+			data.put("date", current.toString());
+			data.put("revenue", 0.0);
+			dailyData.add(data);
+			current = current.plusDays(1);
+		}
+
+		for (Object[] result : results) {
+			String date = result[0].toString();
+			Double revenue = (Double) result[1];
+			dailyData.stream()
+					.filter(data -> data.get("date").equals(date))
+					.findFirst()
+					.ifPresent(data -> data.put("revenue", revenue));
+		}
+
+		return dailyData;
+	}
+
+
 }

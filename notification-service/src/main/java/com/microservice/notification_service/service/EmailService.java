@@ -110,4 +110,55 @@ public class EmailService {
 
         sendEmail(request);
     }
+    public void sendOrderSuccessEmail(Recipient recipient) {
+        String subject = "Đặt hàng thành công";
+        String htmlContent = "<html>\n" +
+                "      <body style=\"margin:0;padding:0;font-family:'Segoe UI',sans-serif;background-color:#f4f4f4;\">\n" +
+                "        <table width=\"100%\" bgcolor=\"#f4f4f4\" cellpadding=\"0\" cellspacing=\"0\">\n" +
+                "          <tr>\n" +
+                "            <td align=\"center\">\n" +
+                "              <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"#ffffff\" style=\"margin:20px auto;border-radius:10px;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.1);\">\n" +
+                "                <tr>\n" +
+                "                  <td bgcolor=\"#1e88e5\" style=\"padding:20px;text-align:center;color:#ffffff;\">\n" +
+                "                    <h1 style=\"margin:0;font-size:24px;\">\uD83D\uDCE6 Flex Shoes - Đặt hàng thành công!</h1>\n" +
+                "                  </td>\n" +
+                "                </tr>\n" +
+                "                <tr>\n" +
+                "                  <td style=\"padding:30px;\">\n" +
+                "                    <p style=\"font-size:16px;line-height:1.6;color:#333333;\">Xin chào <strong>" + recipient.getName() + "</strong>,</p>\n" +
+                "                    <p style=\"font-size:16px;line-height:1.6;color:#333333;\">\n" +
+                "                      Cảm ơn bạn đã đặt hàng tại <strong>Flex Shoes</strong>. Đơn hàng của bạn đã được xác nhận thành công!\n" +
+                "                    </p>\n" +
+                "                    <p style=\"font-size:16px;line-height:1.6;color:#333333;\">\n" +
+                "                      Chúng tôi đang xử lý đơn hàng của bạn và sẽ thông báo khi đơn hàng được giao. Bạn có thể kiểm tra trạng thái đơn hàng bất kỳ lúc nào.\n" +
+                "                    </p>\n" +
+                "                    <div style=\"text-align:center;margin:30px 0;\">\n" +
+                "                      <a href=\"https://flexshoes.io.vn\" style=\"background-color:#1e88e5;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:5px;font-size:16px;display:inline-block;\">\n" +
+                "                        Tiếp tục đặt đơn hàng mới\n" +
+                "                      </a>\n" +
+                "                    </div>\n" +
+                "                    <p style=\"font-size:14px;color:#777777;\">Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>\n" +
+                "                    <p style=\"font-size:16px;line-height:1.6;color:#333333;\">Trân trọng,<br/>Đội ngũ Flex Shoes</p>\n" +
+                "                  </td>\n" +
+                "                </tr>\n" +
+                "                <tr>\n" +
+                "                  <td bgcolor=\"#eeeeee\" style=\"padding:15px;text-align:center;font-size:12px;color:#999999;\">\n" +
+                "                    © 2025 Flex Shoes. All rights reserved.\n" +
+                "                  </td>\n" +
+                "                </tr>\n" +
+                "              </table>\n" +
+                "            </td>\n" +
+                "          </tr>\n" +
+                "        </table>\n" +
+                "      </body>\n" +
+                "    </html>";
+
+        SendEmailRequest request = SendEmailRequest.builder()
+                .to(recipient)
+                .subject(subject)
+                .htmlContent(htmlContent)
+                .build();
+
+        sendEmail(request);
+    }
 }

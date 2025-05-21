@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS middleware
-configCORS(app);
+// configCORS(app);
 
 // chat admin socket.id
 app.get("/chat", (req, res) => {

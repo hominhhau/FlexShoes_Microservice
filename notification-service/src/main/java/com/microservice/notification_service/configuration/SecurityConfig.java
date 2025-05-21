@@ -20,6 +20,7 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/email/send",
             "/registration-success",
+            "/order-success",
             "/notification/**",
             "/actuator/**",
             "/health",

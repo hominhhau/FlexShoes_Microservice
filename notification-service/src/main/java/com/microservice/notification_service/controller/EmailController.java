@@ -31,4 +31,11 @@ public class EmailController {
         emailService.sendRegistrationSuccessEmail(dto);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/order-success")
+    public ResponseEntity<?> sendOrderEmail(@RequestBody Recipient dto) {
+        emailService.sendOrderSuccessEmail(dto);
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -9,8 +9,36 @@ const Size = require("../models/Size");
 module.exports = {
   getAllProducts: async (req, res) => {
     try {
-      const products = await Product.find().populate("image.imageID");
+      const products = await Product.find()
+          .populate({
+            path: "image.imageID",
+            model: "Image",
+            select: "URL",
+          })
+          .populate({
+            path: "inventory",
+            model: "NumberOfProducts",
+            populate: [
+              {
+                path: "numberOfProduct", // Populate the numberOfProduct document itself
+                populate: [
+                  // Then populate fields within numberOfProduct
+                  {
+                    path: "size",
+                    model: "Size",
+                    select: "nameSize",
+                  },
+                  {
+                    path: "color",
+                    model: "Color",
+                    select: "colorName hex", // Lấy cả hex code cho màu sắc nếu cần
+                  },
+                ],
+              },
+            ],
+          });
 
+      // console.log("Test console SanPham:", products);
       res.status(200).json(products);
     } catch (error) {
       console.log("Khong get duoc SP");
@@ -208,6 +236,8 @@ module.exports = {
       const removedImageIds = imagesToRemove.map((img) => img.imageID);
       await Image.deleteMany({ _id: { $in: removedImageIds } });
 
+      console.log("Req images uploaded:", req.file);
+
       // Upload ảnh mới
       if (req.files && req.files.length > 0) {
         const newImages = await Promise.all(
@@ -223,6 +253,14 @@ module.exports = {
         );
         updatedImageList = [...updatedImageList, ...newImages];
       }
+
+      console.log("Old image IDs:", oldImageIdArray);
+
+      console.log("Old images removed:", imagesToRemove);
+
+      console.log("New images uploaded:", req.files);
+
+      console.log("Updated image list:", updatedImageList);
 
       // --- Handle inventory ---
       const parsedInventory = JSON.parse(inventory);

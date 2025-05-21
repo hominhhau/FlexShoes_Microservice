@@ -68,8 +68,7 @@ spec:
     - protocol: TCP
       port: 8761
       targetPort: 8761
-      nodePort: 30861  # hoặc để trống để tự chọn (30000–32767)
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -557,7 +556,7 @@ spec:
     spec:
       containers:
         - name: chat-service
-          image: ctmyname/chat-service:latest
+          image: ctmyname/chat-service:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8089
@@ -632,7 +631,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: ctmyname/payment-service:latest
+          image: ctmyname/payment-service:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 8084
@@ -712,7 +711,7 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: ctmyname/order-service:latest
+          image: ctmyname/order-service:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
@@ -790,7 +789,7 @@ spec:
     spec:
       containers:
         - name: inventory-service
-          image: ctmyname/inventory-service:v2
+          image: ctmyname/inventory-service:v5
           imagePullPolicy: Always
           ports:
             - containerPort: 8085
@@ -863,7 +862,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: ctmyname/notification-service:latest
+          image: ctmyname/notification-service:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
@@ -932,7 +931,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: docker.io/ctmyname/api-gateway:v4
+          image: docker.io/ctmyname/api-gateway:v6
           imagePullPolicy: Always
           ports:
             - containerPort: 8888
@@ -998,7 +997,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: ctmyname/user-service:latest
+          image: ctmyname/user-service:v9
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -1259,7 +1258,7 @@ data:
   DB_HOST: "postgresdb"
   DB_PORT: "5432"
   DB_SSL: "false"
-  REACT_URL: "http://localhost:3000"
+  REACT_URL: "https://flexshoes.io.vn"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -1269,7 +1268,7 @@ metadata:
 data:
   PORT: "8085"
   REGION: "us-east-1"
-  BUCKET_NAME: "flexshoes-bucket"
+  BUCKET_NAME: "s3-flexshoes"
 #---
 #apiVersion: v1
 #kind: Service

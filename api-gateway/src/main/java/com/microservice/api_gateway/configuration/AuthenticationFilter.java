@@ -54,6 +54,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/inventory/getAllProductTypes",
             "/inventory/getAllBrandTypes",
             "/notification/registration-success",
+            "/notification/order-success",
             "/inventory/getNumberOfProductsById/**",
             "/inventory/chatgpt",
             "/inventory/update",
@@ -61,6 +62,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/payment/payment-return",
             "/inventory/searchProduct",
             "/invoices/search",
+            "/chat/show",
+            "/chat/send",
+            "/chat/getAllSender",
+            "/chat/getLastMessage",
+            "/chat/updateMessageStatus",
+            "/chat/chatgpt",
 
     };
 

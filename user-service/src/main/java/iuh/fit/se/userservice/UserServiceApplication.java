@@ -10,6 +10,7 @@ import iuh.fit.se.userservice.services.PermissionService;
 import iuh.fit.se.userservice.services.RoleService;
 import iuh.fit.se.userservice.services.UserService;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -28,6 +29,7 @@ import java.util.Set;
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
+@Slf4j
 public class UserServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
@@ -84,16 +86,6 @@ public class UserServiceApplication {
                 .build();
         roleService.saveRole(roleSuperAdmin);
 
-
-        User user = User.builder()
-                .userName("user")
-                .email("user@user.com")
-                .password(passwordEncoder.encode("password"))
-                .enabled(true)
-                .roles(Set.of(roleUser))
-                .build();
-        userService.saveUser(user);
-
         User admin = User.builder()
                 .userName("admin")
                 .email("admin@admin.com")
@@ -101,16 +93,14 @@ public class UserServiceApplication {
                 .enabled(true)
                 .roles(Set.of(roleAdmin))
                 .build();
-        userService.saveUser(admin);
 
-        User superAdmin = User.builder()
-                .userName("superadmin")
-                .email("superadmin@superadmin.com")
-                .password(passwordEncoder.encode("password"))
-                .enabled(true)
-                .roles(Set.of(roleSuperAdmin))
-                .build();
-        userService.saveUser(superAdmin);
+
+
+        if (!userService.findByUserAdmin("admin")) {
+            System.out.println("User admin no already exists");
+            userService.saveUser(admin);
+        }
+
     }
 
     @Bean

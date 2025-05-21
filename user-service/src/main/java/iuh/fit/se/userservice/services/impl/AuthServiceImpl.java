@@ -96,13 +96,15 @@ public class AuthServiceImpl implements AuthService {
 
         System.out.println("Hi Tien");
         if (profileClient.checkProfile(signUpRequest.getPhoneNumber())) {
+            System.out.println("Hi Tinh");
             throw new UserAlreadyExistsException("Phone number already exist");
         }
 
 
         User user = createUser(signUpRequest);
         User result = userService.saveUser(user);
-
+        //Log result
+        System.out.println("Result: 1" + result);
 
 
         //Create a profile for sending to profile-service
@@ -116,14 +118,14 @@ public class AuthServiceImpl implements AuthService {
         userService.saveUser(user);
 
 
-//        log.debug("Sending recipient: {}", result);
-//        log.info("Successfully created user: " + result.getUserName());
-//        log.info("Successfully created profile for email: " + result.getEmail());
-//
-//        // Gửi email xác nhận
-//        notificationClient.sendRegistrationEmail(
-//                new Recipient(result.getUserName(), result.getEmail())
-//        );
+        log.debug("Sending recipient: {}", result);
+        log.info("Successfully created user: " + result.getUserName());
+        log.info("Successfully created profile for email: " + result.getEmail());
+
+        // Gửi email xác nhận
+        notificationClient.sendRegistrationEmail(
+                new Recipient(result.getUserName(), result.getEmail())
+        );
 
         log.info("Successfully sent email to " + result.getEmail());
 
@@ -136,6 +138,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private User createUser(SignUpRequest signUpRequest) {
+
+        System.out.println("Create user in function: " + signUpRequest);
 
         return User.builder()
                 .email(signUpRequest.getEmail())

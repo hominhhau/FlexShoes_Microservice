@@ -9,4 +9,6 @@ public interface UserService {
     boolean existsByUserName(String userName);
 
     User findById(Long id);
+
+    boolean findByUserAdmin(String userName);
 }

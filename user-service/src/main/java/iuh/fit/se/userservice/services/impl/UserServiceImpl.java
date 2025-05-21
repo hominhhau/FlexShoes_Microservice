@@ -46,4 +46,11 @@ public class UserServiceImpl implements UserService {
     public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public boolean findByUserAdmin(String userName) {
+        return userRepository.existsByUserName(userName);
+    }
+
+
 }

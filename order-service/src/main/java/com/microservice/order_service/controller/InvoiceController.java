@@ -86,22 +86,71 @@ public class InvoiceController {
 		);
 	}
 
-	// Trả về tổng số đơn đặt hàng
+	// Get total order count
 	@GetMapping("/total")
-	public ResponseEntity<Long> getTotalOrderCount() {
-		return ResponseEntity.ok(invoiceService.getTotalOrderCount());
+	public ResponseEntity<Long> getTotalOrderCount(
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Map<String, String> params = new HashMap<>();
+		if (startDate != null && endDate != null) {
+			params.put("startDate", startDate);
+			params.put("endDate", endDate);
+		}
+		return ResponseEntity.ok(invoiceService.getTotalOrderCount(params));
 	}
 
-	// Trả về tổng số đơn đang vận chuyển
+	// Get total shipping orders
 	@GetMapping("/shipping")
-	public ResponseEntity<Long> getTotalShippingOrders() {
-		return ResponseEntity.ok(invoiceService.getTotalShippingOrders());
+	public ResponseEntity<Long> getTotalShippingOrders(
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Map<String, String> params = new HashMap<>();
+		if (startDate != null && endDate != null) {
+			params.put("startDate", startDate);
+			params.put("endDate", endDate);
+		}
+		return ResponseEntity.ok(invoiceService.getTotalShippingOrders(params));
 	}
 
-	// Trả về tổng số tiền của tất cả hóa đơn
+	// Get total amount
 	@GetMapping("/total-amount")
-	public ResponseEntity<Double> getTotalAmount() {
-		return ResponseEntity.ok(invoiceService.getTotalAmount());
+	public ResponseEntity<Double> getTotalAmount(
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Map<String, String> params = new HashMap<>();
+		if (startDate != null && endDate != null) {
+			params.put("startDate", startDate);
+			params.put("endDate", endDate);
+		}
+		return ResponseEntity.ok(invoiceService.getTotalAmount(params));
+	}
+
+	// Get order count by month in a year
+	@GetMapping("/stats/orders-by-month/{year}")
+	public ResponseEntity<List<Map<String, Object>>> getOrderCountByMonthsInYear(
+			@PathVariable int year,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Map<String, String> params = new HashMap<>();
+		if (startDate != null && endDate != null) {
+			params.put("startDate", startDate);
+			params.put("endDate", endDate);
+		}
+		return ResponseEntity.ok(invoiceService.getOrderCountByMonthsInYear(year, params));
+	}
+
+	// Get revenue by month in a year
+	@GetMapping("/stats/revenue-by-month/{year}")
+	public ResponseEntity<List<Map<String, Object>>> getRevenueByMonthsInYear(
+			@PathVariable int year,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String endDate) {
+		Map<String, String> params = new HashMap<>();
+		if (startDate != null && endDate != null) {
+			params.put("startDate", startDate);
+			params.put("endDate", endDate);
+		}
+		return ResponseEntity.ok(invoiceService.getRevenueByMonthsInYear(year, params));
 	}
 
 	// Lấy danh sách hóa đơn gần đây
@@ -118,16 +167,46 @@ public class InvoiceController {
 			@RequestParam(required = false) String orderStatus) {
 		return ResponseEntity.ok(invoiceService.searchInvoices(id, customerName, orderStatus));
 	}
-	// Lấy số lượng đơn hàng theo tháng trong năm
-	@GetMapping("/stats/orders-by-month/{year}")
-	public ResponseEntity<List<Map<String, Object>>> getOrderCountByMonthsInYear(@PathVariable int year) {
-		return ResponseEntity.ok(invoiceService.getOrderCountByMonthsInYear(year));
+
+	@GetMapping("/stats/orders-by-year")
+	public ResponseEntity<List<Map<String, Object>>> getOrderCountByYears(
+			@RequestParam String startDate,
+			@RequestParam String endDate) {
+		Map<String, String> params = new HashMap<>();
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+		return ResponseEntity.ok(invoiceService.getOrderCountByYears(params));
 	}
 
-	// Lấy doanh thu theo tháng trong năm
-	@GetMapping("/stats/revenue-by-month/{year}")
-	public ResponseEntity<List<Map<String, Object>>> getRevenueByMonthsInYear(@PathVariable int year) {
-		return ResponseEntity.ok(invoiceService.getRevenueByMonthsInYear(year));
+	@GetMapping("/stats/revenue-by-year")
+	public ResponseEntity<List<Map<String, Object>>> getRevenueByYears(
+			@RequestParam String startDate,
+			@RequestParam String endDate) {
+		Map<String, String> params = new HashMap<>();
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+		return ResponseEntity.ok(invoiceService.getRevenueByYears(params));
 	}
+
+	@GetMapping("/stats/orders-by-day")
+	public ResponseEntity<List<Map<String, Object>>> getOrderCountByDays(
+			@RequestParam String startDate,
+			@RequestParam String endDate) {
+		Map<String, String> params = new HashMap<>();
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+		return ResponseEntity.ok(invoiceService.getOrderCountByDays(params));
+	}
+
+	@GetMapping("/stats/revenue-by-day")
+	public ResponseEntity<List<Map<String, Object>>> getRevenueByDays(
+			@RequestParam String startDate,
+			@RequestParam String endDate) {
+		Map<String, String> params = new HashMap<>();
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+		return ResponseEntity.ok(invoiceService.getRevenueByDays(params));
+	}
+
 }
 
