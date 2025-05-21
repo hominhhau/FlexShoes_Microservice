@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: eureka-server
-          image: ctmyname/eureka-server:latest
+          image: ctmyname/eureka-server:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8761
@@ -100,7 +100,7 @@ spec:
               cpu: "100m"
       containers:
         - name: config-server
-          image: ctmyname/config-server:latest
+          image: ctmyname/config-server:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8088
@@ -556,7 +556,7 @@ spec:
     spec:
       containers:
         - name: chat-service
-          image: ctmyname/chat-service:v4
+          image: ctmyname/chat-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8089
@@ -631,7 +631,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: ctmyname/payment-service:v1
+          image: ctmyname/payment-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8084
@@ -711,7 +711,7 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: ctmyname/order-service:v1
+          image: ctmyname/order-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
@@ -789,7 +789,7 @@ spec:
     spec:
       containers:
         - name: inventory-service
-          image: ctmyname/inventory-service:v5
+          image: ctmyname/inventory-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8085
@@ -862,7 +862,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: ctmyname/notification-service:v4
+          image: ctmyname/notification-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
@@ -931,7 +931,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: docker.io/ctmyname/api-gateway:v6
+          image: docker.io/ctmyname/api-gateway:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8888
@@ -997,7 +997,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: ctmyname/user-service:v9
+          image: ctmyname/user-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -1096,7 +1096,7 @@ spec:
     spec:
       containers:
         - name: profile-service
-          image: ctmyname/profile-service:latest
+          image: ctmyname/profile-service:VERSION_PLACEHOLDER
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

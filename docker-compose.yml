@@ -1,6 +1,6 @@
 services:
   eureka-server:
-    image: ctmyname/eureka-server:latest  # Đã có sẵn, không cần sửa
+    image: ctmyname/eureka-server:${VERSION}  # Đã có sẵn, không cần sửa
     container_name: eureka-server
     build:
       context: ./eureka-server
@@ -21,7 +21,7 @@ services:
     restart: always
 
   config-server:
-    image: ctmyname/config-server:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/config-server:${VERSION}  # Thêm ctmyname/ và :latest
     container_name: config-server
     build:
       context: ./config-server
@@ -84,7 +84,7 @@ services:
       retries: 5
 
   chat-service:
-    image: ctmyname/chat-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/chat-service:${VERSION}  # Thêm ctmyname/ và :latest
     build:
       context: ./chat-service
       dockerfile: Dockerfile
@@ -178,7 +178,7 @@ services:
     restart: "no"
 
   payment-service:
-    image: ctmyname/payment-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/payment-service:${VERSION}  # Thêm ctmyname/ và :latest
     build:
       context: ./payment-service
       dockerfile: Dockerfile
@@ -215,7 +215,7 @@ services:
       retries: 3
 
   order-service:
-    image: ctmyname/order-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/order-service:${VERSION}  # Thêm ctmyname/ và :latest
     restart: always
     build:
       context: ./order-service
@@ -245,7 +245,7 @@ services:
       retries: 3
 
   inventory-service:
-    image: ctmyname/inventory-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/inventory-service:${VERSION}  # Thêm ctmyname/ và :latest
     container_name: inventory-service
     build:
       context: ./inventory-service
@@ -279,7 +279,7 @@ services:
       retries: 3
 
   notification-service:
-    image: ctmyname/notification-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/notification-service:${VERSION}  # Thêm ctmyname/ và :latest
     container_name: notification-service
     build:
       context: ./notification-service
@@ -309,7 +309,7 @@ services:
     restart: always
 
   api-gateway:
-    image: ctmyname/api-gateway:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/api-gateway:${VERSION}  # Thêm ctmyname/ và :latest
     container_name: api-gateway
     build:
       context: ./api-gateway
@@ -341,7 +341,7 @@ services:
     restart: always
 
   user-service:
-    image: ctmyname/user-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/user-service:${VERSION}  # Thêm ctmyname/ và :latest
     build:
       context: ./user-service
       dockerfile: Dockerfile
@@ -380,7 +380,7 @@ services:
     restart: always
 
   profile-service:
-    image: ctmyname/profile-service:latest  # Thêm ctmyname/ và :latest
+    image: ctmyname/profile-service:${VERSION}  # Thêm ctmyname/ và :latest
     build:
       context: ./profile-service
       dockerfile: Dockerfile
