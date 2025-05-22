@@ -24,6 +24,13 @@ module.exports = {
       status: {
         type: Sequelize.INTEGER, // 0 - chưa xem, 1 - đã xem
       },
+      type: {
+        type: Sequelize.STRING, // text, image
+        defaultValue: "text",
+      },
+      productId: {
+        type: Sequelize.STRING, // id sản phẩm
+      },
 
       createdAt: {
         allowNull: false,

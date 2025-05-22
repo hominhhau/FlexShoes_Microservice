@@ -76,9 +76,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - my-network
+        - my-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -88,6 +88,8 @@ services:
     build:
       context: ./chat-service
       dockerfile: Dockerfile
+    ports:
+      - "8089:8089"
     container_name: chat-service
     restart: always
     depends_on:
@@ -105,17 +107,15 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     env_file:
       - ./chat-service/.env
-    ports:
-      - "8089:8089"
-#    volumes:
-#      - ./chat-service:/app
+    # volumes:
+    #   - ./chat-service:/ChatDB
     networks:
-      - my-network
+        - my-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8089/actuator/health" ]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8089/actuator/health"]
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
 
   mariadb:
     image: mariadb:10.6  # Image chính thức, không cần sửa
@@ -201,12 +201,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=Sa@123456
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
-      - TZ=Asia/Ho_Chi_Minh
     networks:
       - my-network
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
     restart: always
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]

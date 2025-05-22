@@ -22,11 +22,6 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="feature/inventory-service" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -81,9 +76,9 @@
     <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 8
+  &quot;associatedIndex&quot;: 0
 }</component>
-  <component name="ProjectId" id="2uZQvwtPoRWSEpGD7QYHiSUUMSk" />
+  <component name="ProjectId" id="2w9fr2MK6A0bLka4uBLWYsKFZRM" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -197,6 +192,7 @@
     <configuration name="ProfileServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
       <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="iuh.fit.se.profileservice.ProfileServiceApplication" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="iuh.fit.se.profileservice.*" />

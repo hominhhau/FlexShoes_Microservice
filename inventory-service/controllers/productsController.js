@@ -80,7 +80,6 @@ module.exports = {
         })
         .populate("proType", "productTypeName description") // Lấy thêm description nếu cần
         .populate("braType", "brandTypeName description"); // Lấy thêm description nếu cần
-
       console.log("Product tìm được: ", product);
 
       if (!product) {

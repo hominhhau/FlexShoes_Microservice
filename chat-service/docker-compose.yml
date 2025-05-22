@@ -17,7 +17,7 @@ services:
 
   chat-service:
     build: .
-    container_name: my_node_app
+    container_name: chat_container
     restart: always
     depends_on:
       - postgresDB
@@ -28,8 +28,7 @@ services:
     ports:
       - "8089:8089"
     volumes:
-      - .:/app
-    working_dir: /app
+      - ./chat-service:/app
 
 volumes:
   postgres_data:
