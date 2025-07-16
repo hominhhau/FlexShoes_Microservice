@@ -17,9 +17,9 @@
         </processorPath>
         <module name="profile-service" />
         <module name="payment-service" />
+        <module name="order-service" />
         <module name="inventory-service" />
         <module name="identify-service" />
-        <module name="order-service" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
