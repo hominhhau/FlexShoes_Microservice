@@ -1,0 +1,428 @@
+services:
+  eureka-server:
+    image: ctmyname/eureka-server:${VERSION}  # Đã có sẵn, không cần sửa
+    container_name: eureka-server
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eureka-server
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  config-server:
+    image: ctmyname/config-server:${VERSION}  # Thêm ctmyname/ và :latest
+    container_name: config-server
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_APPLICATION_NAME=config-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8088/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  mongodb:
+    image: mongo:6.0  # Image chính thức, không cần sửa
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=notification-service
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  postgresDB:
+    image: postgres:15  # Image chính thức, không cần sửa
+    restart: always
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: ChatDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chat-service:
+    image: ctmyname/chat-service:${VERSION}  # Thêm ctmyname/ và :latest
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    restart: always
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      postgresDB:
+        condition: service_healthy
+    environment:
+      - DB_PORT=5432
+      - DB_HOST=postgresDB
+      - SPRING_APPLICATION_NAME=chat-service
+      - EUREKA_INSTANCE_HOSTNAME=chat-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    env_file:
+      - ./chat-service/.env
+    ports:
+      - "8089:8089"
+#    volumes:
+#      - ./chat-service:/app
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8089/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mariadb:
+    image: mariadb:10.6  # Image chính thức, không cần sửa
+    container_name: mariadb_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: spring_security_jwt
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest  # Image chính thức, không cần sửa
+    container_name: mssql_container
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Sa@123456
+      - MSSQL_PID=Express
+      - MSSQL_SSL_ENFORCE=false
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/1433' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  create-db:
+    image: mcr.microsoft.com/mssql-tools:latest  # Image chính thức, không cần sửa
+    container_name: create_db_container
+    depends_on:
+      - mssql
+    entrypoint: /bin/bash -c "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE OrderService;'"
+    networks:
+      - my-network
+    restart: "no"
+
+  create-payment-db:
+    image: mcr.microsoft.com/mssql-tools:latest  # Image chính thức, không cần sửa
+    container_name: create_payment_db_container
+    depends_on:
+      - mssql
+    entrypoint: /bin/bash -c "sleep 20 && /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P 'Sa@123456' -Q 'CREATE DATABASE paymentDB;'"
+    networks:
+      - my-network
+    restart: "no"
+
+  payment-service:
+    image: ctmyname/payment-service:${VERSION}  # Thêm ctmyname/ và :latest
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      mssql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      create-payment-db:
+        condition: service_started
+    environment:
+      - SPRING_APPLICATION_NAME=payment-service
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://mssql:1433;databaseName=paymentDB;encrypt=true;trustServerCertificate=true;
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=Sa@123456
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - TZ=Asia/Ho_Chi_Minh
+    networks:
+      - my-network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  order-service:
+    image: ctmyname/order-service:${VERSION}  # Thêm ctmyname/ và :latest
+    restart: always
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      create-db:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=OrderService;encrypt=false;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: "sa"
+      SPRING_DATASOURCE_PASSWORD: "Sa@123456"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8088
+    ports:
+      - "8083:8083"
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  inventory-service:
+    image: ctmyname/inventory-service:${VERSION}  # Thêm ctmyname/ và :latest
+    container_name: inventory-service
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      - SPRING_APPLICATION_NAME=inventory-service
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - PORT=8085
+      - MONGO_URI=mongodb+srv://FlexShoes:PasswordFlexShoes@cluster0.jxtoglw.mongodb.net/inventoryDB?retryWrites=true&w=majority
+    env_file:
+      - ./inventory-service/.env
+#    volumes:
+#      - ./inventory-service:/app
+    restart: always
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  notification-service:
+    image: ctmyname/notification-service:${VERSION}  # Thêm ctmyname/ và :latest
+    container_name: notification-service
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - .env
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/notification-service?authSource=admin
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/notification/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  api-gateway:
+    image: ctmyname/api-gateway:${VERSION}  # Thêm ctmyname/ và :latest
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      - KEY_BASEURL=http://user-service:8080
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      profile-service:
+        condition: service_started
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  user-service:
+    image: ctmyname/user-service:${VERSION}  # Thêm ctmyname/ và :latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+      profile-service:
+        condition: service_started
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - URL_NOTIFICATION_SERVICE=http://notification-service:8082/notification
+      - URL_USER_SERVICE=http://profile-service:8081/profile
+    ports:
+      - "8080:8080"
+    volumes:
+      - user-service-data:/path/to/data
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: always
+
+  profile-service:
+    image: ctmyname/profile-service:${VERSION}  # Thêm ctmyname/ và :latest
+    build:
+      context: ./profile-service
+      dockerfile: Dockerfile
+    container_name: profile-service
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    environment:
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8088
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/spring_security_jwt?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    ports:
+      - "8081:8081"
+    volumes:
+      - profile-service-data:/path/to/data
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: always
+
+volumes:
+  mongodb-data:
+  mariadb-data:
+  mssql-data:
+  postgres_data:
+  user-service-data:
+  profile-service-data:
+
+networks:
+  my-network:
+    driver: bridge
+
+# docker compose up --build

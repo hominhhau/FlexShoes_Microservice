@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: order-service
+
+# Eureka client
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+
+# Spring Cloud Config
+management:
+  trace:
+    sampling:
+      probability: 1.0

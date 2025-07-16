@@ -1,0 +1,84 @@
+server:
+  port: 8888
+
+app:
+  api-prefix: /api/v1
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+
+management:
+  trace:
+    sampling:
+      probability: 1.0
+
+key:
+  baseUrl: "http://localhost:8080"
+
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: "optional:configserver:http://config-server:8088"
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false  # Tắt vì không dùng lb://
+      routes:
+        - id: notification_service
+          uri: http://notification-service:8082
+          predicates:
+            - Path=${app.api-prefix}/notification/**
+          filters:
+            - StripPrefix=2
+
+        - id: payment_service
+          uri: http://payment-service:8084
+          predicates:
+            - Path=${app.api-prefix}/payment/**
+          filters:
+            - StripPrefix=2
+
+        - id: profile_service
+          uri: http://profile-service:8081
+          predicates:
+            - Path=${app.api-prefix}/profile/**
+          filters:
+            - StripPrefix=2
+
+        - id: inventory_service
+          uri: http://inventory-service:8085
+          predicates:
+            - Path=${app.api-prefix}/inventory/**
+          filters:
+            - StripPrefix=2
+
+        - id: order_service
+          uri: http://order-service:8083
+          predicates:
+            - Path=${app.api-prefix}/invoices/**
+          filters:
+            - StripPrefix=2
+
+        - id: user_service
+          uri: http://user-service:8080
+          predicates:
+            - Path=${app.api-prefix}/users/**
+          filters:
+            - StripPrefix=2
+
+        - id: chat_service
+          uri: http://chat-service:8089
+          predicates:
+            - Path=${app.api-prefix}/chat/**
+          filters:
+            - StripPrefix=2
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

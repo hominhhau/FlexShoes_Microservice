@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: flexshoes-tls
+  namespace: flexshoes
+spec:
+  secretName: flexshoes-tls
+  dnsNames:
+    - flexshoes.io.vn
+    - api.flexshoes.io.vn
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  privateKey:
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment

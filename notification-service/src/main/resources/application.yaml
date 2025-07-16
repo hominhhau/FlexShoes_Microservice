@@ -1,0 +1,25 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /notification
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+management:
+  trace:
+    sampling:
+      probability: 1.0
+sendinblue:
+  api:
+    key: ${SENDINBLUE_API_KEY}
+spring:
+  application:
+    name: notification-service
+  config:
+    import: "optional:configserver:http://config-server:8088"
+  data:
+    mongodb:
+      uri: mongodb://root:root@mongodb:27017/notification-service?authSource=admin
+  datasource:
+    SENDINBLUE_API_KEY

@@ -21,7 +21,16 @@ module.exports = {
       message : {
         type: Sequelize.STRING,
       },
-
+      status: {
+        type: Sequelize.INTEGER, // 0 - chưa xem, 1 - đã xem
+      },
+      type: {
+        type: Sequelize.STRING, // text, image
+        defaultValue: "text",
+      },
+      productId: {
+        type: Sequelize.STRING, // id sản phẩm
+      },
 
       createdAt: {
         allowNull: false,
@@ -39,5 +48,5 @@ module.exports = {
 };
 
 // search : sequelize run specific migration
-// npx sequelize-cli db:migrate --to 20231105121046-create-user.js
+// npx sequelize-cli db:migrate --to chat.js
 // npx sequelize-cli db:migrate --to migrate_addColumnUser.js
